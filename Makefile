@@ -1,56 +1,54 @@
-SRC_DIR := src
-STUBS_DIR := stubs
-TEST_DIR := tests
+MAIN := pac-man.py
+CONFIG := config.json
+CONFIG_EVAL := config_eval.json
 
-SRC :=  $(SRC_DIR)/*.py
-VENV := .venv
+VENV := .synced
+UV_STAMP := .uv_installed
 
-run: install
-	uv run python $(SRC_DIR)/main.py
+run: $(UV_STAMP) $(VENV)
+	uv run python $(MAIN) $(CONFIG)
 
-install: $(VENV)
+eval: $(UV_STAMP) $(VENV)
+	uv run python $(MAIN) $(CONFIG_EVAL)
 
-$(VENV): pyproject.toml uv.lock
+$(UV_STAMP):
 	pipx install uv || pip install uv
-	uv venv --python 3.10
+	touch $(UV_STAMP)
+	
+$(VENV): $(UV_STAMP) pyproject.toml
 	uv sync
+	touch $(VENV)
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
-	rm -rf .mypy_cache
-	rm -rf .ruff_cache
-	rm -rf .pytest_cache
-
-fclean: clean
-	uv cache clean
-	rm -rf $(VENV)
+	rm -rf .mypy_cache .ruff_cache .pytest_cache
+	rm -rf $(UV_STAMP) .venv
+	rm -rf uv.lock
 
 lint: $(VENV)
-	uvx ruff check $(SRC) $(STUBS_DIR)
-	uvx flake8 $(SRC) $(STUBS_DIR)
-	uv run mypy $(SRC) \
-	--warn-return-any \
-	--warn-unused-ignores \
-	--ignore-missing-imports \
-	--disallow-untyped-defs \
-	--check-untyped-defs
+	uv run ruff check
+	uv run flake8
+	uv run mypy . \
+		--warn-return-any \
+		--warn-unused-ignores \
+		--ignore-missing-imports \
+		--disallow-untyped-defs \
+		--check-untyped-defs
 
 lint-strict: $(VENV)
-	uvx ruff check $(SRC) $(STUBS_DIR)
-	uvx flake8 $(SRC) $(STUBS_DIR)
-	uv run mypy $(SRC) --strict
+	uvx ruff check
+	uvx flake8
+	uv run mypy .
 
 test: $(VENV)
 	uv run pytest
 
 format:
-	uvx ruff format $(SRC) $(STUB_DIR) $(TEST_DIR)
+	uvx ruff format
 
 debug: $(VENV)
 	uv run python -m pdb main.py
 
-re: clean install
+re: clean run
 
-fre: fclean install
-
-.PHONY: install run clean lint lint-strict debug re test
+.PHONY: run eval clean format lint lint-strict debug re test 
