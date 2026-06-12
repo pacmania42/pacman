@@ -1,28 +1,26 @@
 [project]
 name = "pacman"
-version = "0.1.0"
-description = "classic pacman"
+version = "0.0.1"
+description = "The classic pacman game implemented in python & arcade"
 readme = "README.md"
 requires-python = ">=3.10"
 
 dependencies = [
     "arcade>=3.3.3",
-    "mazegen",
+    "mazegenerator",
     "pydantic>=2.13.4",
 ]
 
 [tool.uv.sources]
-mlx = { path = "deps/mazegenerator-00001-py3-none-any.whl" }
+mazegenerator= { path = "wheels/mazegenerator-2.0.2-py3-none-any.whl" }
 
 [dependency-groups]
 dev = [
     "flake8>=7.3.0",
     "mypy>=2.1.0",
+    "pytest>=9.0.3",
     "ruff>=0.15.16",
 ]
-
-[tool.pytest.ini_options]
-pythonpath = ["."]
 
 [tool.mypy]
 plugins = ["pydantic.mypy"]
@@ -32,4 +30,3 @@ mypy_path = "stubs"
 line-length = 79
 [tool.ruff.lint]
 select = ["E", "F", "B", "I"]
-

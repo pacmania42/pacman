@@ -1,56 +1,67 @@
-SRC_DIR := src
-STUBS_DIR := stubs
-TEST_DIR := tests
+MAIN := pac-man.py
+CONFIG := config.json
+CONFIG_EVAL := config_eval.json
 
-SRC :=  $(SRC_DIR)/*.py
-VENV := .venv
+# stamp files to track when last synced, check if uv is installed
+SYNC := .synced
+INSTALL := .uv_installed
 
-run: install
-	uv run python $(SRC_DIR)/main.py
+# default rule, run main entry
+run: $(INSTALL) $(SYNC)
+	uv run python $(MAIN) $(CONFIG)
 
-install: $(VENV)
+# for evaluations
+eval: $(INSTALL) $(SYNC)
+	uv run python $(MAIN) $(CONFIG_EVAL)
 
-$(VENV): pyproject.toml uv.lock
+# Makes sure that uv is installed
+$(INSTALL):
 	pipx install uv || pip install uv
-	uv venv --python 3.10
+	touch $(INSTALL)
+	
+# Syncs the environment with pyproject.toml
+$(SYNC): $(INSTALL) pyproject.toml
 	uv sync
+	touch $(SYNC)
 
+# thoroughly cleans the environment
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
-	rm -rf .mypy_cache
-	rm -rf .ruff_cache
-	rm -rf .pytest_cache
+	rm -rf .mypy_cache .ruff_cache .pytest_cache
+	rm -rf $(INSTALL) .venv
+	rm -rf uv.lock
 
-fclean: clean
-	uv cache clean
-	rm -rf $(VENV)
+# basic linting
+lint: $(SYNC)
+	uv run ruff check
+	uv run flake8
+	uv run mypy . \
+		--warn-return-any \
+		--warn-unused-ignores \
+		--ignore-missing-imports \
+		--disallow-untyped-defs \
+		--check-untyped-defs
 
-lint: $(VENV)
-	uvx ruff check $(SRC) $(STUBS_DIR)
-	uvx flake8 $(SRC) $(STUBS_DIR)
-	uv run mypy $(SRC) \
-	--warn-return-any \
-	--warn-unused-ignores \
-	--ignore-missing-imports \
-	--disallow-untyped-defs \
-	--check-untyped-defs
+# strict linting
+lint-strict: $(SYNC)
+	uvx ruff check
+	uvx flake8
+	uv run mypy . --strict
 
-lint-strict: $(VENV)
-	uvx ruff check $(SRC) $(STUBS_DIR)
-	uvx flake8 $(SRC) $(STUBS_DIR)
-	uv run mypy $(SRC) --strict
-
-test: $(VENV)
+# runs the test suite in ./tests
+test: $(SYNC)
 	uv run pytest
 
+# format every source file
 format:
-	uvx ruff format $(SRC) $(STUB_DIR) $(TEST_DIR)
+	uvx ruff format
 
-debug: $(VENV)
+# spawns pdb for debugging
+debug: $(SYNC)
 	uv run python -m pdb main.py
 
-re: clean install
+# cleans the env and runs the default entry
+re: clean run
 
-fre: fclean install
-
-.PHONY: install run clean lint lint-strict debug re test
+# not files; don't check timestamp;
+.PHONY: run eval clean format lint lint-strict debug re test 
