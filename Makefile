@@ -2,30 +2,37 @@ MAIN := pac-man.py
 CONFIG := config.json
 CONFIG_EVAL := config_eval.json
 
-VENV := .synced
-UV_STAMP := .uv_installed
+# stamp files to track when last synced, check if uv is installed
+SYNC := .synced
+INSTALL := .uv_installed
 
-run: $(UV_STAMP) $(VENV)
+# default rule, run main entry
+run: $(INSTALL) $(SYNC)
 	uv run python $(MAIN) $(CONFIG)
 
-eval: $(UV_STAMP) $(VENV)
+# for evaluations
+eval: $(INSTALL) $(SYNC)
 	uv run python $(MAIN) $(CONFIG_EVAL)
 
-$(UV_STAMP):
+# Makes sure that uv is installed
+$(INSTALL):
 	pipx install uv || pip install uv
-	touch $(UV_STAMP)
+	touch $(INSTALL)
 	
-$(VENV): $(UV_STAMP) pyproject.toml
+# Syncs the environment with pyproject.toml
+$(SYNC): $(INSTALL) pyproject.toml
 	uv sync
-	touch $(VENV)
+	touch $(SYNC)
 
+# thoroughly cleans the environment
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	rm -rf .mypy_cache .ruff_cache .pytest_cache
-	rm -rf $(UV_STAMP) .venv
+	rm -rf $(INSTALL) .venv
 	rm -rf uv.lock
 
-lint: $(VENV)
+# basic linting
+lint: $(SYNC)
 	uv run ruff check
 	uv run flake8
 	uv run mypy . \
@@ -35,20 +42,26 @@ lint: $(VENV)
 		--disallow-untyped-defs \
 		--check-untyped-defs
 
-lint-strict: $(VENV)
+# strict linting
+lint-strict: $(SYNC)
 	uvx ruff check
 	uvx flake8
-	uv run mypy .
+	uv run mypy . --strict
 
-test: $(VENV)
+# runs the test suite in ./tests
+test: $(SYNC)
 	uv run pytest
 
+# format every source file
 format:
 	uvx ruff format
 
-debug: $(VENV)
+# spawns pdb for debugging
+debug: $(SYNC)
 	uv run python -m pdb main.py
 
+# cleans the env and runs the default entry
 re: clean run
 
+# not files; don't check timestamp;
 .PHONY: run eval clean format lint lint-strict debug re test 
