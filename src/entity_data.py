@@ -13,11 +13,19 @@ class PlayerData(BaseModel):
     lives: int = Field(gt=0, default=3)
 
 
+class Pacgum(BaseModel):
+
+    points: int = Field(default=0)
+
+    is_super: bool = Field(default=False)
+
+    # sprite path for normal and super!
+
+
 class GhostData(BaseModel):
 
     vunerable: bool = Field(default=False)
 
+    points: int = Field(default=0)
 
-class PelletData(BaseModel):
-
-    power: bool = Field(default=False)
+    # sprite path!
