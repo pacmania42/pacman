@@ -5,6 +5,9 @@ build/
 dist/
 wheels/
 *.egg-info
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
 
 # Virtual environments
 .venv
@@ -13,6 +16,7 @@ wheels/
 .python_version
 
 # makefile stamp files
-.uv_installed
 .synced
+
+# misc
 resources
