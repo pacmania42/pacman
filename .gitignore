@@ -15,3 +15,4 @@ wheels/
 # makefile stamp files
 .uv_installed
 .synced
+resources
