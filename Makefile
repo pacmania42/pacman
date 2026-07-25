@@ -68,7 +68,7 @@ format:
 
 # spawns pdb for debugging
 debug: $(SYNC)
-	uv run python -n pdb $(MAIN) $(CONFIG)
+	uv run python -m pdb $(MAIN) $(CONFIG)
 
 
 # runs the game after thoroughly cleaning
