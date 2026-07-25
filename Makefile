@@ -2,66 +2,78 @@ MAIN := pac-man.py
 CONFIG := config.json
 CONFIG_EVAL := config_eval.json
 
+MYPY_OPTIONS := --warn-return-any \
+	--warn-unused-ignores \
+	--ignore-missing-imports \
+	--disallow-untyped-defs \
+	--check-untyped-defs
+
+SRC := pac-man.py \
+	src/main.py
+
 # stamp files to track when last synced, check if uv is installed
 SYNC := .synced
-INSTALL := .uv_installed
 
-# default rule, run main entry
-run: $(INSTALL) $(SYNC)
+
+# default rule, runs game with the provided config
+run: install
 	uv run python $(MAIN) $(CONFIG)
 
+
 # for evaluations
-eval: $(INSTALL) $(SYNC)
+eval: $(SYNC)
 	uv run python $(MAIN) $(CONFIG_EVAL)
 
-# Makes sure that uv is installed
-$(INSTALL):
-	pipx install uv || pip install uv
-	touch $(INSTALL)
+
+# calls sync for syncing
+install: $(SYNC)
+
+
+# Makes sure that uv is installed and syncs the env
+$(SYNC): pyproject.toml
+	uv sync || pip install uv && uv sync
+	@touch $(SYNC)
 	
-# Syncs the environment with pyproject.toml
-$(SYNC): $(INSTALL) pyproject.toml
-	uv sync
-	touch $(SYNC)
 
 # thoroughly cleans the environment
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	rm -rf .mypy_cache .ruff_cache .pytest_cache
-	rm -rf $(INSTALL) .venv
-	rm -rf uv.lock
+	rm -rf $(SYNC) .venv
+
 
 # basic linting
 lint: $(SYNC)
-	uv run ruff check
-	uv run flake8
-	uv run mypy . \
-		--warn-return-any \
-		--warn-unused-ignores \
-		--ignore-missing-imports \
-		--disallow-untyped-defs \
-		--check-untyped-defs
+	ruff check $(SRC)
+	uv run flake8 $(SRC)
+	uv run mypy $(SRC) $(MYPY_OPTIONS)
+
 
 # strict linting
 lint-strict: $(SYNC)
-	uvx ruff check
-	uvx flake8
-	uv run mypy . --strict
+	ruff check $(SRC)
+	uv run flake8 $(SRC)
+	uv run mypy --strict $(SRC)
+
 
 # runs the test suite in ./tests
 test: $(SYNC)
 	uv run pytest
 
+
 # format every source file
 format:
-	uvx ruff format
+	ruff format $(SRC)
+
 
 # spawns pdb for debugging
 debug: $(SYNC)
-	uv run python -m pdb main.py
+	uv run python -n pdb $(MAIN) $(CONFIG)
 
-# cleans the env and runs the default entry
+
+# runs the game after thoroughly cleaning
 re: clean run
+
 
 # not files; don't check timestamp;
 .PHONY: run eval clean format lint lint-strict debug re test 
