@@ -7,12 +7,12 @@ requires-python = ">=3.10"
 
 dependencies = [
     "arcade>=3.3.3",
-    "mazegenerator",
+    # "mazegenerator",
     "pydantic>=2.13.4",
 ]
 
 [tool.uv.sources]
-mazegenerator= { path = "wheels/mazegenerator-2.1.0-py3-none-any.whl" }
+# mazegenerator= { path = "wheels/mazegenerator-2.1.0-py3-none-any.whl" }
 
 [dependency-groups]
 dev = [
