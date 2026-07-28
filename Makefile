@@ -31,6 +31,7 @@ install: $(SYNC)
 
 # Makes sure that uv is installed and syncs the env
 $(SYNC): pyproject.toml
+	git config core.hooksPath .githooks
 	uv sync || pip install uv && uv sync
 	@touch $(SYNC)
 	
