@@ -28,6 +28,11 @@ jobs:
           enable-cache: true
           python-version: "3.13"
 
+      - name: Install ruff
+        uses: |
+          python -m pip install --upgrade pip
+          pip install ruff
+
       - name: Run lint (ruff + flake8 + mypy)
         run: make lint-strict
 
