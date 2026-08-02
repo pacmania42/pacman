@@ -3,7 +3,6 @@ __pycache__/
 *.py[oc]
 build/
 dist/
-wheels/
 *.egg-info
 .mypy_cache/
 .ruff_cache/
@@ -44,7 +43,6 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
