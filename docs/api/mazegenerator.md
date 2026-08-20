@@ -71,7 +71,7 @@ FILE
 ### Usage
 
 ```python
->>> from mazegenerator.mazegenerator import MazeGenerator
+>>> from mazegenerator import MazeGenerator
 >>> gen = MazeGenerator()
 >>> [member for member in dir(gen) if not member.startswith("_")]
 ['generate', 'maze', 'maze_entry', 'maze_exit', 'shortest_path']
