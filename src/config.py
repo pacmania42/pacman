@@ -1,11 +1,33 @@
 import json
+from typing import Any
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import (
+    BaseModel,
+    Field,
+    ValidationError,
+    ValidationInfo,
+    field_validator,
+)
 
 
 class LevelConfig(BaseModel):
     width: int = Field(ge=6, le=20, default=10)
     height: int = Field(ge=6, le=20, default=10)
+
+    @field_validator("width", "height", mode="before")
+    @classmethod
+    def clamp_fields(cls, v: int, info: ValidationInfo) -> int:
+        if not info.field_name:
+            return 10
+        default: int = cls.model_fields[info.field_name].default
+        try:
+            v = int(v)
+            if v < 6 or v > 20:
+                v = default
+            return v
+        except (TypeError, ValueError):
+            print(f"Invalid {info.field_name}={v}, using {default}")
+            return default
 
 
 class Config(BaseModel):
@@ -16,7 +38,9 @@ class Config(BaseModel):
     points_per_ghost: int = Field(ge=0, default=200)
     seed: int = Field(default=42)
     level_max_time: int = Field(gt=0, default=90)
-    levels: list[LevelConfig] = Field(min_length=1)
+    levels: list[LevelConfig] = Field(
+        min_length=1, default_factory=lambda: [LevelConfig()]
+    )
 
 
 class ParserError(Exception):
@@ -44,11 +68,15 @@ class Parser:
         content = self.strip_comment_lines(lines)
 
         try:
-            data = json.loads(content)
-            return Config(**data)
-        except json.JSONDecodeError as e:
-            raise ParserError(f"Malformed config file: {e}") from e
-        except ValidationError as e:
-            raise ParserError(
-                f"Validation Error: {e}"
-            ) from e  # TODO: clamp to defs
+            data: dict[str, Any] = json.loads(content)
+        except json.JSONDecodeError as err:
+            raise ParserError(f"Malformed config file: {err}") from err
+        else:
+            while True:
+                try:
+                    return Config(**data)
+                except ValidationError as err:
+                    for e in err.errors():
+                        key: str = str(e["loc"][0])
+                        print(f"Invalid {key}, using default value.")
+                        data.pop(key)
