@@ -1,4 +1,5 @@
 import json
+from argparse import ArgumentParser, Namespace
 from typing import Any
 
 from pydantic import (
@@ -48,6 +49,15 @@ class ParserError(Exception):
 
 
 class Parser:
+    def parse_cmd_args(self) -> Namespace:
+        parser = ArgumentParser(
+            prog="uv run python pac-man.py",
+            description="Pacman clone.",
+        )
+
+        parser.add_argument("config")
+        return parser.parse_args()
+
     def read_config_file(self, filename: str) -> list[str]:
         try:
             with open(filename) as file:
@@ -64,7 +74,8 @@ class Parser:
         return "".join(res)
 
     def get_config(self) -> Config:
-        lines = self.read_config_file("config.json")
+        filename = self.parse_cmd_args().config
+        lines = self.read_config_file(filename)
         content = self.strip_comment_lines(lines)
 
         try:
