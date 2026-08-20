@@ -11,7 +11,8 @@ MYPY_OPTIONS := --warn-return-any \
 SRC := pac-man.py \
 	src/main.py \
 	src/config.py \
-	src/entity_data.py
+	src/entity_data.py \
+	tests/test_config.py
 
 # stamp files to track when last synced, check if uv is installed
 SYNC := .synced
