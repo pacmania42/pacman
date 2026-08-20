@@ -11,6 +11,17 @@ from pytest import MonkeyPatch
 from src.config import Config, LevelConfig, Parser, ParserError
 
 
+@pytest.fixture(autouse=True)
+def patch_parse_cmd_args(monkeypatch: MonkeyPatch) -> None:
+    from argparse import Namespace
+
+    monkeypatch.setattr(
+        Parser,
+        "parse_cmd_args",
+        lambda self: Namespace(config="dummy.json"),
+    )
+
+
 def build_valid_config_dict(
     overrides: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
