@@ -1,7 +1,7 @@
 from mazegenerator import MazeGenerator
 
 
-class AdapterError:
+class AdapterError(Exception):
     pass
 
 
@@ -35,16 +35,22 @@ class Adapter:
         self.width = width
         self.seed = seed
         self.maze: list[list[Cell]] = []
-        self.gen = MazeGenerator(
-            size=(self.width, self.height),
-            perfect=False,
-            seed=seed,
-        )
-        self._convert_cells()
+        try:
+            self.gen = MazeGenerator(
+                size=(self.width, self.height),
+                perfect=False,
+                seed=seed,
+            )
+            self._convert_cells()
+        except Exception as e:
+            raise AdapterError(e) from e
 
     def generate(self) -> None:
-        self.gen.generate(self.seed)
-        self._convert_cells()
+        try:
+            self.gen.generate(self.seed)
+            self._convert_cells()
+        except Exception as e:
+            raise AdapterError(e) from e
 
     def _convert_cells(self) -> None:
         if not self.gen.maze:
