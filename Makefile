@@ -9,7 +9,9 @@ MYPY_OPTIONS := --warn-return-any \
 	--check-untyped-defs
 
 SRC := pac-man.py \
-	src/main.py
+	src/main.py \
+	src/config.py \
+	src/entity_data.py
 
 # stamp files to track when last synced, check if uv is installed
 SYNC := .synced
@@ -64,7 +66,7 @@ test: $(SYNC)
 
 # format every source file
 format:
-	ruff format $(SRC)
+	ruff check --fix $(SRC)
 
 
 # spawns pdb for debugging
