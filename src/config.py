@@ -1,52 +1,54 @@
 import json
-from pydantic import BaseModel, Field
+
+from pydantic import BaseModel, Field, ValidationError
+
+
+class LevelConfig(BaseModel):
+    width: int = Field(ge=6, le=20, default=10)
+    height: int = Field(ge=6, le=20, default=10)
 
 
 class Config(BaseModel):
-
-    highscore_filename: str = Field(default="")
-
-    width: int = Field(gt=5, default=20)
-    hight: int = Field(gt=5, default=20)
-
-    lives: int = Field(ge=0, default=3)
-
-    pacgum_points: int = Field(default=10)
-    s_pacgum_points: int = Field(default=50)
-    ghost_points: int = Field(default=200)
-
-    level_max_time: int = Field(default=90)
-
+    highscore_filename: str = Field(default="highscore.json")
+    lives: int = Field(ge=1, default=3)
+    pacgum: int = Field(ge=0, default=42)
+    points_per_pacgum: int = Field(ge=0, default=50)
+    points_per_ghost: int = Field(ge=0, default=200)
     seed: int = Field(default=42)
+    level_max_time: int = Field(gt=0, default=90)
+    levels: list[LevelConfig] = Field(min_length=1)
 
-    def load(self, file_path: str):
+
+class ParserError(Exception):
+    pass
+
+
+class Parser:
+    def read_config_file(self, filename: str) -> list[str]:
+        try:
+            with open(filename) as file:
+                return file.readlines()
+        except OSError as e:
+            raise ParserError(e) from e
+
+    def strip_comment_lines(self, lines: list[str]) -> str:
+        res = []
+        for line in lines:
+            if line.lstrip().startswith("#"):
+                continue
+            res.append(line)
+        return "".join(res)
+
+    def get_config(self) -> Config:
+        lines = self.read_config_file("config.json")
+        content = self.strip_comment_lines(lines)
 
         try:
-            with open(file_path, "r") as file:
-                data = json.load(file)
-
-                self.highscore_filename = data["highscore_filename"]
-
-                self.width = data["width"]
-                self.hight = data["hight"]
-
-                self.lives = data["lives"]
-
-                self.level_max_time = data["level_max_time"]
-                self.seed = data["seed"]
-
-                self.pacgum_points = data["scoring"]["points_per_pacgum"]
-                self.s_pacgum_points = data[
-                    "scoting"][
-                        "points_per_super_pacgum"
-                            ]
-                self.ghost_points = data["scoring"]["points_per_ghost"]
-
-        except Exception as e:
-            print(e)
-
-
-config = Config()
-
-config.load("config.json")
-print(config)
+            data = json.loads(content)
+            return Config(**data)
+        except json.JSONDecodeError as e:
+            raise ParserError(f"Malformed config file: {e}") from e
+        except ValidationError as e:
+            raise ParserError(
+                f"Validation Error: {e}"
+            ) from e  # TODO: clamp to defs
