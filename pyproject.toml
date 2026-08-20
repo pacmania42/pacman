@@ -26,7 +26,7 @@ dev = [
 plugins = ["pydantic.mypy"]
 mypy_path = "stubs"
 [[tool.mypy.overrides]]
-module = ["mazegenerator", "mlx"]
+module = ["mazegenerator"]
 ignore_missing_imports = true
 
 [tool.ruff]
