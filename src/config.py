@@ -1,5 +1,6 @@
 import json
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
 from typing import Any
 
 from pydantic import (
@@ -48,7 +49,7 @@ class ParserError(Exception):
     pass
 
 
-class Parser:
+class ConfigLoader:
     def parse_cmd_args(self) -> Namespace:
         parser = ArgumentParser(
             prog="uv run python pac-man.py",
@@ -58,14 +59,14 @@ class Parser:
         parser.add_argument("config")
         return parser.parse_args()
 
-    def read_config_file(self, filename: str) -> list[str]:
+    def read_config_file(self, filename: Path) -> list[str]:
         try:
             with open(filename) as file:
                 return file.readlines()
         except OSError as e:
             raise ParserError(e) from e
 
-    def strip_comment_lines(self, lines: list[str]) -> str:
+    def strip_comments(self, lines: list[str]) -> str:
         res = []
         for line in lines:
             if line.lstrip().startswith("#"):
@@ -73,10 +74,10 @@ class Parser:
             res.append(line)
         return "".join(res)
 
-    def get_config(self) -> Config:
-        filename = self.parse_cmd_args().config
+    def load(self, filename: Path) -> Config:
+        # filename = self.parse_cmd_args().config
         lines = self.read_config_file(filename)
-        content = self.strip_comment_lines(lines)
+        content = self.strip_comments(lines)
 
         try:
             data: dict[str, Any] = json.loads(content)

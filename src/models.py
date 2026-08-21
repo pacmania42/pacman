@@ -1,6 +1,6 @@
 from random import randint
 
-from src.adapter import Adapter
+from src.adapter import MazeAdapter
 
 
 class Level:
@@ -8,7 +8,7 @@ class Level:
     width: int
     height: int
     seed: int
-    generator: Adapter
+    generator: MazeAdapter
 
     def __init__(self, rank: int, width: int, height: int):
         self.rank = rank
@@ -16,4 +16,4 @@ class Level:
         self.height = height
         self.seed = randint(-1000, 1000) if rank > 0 else 42
 
-        self.generator = Adapter(self.width, self.height, self.seed)
+        self.generator = MazeAdapter(self.width, self.height, self.seed)

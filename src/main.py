@@ -1,12 +1,16 @@
-from src.adapter import AdapterError
-from src.config import Parser, ParserError
+from argparse import ArgumentParser, Namespace
+from pathlib import Path
+
+from src.adapter import MazeAdapterError
+from src.config import ConfigLoader, ParserError
 from src.models import Level
 from src.window import Window
 
 
 def main() -> None:
+    args = parse_cmd_args()
     try:
-        config = Parser().get_config()
+        config = ConfigLoader().load(Path(args.config))
     except ParserError as e:
         print(e)
         return
@@ -20,12 +24,21 @@ def main() -> None:
                     height=lvl.height,
                 )
             )
-        except AdapterError as e:
+        except MazeAdapterError as e:
             print(e)
             return
 
-        lv = levels[-1]
-        print(lv.rank, lv.width, lv.height, lv.seed, lv.generator)
+        _ = levels[-1]
 
     win = Window()
     win.run()
+
+
+def parse_cmd_args() -> Namespace:
+    parser = ArgumentParser(
+        prog="uv run python pac-man.py",
+        description="Pacman clone.",
+    )
+
+    parser.add_argument("config")
+    return parser.parse_args()
