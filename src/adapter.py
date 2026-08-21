@@ -1,3 +1,5 @@
+from random import randint
+
 from mazegenerator import MazeGenerator
 
 
@@ -36,6 +38,58 @@ class Maze:
         self.grid = grid
         self.width = len(grid[0])
         self.height = len(grid)
+
+        self._set_pacgum_positions()
+        self._set_super_pacgum_positions()
+        self._set_ghost_corners()
+        self._set_player_start()
+
+    @staticmethod
+    def count_open_walls(cell: Cell) -> int:
+        count = 0
+        for wall in cell.n, cell.e, cell.s, cell.w:
+            if wall:
+                count += 1
+        return count
+
+    # TODO: improve this to not assign near center
+    def _set_pacgum_positions(self) -> None:
+        positions: list[tuple[int, int]] = []
+
+        for row in self.grid:
+            for cell in row:
+                if Maze.count_open_walls(cell) >= 2:
+                    positions.append((cell.col, cell.row))
+        self.pacgum_positions = positions
+
+    # TODO: improve this to check if cell not closed,used,close to center
+    def _set_super_pacgum_positions(self) -> None:
+        positions: list[tuple[int, int]] = []
+
+        for _ in range(4):
+            col = randint(0, self.width - 1)
+            row = randint(0, self.height - 1)
+
+            positions.append((col, row))
+        self.super_pacgum_positions = positions
+
+    # TODO: improve this to set positions in the center region
+    def _set_ghost_corners(self) -> None:
+        positions: list[tuple[int, int]] = []
+
+        for _ in range(4):
+            col = randint(0, self.width - 1)
+            row = randint(0, self.height - 1)
+
+            positions.append((col, row))
+        self.ghost_corners = positions
+
+    # TODO: improve this to set positions in the center region
+    def _set_player_start(self) -> None:
+        col = randint(0, self.width - 1)
+        row = randint(0, self.height - 1)
+
+        self.player_start = row, col
 
 
 class MazeAdapter:
