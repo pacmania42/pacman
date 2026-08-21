@@ -1,7 +1,7 @@
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from src.adapter import AdapterError
+from src.adapter import MazeAdapterError
 from src.config import ConfigLoader, ParserError
 from src.models import Level
 from src.window import Window
@@ -24,7 +24,7 @@ def main() -> None:
                     height=lvl.height,
                 )
             )
-        except AdapterError as e:
+        except MazeAdapterError as e:
             print(e)
             return
 

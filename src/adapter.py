@@ -1,7 +1,7 @@
 from mazegenerator import MazeGenerator
 
 
-class AdapterError(Exception):
+class MazeAdapterError(Exception):
     pass
 
 
@@ -23,41 +23,52 @@ class Cell:
         self.w = bool(val & 0b1000)
 
 
-class Adapter:
+class Maze:
     width: int
     height: int
+    grid: list[list[Cell]]
+    pacgum_positions: list[tuple[int, int]]
+    super_pacgum_positions: list[tuple[int, int]]
+    ghost_corners: list[tuple[int, int]]
+    player_start: tuple[int, int]
+
+    def __init__(self, grid: list[list[Cell]]):
+        self.grid = grid
+        self.width = len(grid[0])
+        self.height = len(grid)
+
+
+class MazeAdapter:
     seed: int
     gen: MazeGenerator
-    maze: list[list[Cell]]
 
     def __init__(self, width: int, height: int, seed: int):
         self.height = height
         self.width = width
         self.seed = seed
-        self.maze: list[list[Cell]] = []
         try:
             self.gen = MazeGenerator(
                 size=(self.width, self.height),
                 perfect=False,
                 seed=seed,
             )
-            self._convert_cells()
         except Exception as e:
-            raise AdapterError(e) from e
+            raise MazeAdapterError(e) from e
 
-    def generate(self) -> None:
+    def generate(self) -> Maze:
         try:
             self.gen.generate(self.seed)
-            self._convert_cells()
-        except Exception as e:
-            raise AdapterError(e) from e
+            grid = MazeAdapter._convert_cells(self.gen.maze)
+        except MazeAdapterError as e:
+            raise MazeAdapterError(e) from e
+        return Maze(grid=grid)
 
-    def _convert_cells(self) -> None:
-        if not self.gen.maze:
-            return
-        self.maze = []
-        for row in range(self.height):
+    @staticmethod
+    def _convert_cells(raw_maze: list[list[int]]) -> list[list[Cell]]:
+        grid = []
+        for row in range(len(raw_maze)):
             row_cells: list[Cell] = []
-            for col in range(self.width):
-                row_cells.append(Cell(col, row, self.gen.maze[row][col]))
-            self.maze.append(row_cells)
+            for col in range(len(raw_maze[row])):
+                row_cells.append(Cell(col, row, raw_maze[row][col]))
+            grid.append(row_cells)
+        return grid
