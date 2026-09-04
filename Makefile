@@ -1,5 +1,6 @@
 SRC = ./pac-man.py \
-	./src/main.py
+	./src/main.py \
+	./src/__init__.py
 
 SYNC := .synced
 RUFF_PREFIX := $( [[ -e /etc/NIXOS ]] || echo "uv run ")
