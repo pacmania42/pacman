@@ -29,3 +29,7 @@ select = ["E", "F", "B", "I"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[[tool.mypy.overrides]]
+module = ["mlx"]
+ignore_missing_imports = true
