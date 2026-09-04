@@ -3,7 +3,7 @@ SRC = ./pac-man.py \
 	./src/__init__.py
 
 SYNC := .synced
-RUFF_PREFIX := $( [[ -e /etc/NIXOS ]] || echo "uv run ")
+RUFF_PREFIX := $(shell [[ -e /etc/NIXOS ]] && echo "" || echo "uv run ")
 
 run: install
 	uv run python3 pac-man.py config.json
