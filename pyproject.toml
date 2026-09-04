@@ -5,8 +5,19 @@ description = "PacMan clone project."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "mazegenerator",
     "mlx",
+    "pydantic>=2.13.5",
 ]
 
 [tool.uv.sources]
-mlx = { path = "mlx-2.4-py3-none-any.whl" }
+mazegenerator = { path = "wheels/mazegenerator-2.1.0-py3-none-any.whl" }
+mlx = { path = "wheels/mlx-2.4-py3-none-any.whl" }
+
+[dependency-groups]
+dev = [
+    "flake8>=7.3.0",
+    "mypy>=2.3.1",
+    "pytest>=9.1.1",
+    "ruff>=0.16.6",
+]
