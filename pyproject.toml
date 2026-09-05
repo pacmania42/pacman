@@ -31,5 +31,5 @@ select = ["E", "F", "B", "I"]
 pythonpath = ["."]
 
 [[tool.mypy.overrides]]
-module = ["mlx"]
+module = ["mlx", "mazegenerator"]
 ignore_missing_imports = true
