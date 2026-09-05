@@ -3,10 +3,10 @@ from typing import Any, Dict, List, Optional
 
 # tmp Context for test this should be in Game file
 class Context:
-    def __init__(self, mlx_instance, mlx_ptr, mlx_win) -> None:
+    def __init__(self, mlx_instance, mlx_ptr, win_ptr) -> None:
         self.m = mlx_instance
         self.mlx_ptr: Any = mlx_ptr
-        self.mlx_win = mlx_win
+        self.win_ptr = win_ptr
 
 
 
@@ -85,14 +85,58 @@ class InstructionsScene(Scene):
         pass
 
 
+# menu ##########################################################
+class Menu:
+
+    def __init__(self) -> None:
+        self.items: list[str] = ["Start", "Highscore", "Exit"]
+        self.current: int = 0
+
+    def _move(self, n: int) -> None:
+        self.current = (n + self.current) % len(self.items)
+
+    def move_down(self) -> None:
+        self._move(1)
+
+    def move_up(self) -> None:
+        self._move(-1)
+
+    def get_items(self) -> list[str]:
+        return self.items
+
+    def get_item(self):
+        return self.items[self.current]
+
 class MenuScene(Scene):
+
+    def __init__(self, manager) -> None:
+        super().__init__(manager)
+
+        self.menu = Menu()
+
     def update(self, inputs: Dict[str, bool]) -> None:
-        pass
+        if inputs["DOWN"]:  
+            self.menu.move_down()
+        elif inputs["UP"]:  
+            self.menu.move_up()
+        elif inputs["ENTER"]: #select
+            action = self.menu.get_item()
+            if(action == "Exit"):
+                close_window()
 
     def draw(self, context: Context) -> None:
-        #self.m, self.mlx_ptr, self.mlx_win
-        pass
+        COLOR_WHITE = 0xFFFFFF
+        COLOR_BLUE = 0xFFFF00
+        COLOR_RED = 0x0000FF
 
+        context.m.mlx_clear_window(context.mlx_ptr, context.win_ptr)
+        for i, item in enumerate(self.menu.get_items()):
+            color = COLOR_RED if self.menu.current == i else COLOR_WHITE
+            context.m.mlx_string_put(context.mlx_ptr, context.win_ptr, 100, 300 + i*20, color, item)
+
+        context.m.mlx_string_put(context.mlx_ptr, context.win_ptr, 50, 50, COLOR_WHITE, "Main Menu")
+        context.m.mlx_string_put(context.mlx_ptr, context.win_ptr, 50, 100, COLOR_WHITE, "Press ESC to Exit")
+# end menu ######################################################
 
 class SceneStackManager:
     """Manages scenes using a Stack (Last-In, First-Out)"""
@@ -182,14 +226,15 @@ class Game:
         self.context = context
 
         self.inputs: Dict[str, bool] = {
-            "W": False,
-            "A": False,
-            "S": False,
-            "D": False,
+            "UP": False,
+            "LEFT": False,
+            "RIGHT": False,
+            "DOWN": False,
             "SPACE": False,
             "ENTER": False,
             "ESCAPE": False,
             "P": False,
+            "char": '',
         }
 
         self.manager = SceneStackManager()
@@ -200,14 +245,19 @@ class Game:
         self.manager.register("Instructions", InstructionsScene(self.manager))
         self.manager.register("Menu", MenuScene(self.manager))
 
-        self.manager.push("Gameplay")
+        self.manager.push("Menu")
 
     def updateKeypress(self, key, b):
         print(key)
         print(b)
         if key == 112:
             self.inputs["P"] = not self.inputs["P"]
-        pass
+        if key == 115 or key == 65364:  
+            self.inputs["DOWN"] = True
+        elif key == 119 or key == 65362: 
+            self.inputs["UP"] = True
+        elif key == 65293: #select
+            self.inputs["ENTER"] = True
 
     def gameloopUpdate(self, param) -> None:
         self.manager.update(self.inputs)
