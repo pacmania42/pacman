@@ -30,6 +30,15 @@ select = ["E", "F", "B", "I"]
 [tool.pytest.ini_options]
 pythonpath = ["."]
 
+[tool.mypy]
+exclude = [
+    ".venv",
+    "__pycache__",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+]
+
 [[tool.mypy.overrides]]
-module = ["mlx"]
+module = ["mlx", "mazegenerator"]
 ignore_missing_imports = true

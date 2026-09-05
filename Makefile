@@ -1,9 +1,5 @@
-SRC = ./pac-man.py \
-	./src/main.py \
-	./src/__init__.py
-
 SYNC := .synced
-RUFF_PREFIX := $(shell [[ -e /etc/NIXOS ]] && echo "" || echo "uv run ")
+RUFF_PREFIX := $(shell [ -e /etc/NIXOS ] && echo "" || echo "uv run ")
 
 run: install
 	uv run python3 pac-man.py config.json
@@ -28,9 +24,9 @@ clean-all: clean
 	rm -rf .venv
 
 lint: $(SYNC)
-	$(RUFF_PREFIX) ruff check $(SRC)
-	uv run flake8 $(SRC)
-	uv run mypy $(SRC) --strict
+	$(RUFF_PREFIX) ruff check .
+	uv run flake8 .
+	uv run mypy --strict .
 
 debug: install
 	uv run python3 -m pdb pac-man.py config.json
@@ -39,7 +35,8 @@ test: $(SYNC)
 	uv run pytest
 
 format:
-	$(RUFF_PREFIX) ruff check --fix $(SRC)
+	$(RUFF_PREFIX) ruff format .
+	$(RUFF_PREFIX) ruff check --fix .
 
 build:
 	uv build
