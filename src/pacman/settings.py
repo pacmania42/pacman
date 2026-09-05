@@ -2,6 +2,8 @@ class Settings:
     def __init__(self) -> None:
         #
         self.tick = 1 / 60
+        self.win_width = 1200
+        self.win_height = 800
         self.window_title: str = "Pac-Man"
 
         # spacings
@@ -13,9 +15,6 @@ class Settings:
 
         # colors
         self.off_color = 0x000000
-        self.pattern_color = 0x800080
-        self.entry_color = 0xFF0000
-        self.exit_color = 0x00FF00
         self.text_color = 0x00FF00
         self.colors = (
             (0x1E51A4, 0xFFFF00),
