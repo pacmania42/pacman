@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, List, Optional
 from src.pacman.input import Action, InputState
 from src.pacman.scene import Scene
 from src.pacman.scene_id import SceneId
+from src.pacman.scenes.instructions import InstructionsScene
 from src.pacman.scenes.menu import MenuScene
 from src.pacman.transitions import Pop, Push, Quit, Replace, Transition
 from src.pacman.window import Window
@@ -45,16 +46,6 @@ class HighScoreScene(Scene):
 
     def draw(self, window: Window) -> None:
         window.write(50, 50, 0xFFFFFF, "High Scores")
-
-
-class InstructionsScene(Scene):
-    def update(self, inputs: InputState) -> Transition:
-        if inputs.was_pressed(Action.BACK):
-            return Pop()
-        return None
-
-    def draw(self, window: Window) -> None:
-        window.write(50, 50, 0xFFFFFF, "Instructions Scene")
 
 
 class SceneStack:
