@@ -1,5 +1,6 @@
 from typing import Any, Callable, Dict, List, Optional
 
+from src.pacman.input import Action, InputState
 from src.pacman.scene import Scene
 from src.pacman.scene_id import SceneId
 from src.pacman.transitions import Pop, Push, Quit, Replace, Transition
@@ -11,15 +12,13 @@ class GameplayScene(Scene):
         super().__init__()
         self.current_level = 1
 
-    def update(self, inputs: Dict[str, bool]) -> Transition:
-        print(f"Level: {self.current_level}")
-
-        if inputs["P"]:
+    def update(self, inputs: InputState) -> Transition:
+        if inputs.was_pressed(Action.PAUSE):
             return Push(SceneId.PAUSE)
         return None
 
     def draw(self, window: Window) -> None:
-        pass
+        window.write(50, 50, 0xFFFFFF, f"Level: {self.current_level}")
 
     def on_resume(self, result: Optional[Any] = None) -> None:
         print("Resume gameplay")
@@ -28,29 +27,29 @@ class GameplayScene(Scene):
 class PauseScene(Scene):
     is_overlay = True
 
-    def update(self, inputs: Dict[str, bool]) -> Transition:
-        print("Game Paused")
-
-        if inputs["P"]:
+    def update(self, inputs: InputState) -> Transition:
+        if inputs.any_pressed(Action.PAUSE, Action.BACK):
             return Pop()
         return None
 
     def draw(self, window: Window) -> None:
-        pass
+        window.write(400, 400, 0xFFFF00, "PAUSED")
 
 
 class HighScoreScene(Scene):
-    def update(self, inputs: Dict[str, bool]) -> Transition:
-        if inputs["ENTER"]:
+    def update(self, inputs: InputState) -> Transition:
+        if inputs.any_pressed(Action.CONFIRM, Action.BACK):
             return Pop()
         return None
 
     def draw(self, window: Window) -> None:
-        pass
+        window.write(50, 50, 0xFFFFFF, "High Scores")
 
 
 class InstructionsScene(Scene):
-    def update(self, inputs: Dict[str, bool]) -> Transition:
+    def update(self, inputs: InputState) -> Transition:
+        if inputs.was_pressed(Action.BACK):
+            return Pop()
         return None
 
     def draw(self, window: Window) -> None:
@@ -58,7 +57,7 @@ class InstructionsScene(Scene):
 
 
 class MenuScene(Scene):
-    def update(self, inputs: Dict[str, bool]) -> Transition:
+    def update(self, inputs: InputState) -> Transition:
         return None
 
     def draw(self, window: Window) -> None:
@@ -142,7 +141,7 @@ class SceneStack:
         elif isinstance(intent, Quit):
             self.quit()
 
-    def update(self, inputs: Dict[str, bool]) -> None:
+    def update(self, inputs: InputState) -> None:
         """Only update the top-most scene on the stack"""
         if not self.stack:
             return

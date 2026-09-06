@@ -1,5 +1,6 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
+from src.pacman.input import InputState
 from src.pacman.transitions import Transition
 from src.pacman.window import Window
 
@@ -33,7 +34,7 @@ class Scene:
         """Called when a new scene is pushed on top of this one."""
         pass
 
-    def update(self, inputs: Dict[str, bool]) -> Transition:
+    def update(self, inputs: InputState) -> Transition:
         """Advance one frame and return the transition we want, if any."""
         return None
 

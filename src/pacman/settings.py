@@ -1,3 +1,8 @@
+from typing import Dict
+
+from src.pacman.input import Action
+
+
 class Settings:
     def __init__(self) -> None:
         #
@@ -22,6 +27,22 @@ class Settings:
             (0x52528C, 0xFF8500),
             (0x32746D, 0xFFFFFF),
         )
+
+        # actions
+        self.bindings: Dict[int, Action] = {
+            0xFF52: Action.UP,
+            0xFF54: Action.DOWN,
+            0xFF51: Action.LEFT,
+            0xFF53: Action.RIGHT,
+            0x77: Action.UP,
+            0x73: Action.DOWN,
+            0x61: Action.LEFT,
+            0x64: Action.RIGHT,
+            0xFF0D: Action.CONFIRM,
+            0x20: Action.CONFIRM,
+            0xFF1B: Action.BACK,
+            0x70: Action.PAUSE,
+        }
 
         # keybindings
         self.close_win = 0xFF1B
