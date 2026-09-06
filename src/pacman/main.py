@@ -1,7 +1,7 @@
-from typing import Any, Callable, Generator
+from typing import Any, Dict, Generator
 
-from mlx.mlx import Mlx
-
+from src.pacman.scene_id import SceneId
+from src.pacman.scene_stack import SceneStack, build_scene_stack
 from src.pacman.settings import Settings
 from src.pacman.window import Window
 
@@ -9,15 +9,29 @@ from src.pacman.window import Window
 class Game:
     def __init__(self) -> None:
         self.stg = Settings()
+        self.inputs: Dict[str, bool] = {
+            "UP": False,
+            "LEFT": False,
+            "RIGHT": False,
+            "DOWN": False,
+            "SPACE": False,
+            "ENTER": False,
+            "ESCAPE": False,
+            "P": False
+        }
+        self.scenes: SceneStack = build_scene_stack()
+        self.scenes.push(SceneId.MENU)
         self.window = Window(self.stg, self.game_loop)
         self.testc = TestScene(self.window)
         self.window.show()
 
     def game_loop(self, _: Any) -> None:
-        self.testc.update()
-        self.testc.draw()
         self.window.clear()
-
+        self.scenes.update(self.inputs)
+        if self.scenes.should_quit:
+            self.window.exit(None)
+            return
+        self.scenes.draw(self.window)
 
 
 class TestScene:
