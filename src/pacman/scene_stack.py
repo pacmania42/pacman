@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, List, Optional
 from src.pacman.input import Action, InputState
 from src.pacman.scene import Scene
 from src.pacman.scene_id import SceneId
+from src.pacman.scenes.menu import MenuScene
 from src.pacman.transitions import Pop, Push, Quit, Replace, Transition
 from src.pacman.window import Window
 
@@ -54,14 +55,6 @@ class InstructionsScene(Scene):
 
     def draw(self, window: Window) -> None:
         window.write(50, 50, 0xFFFFFF, "Instructions Scene")
-
-
-class MenuScene(Scene):
-    def update(self, inputs: InputState) -> Transition:
-        return None
-
-    def draw(self, window: Window) -> None:
-        window.write(50, 50, 0xFFFFFF, "Menu Scene")
 
 
 class SceneStack:
