@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from src.pacman.config import Config, ConfigLoader, LevelConfig, ParserError
+from src.pacman.config import Config, ConfigError, ConfigLoader, LevelConfig
 
 
 def build_valid_config_dict(
@@ -40,7 +40,7 @@ def test_parser_reads_valid_config() -> None:
     config_data = build_valid_config_dict()
     config_json = json.dumps(config_data)
     path = write_tempfile(config_json)
-    cfg = ConfigLoader().load(path)
+    cfg = ConfigLoader().parse(path)
 
     assert isinstance(cfg, Config)
     assert cfg.lives == 3
@@ -48,15 +48,15 @@ def test_parser_reads_valid_config() -> None:
 
 
 def test_parser_handles_file_not_found() -> None:
-    with pytest.raises(ParserError):
-        ConfigLoader().load(Path("____file_not_found____"))
+    with pytest.raises(ConfigError):
+        ConfigLoader().parse(Path("____file_not_found____"))
 
 
 def test_parser_handles_malformed_json() -> None:
     path = write_tempfile(" { invalid json}")
 
-    with pytest.raises(ParserError):
-        ConfigLoader().load(path)
+    with pytest.raises(ConfigError):
+        ConfigLoader().parse(path)
 
 
 def test_strip_comment_lines() -> None:
@@ -70,7 +70,7 @@ def test_config_with_unknown_key() -> None:
     base = build_valid_config_dict()
     base["unknown_key"] = "should be ignored"
     path = write_tempfile(json.dumps(base))
-    cfg = ConfigLoader().load(path)
+    cfg = ConfigLoader().parse(path)
 
     assert hasattr(cfg, "lives")
     assert not hasattr(cfg, "unknown_key")
@@ -79,7 +79,7 @@ def test_config_with_unknown_key() -> None:
 def test_config_with_missing_optional_keys() -> None:
     base = {"levels": [{"width": 10, "height": 10}]}
     path = write_tempfile(json.dumps(base))
-    cfg = ConfigLoader().load(path)
+    cfg = ConfigLoader().parse(path)
 
     assert cfg.highscore_filename == "highscore.json"
     assert cfg.lives == 3
@@ -91,14 +91,14 @@ def test_config_with_only_comments() -> None:
     lines = ["# Just a comment\n", "   # another one\n"]
     path = write_tempfile("".join(lines))
 
-    with pytest.raises(ParserError):
-        ConfigLoader().load(path)
+    with pytest.raises(ConfigError):
+        ConfigLoader().parse(path)
 
 
 def test_config_missing_fields() -> None:
     config: dict[str, Any] = {}
     path = write_tempfile(json.dumps(config))
-    cfg = ConfigLoader().load(path)
+    cfg = ConfigLoader().parse(path)
 
     assert cfg.lives == Config.model_fields["lives"].default
 
@@ -106,7 +106,7 @@ def test_config_missing_fields() -> None:
 def test_config_invalid_fields() -> None:
     config = {"lives": "invalid_lives"}
     path = write_tempfile(json.dumps(config))
-    cfg = ConfigLoader().load(path)
+    cfg = ConfigLoader().parse(path)
 
     assert cfg.lives == Config.model_fields["lives"].default
 
