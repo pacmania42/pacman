@@ -1,8 +1,18 @@
-from typing import Any, Callable
+from typing import Any, Callable, Protocol
 
 from mlx.mlx import Mlx
 
 from src.pacman.settings import Settings
+
+
+class EventSink(Protocol):
+    """Protocol to hands off the events out of mlx"""
+
+    def on_key_down(self, keycode: int, param: object, /) -> None: ...
+
+    def on_key_up(self, keycode: int, param: object, /) -> None: ...
+
+    def on_focus_out(self, param: object, /) -> None: ...
 
 
 class Window:
@@ -15,7 +25,10 @@ class Window:
     format: int
 
     def __init__(
-        self, stg: Settings, game_loop: Callable[[Any], None]
+        self,
+        stg: Settings,
+        sink: EventSink,
+        game_loop: Callable[[Any], None],
     ) -> None:
         stg = stg
         self.mlx = Mlx()
@@ -32,6 +45,15 @@ class Window:
         self.bpp = bpp
         self.line_size = ll
         self.format = format
+
+        # key press
+        self.mlx.mlx_hook(self.win_ptr, 2, 1, sink.on_key_down, None)
+        # key release
+        self.mlx.mlx_hook(self.win_ptr, 3, 2, sink.on_key_up, None)
+        # focus lost
+        self.mlx.mlx_hook(
+            self.win_ptr, 10, 1 << 21, sink.on_focus_out, None
+        )
 
         self.mlx.mlx_hook(self.win_ptr, 0x21, 0, self.exit, None)
         self.mlx.mlx_loop_hook(self.mlx_ptr, game_loop, None)
