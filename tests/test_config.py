@@ -47,6 +47,40 @@ def test_parser_reads_valid_config() -> None:
     assert cfg.levels[0].width == 10
 
 
+def test_valid_array_json() -> None:
+    config_json = '[ { "width": 12, "height": 12 } ]'
+    path = write_tempfile(config_json)
+    cfg = ConfigLoader().parse(path)
+
+    assert isinstance(cfg, Config)
+    assert cfg.lives == 3
+    assert cfg.levels[0].width == 12
+
+
+def test_nondict_level() -> None:
+    config_json = '{"levels": [ "a","b"]}'
+    path = write_tempfile(config_json)
+    cfg = ConfigLoader().parse(path)
+
+    assert isinstance(cfg, Config)
+    assert cfg.lives == 3
+    assert len(cfg.levels) == 10
+
+
+def test_levels_with_nondict() -> None:
+    config_json = (
+        '{"levels": [ { "width": 12, "height": 12 }, '
+        '{ "width": 12, "height": 12 }, "invalid"   ]}'
+    )
+    path = write_tempfile(config_json)
+    cfg = ConfigLoader().parse(path)
+
+    assert isinstance(cfg, Config)
+    assert cfg.lives == 3
+    assert len(cfg.levels) == 10
+    assert cfg.levels[0].height == 12
+
+
 def test_parser_handles_file_not_found() -> None:
     with pytest.raises(ConfigError):
         ConfigLoader().parse(Path("____file_not_found____"))

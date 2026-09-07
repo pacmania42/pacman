@@ -25,7 +25,7 @@ class LevelConfig(BaseModel):
         try:
             v = int(v)
             if v < 6 or v > 20:
-                v = default
+                raise ValueError
             return v
         except (TypeError, ValueError):
             print(f"Invalid {info.field_name}={v}, using {default}")
@@ -70,7 +70,7 @@ class ConfigLoader:
         res = []
         for line in lines:
             if line.lstrip().startswith("#"):
-                continue
+                line = "\n"
             res.append(line)
         return "".join(res)
 
@@ -78,16 +78,33 @@ class ConfigLoader:
         lines = self.read_config_file(filename)
         content = self.strip_comments(lines)
 
+        # validate and adjust the JSON
         try:
             data: dict[str, Any] = json.loads(content)
         except json.JSONDecodeError as err:
-            raise ConfigError(f"Malformed config file: {err}") from err
-        else:
-            while True:
-                try:
-                    return Config(**data)
-                except ValidationError as err:
-                    for e in err.errors():
-                        key: str = str(e["loc"][0])
-                        print(f"Invalid {key}, using default value.")
-                        data.pop(key)
+            raise ConfigError(
+                f"Malformed config: line {err.lineno}, column {err.colno}"
+            ) from err
+        if isinstance(data, list):
+            data = {"levels": data}
+
+        # validate levels
+        levels = data.get("levels", [])
+        for level in levels.copy():
+            if not isinstance(level, dict):
+                levels.remove(level)
+
+        for rank in range(len(levels), 10):
+            levels.append({"width": 11 + rank, "height": 11 + rank})
+
+        data["levels"] = levels
+
+        # validate the entire config
+        while True:
+            try:
+                return Config(**data)
+            except ValidationError as err:
+                for e in err.errors():
+                    key: str = str(e["loc"][0])
+                    print(f"Invalid {key}, using default value.")
+                    data.pop(key)
