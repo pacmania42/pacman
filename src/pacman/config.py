@@ -27,7 +27,7 @@ class LevelConfig(BaseModel):
             if v < 6 or v > 20:
                 raise ValueError
             return v
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
             print(f"Invalid {info.field_name}={v}, using {default}")
             return default
 
@@ -61,7 +61,7 @@ class ConfigLoader:
 
     def read_config_file(self, filename: Path) -> list[str]:
         try:
-            with open(filename) as file:
+            with open(filename, encoding="utf-8") as file:
                 return file.readlines()
         except OSError as e:
             raise ConfigError(e) from e
