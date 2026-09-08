@@ -7,7 +7,12 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from src.pacman.config import Config, ConfigError, ConfigLoader, LevelConfig
+from src.pacman.core.config import (
+    Config,
+    ConfigError,
+    ConfigLoader,
+    LevelConfig,
+)
 
 
 def build_valid_config_dict(

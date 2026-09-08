@@ -1,12 +1,12 @@
 from typing import Any, Callable, Dict, List, Optional
 
-from src.pacman.input import Action, InputState
-from src.pacman.scene import Scene
-from src.pacman.scene_id import SceneId
-from src.pacman.scenes.instructions import InstructionsScene
-from src.pacman.scenes.menu import MenuScene
-from src.pacman.transitions import Pop, Push, Quit, Replace, Transition
-from src.pacman.window import Window
+from src.pacman.core.input import Action, InputState
+from src.pacman.core.window import Window
+from src.pacman.ui.scene import Scene
+from src.pacman.ui.scene_id import SceneId
+from src.pacman.ui.scenes.instructions import InstructionsScene
+from src.pacman.ui.scenes.menu import MenuScene
+from src.pacman.ui.transitions import Pop, Push, Quit, Replace, Transition
 
 
 class GameplayScene(Scene):
@@ -91,9 +91,7 @@ class SceneStack:
         if self.stack:
             self.stack[-1].on_resume(result)
 
-    def replace(
-        self, name: SceneId, payload: Optional[Any] = None
-    ) -> None:
+    def replace(self, name: SceneId, payload: Optional[Any] = None) -> None:
         """Swaps the top scene for another, keeping the stack depth.
 
         The scene below is never resumed, so it gets no callback.

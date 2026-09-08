@@ -1,22 +1,22 @@
-from typing import Any, Generator
+from typing import Any
 
-from src.pacman.config import ConfigError, ConfigLoader
-from src.pacman.input import EventBuffer, InputTracker
-from src.pacman.scene_id import SceneId
-from src.pacman.scene_stack import SceneStack, build_scene_stack
-from src.pacman.settings import Settings
-from src.pacman.window import Window
+from src.pacman.core.config import Config, ConfigError, ConfigLoader
+from src.pacman.core.input import EventBuffer, InputTracker
+from src.pacman.core.settings import Settings
+from src.pacman.core.window import Window
+from src.pacman.ui.scene_id import SceneId
+from src.pacman.ui.scene_stack import SceneStack, build_scene_stack
 
 
 class Game:
-    def __init__(self) -> None:
+    def __init__(self, config: Config) -> None:
+        self.config = config
         self.stg = Settings()
         self.scenes: SceneStack = build_scene_stack()
         self.scenes.push(SceneId.MENU)
         events = EventBuffer()
         self.input = InputTracker(self.stg.bindings, events)
         self.window = Window(self.stg, events, self.game_loop)
-        self.testc = TestScene(self.window)
         self.window.show()
 
     def game_loop(self, _: Any) -> None:
@@ -28,34 +28,11 @@ class Game:
         self.scenes.draw(self.window)
 
 
-class TestScene:
-    def __init__(self, window: Window) -> None:
-        self.window = window
-        self.counter = self.test_counter()
-        self.val = 0
-
-    def update(self) -> None:
-        try:
-            self.val = next(self.counter)
-        except StopIteration:
-            pass
-
-    def draw(self) -> None:
-        self.window.write(0, 0, 0x0000FF, str(self.val))
-
-    def test_counter(self) -> Generator[int, None, None]:
-        count = 0
-        while True:
-            count += 1
-            yield count
-
-
 def main() -> None:
     try:
         config = ConfigLoader().load()
     except ConfigError as e:
         print(e)
         return
-    print(config.model_dump_json(indent=4))
 
-    Game()
+    Game(config)

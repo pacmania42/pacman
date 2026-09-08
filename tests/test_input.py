@@ -1,5 +1,5 @@
-from src.pacman.input import FOCUS_LOST, EventBuffer
-from src.pacman.window import EventSink
+from src.pacman.core.input import FOCUS_LOST, EventBuffer
+from src.pacman.core.window import EventSink
 
 UP_ARROW = 0xFF52
 

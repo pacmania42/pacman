@@ -1,13 +1,12 @@
 from typing import List
 
-from src.pacman.input import Action, InputState
-from src.pacman.scene import Scene
-from src.pacman.transitions import Pop, Transition
-from src.pacman.window import Window
+from src.pacman.core.input import Action, InputState
+from src.pacman.core.window import Window
+from src.pacman.ui.scene import Scene
+from src.pacman.ui.transitions import Pop, Transition
 
 
 class InstructionsScene(Scene):
-
     def __init__(self) -> None:
         super().__init__()
         self.instructions: List[str] = [

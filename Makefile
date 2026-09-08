@@ -32,14 +32,13 @@ debug: install
 	uv run python3 -m pdb pac-man.py config.json
 
 test: $(SYNC)
-	uv run pytest
+	uv run pytest -q
 
 format:
 	$(RUFF_PREFIX) ruff format .
 	$(RUFF_PREFIX) ruff check --fix .
 
 build:
-	uv build
 
 re: clean-all run
 

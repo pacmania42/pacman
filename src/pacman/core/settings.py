@@ -1,6 +1,6 @@
 from typing import Dict
 
-from src.pacman.input import Action
+from src.pacman.core.input import Action
 
 
 class Settings:
