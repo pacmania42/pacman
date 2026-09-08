@@ -11,12 +11,11 @@ from src.pacman.ui.scene_stack import SceneStack, build_scene_stack
 class Game:
     def __init__(self, config: Config) -> None:
         self.config = config
-        self.stg = Settings()
         self.scenes: SceneStack = build_scene_stack()
         self.scenes.push(SceneId.MENU)
         events = EventBuffer()
-        self.input = InputTracker(self.stg.bindings, events)
-        self.window = Window(self.stg, events, self.game_loop)
+        self.input = InputTracker(Settings.bindings, events)
+        self.window = Window(events, self.game_loop)
         self.window.show()
 
     def game_loop(self, _: Any) -> None:
