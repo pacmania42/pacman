@@ -1,12 +1,11 @@
-from src.pacman.input import Action, InputState
-from src.pacman.scene import Scene
-from src.pacman.scene_id import SceneId
-from src.pacman.transitions import Push, Quit, Replace, Transition
-from src.pacman.window import Window
+from src.pacman.core.input import Action, InputState
+from src.pacman.core.window import Window
+from src.pacman.ui.scene import Scene
+from src.pacman.ui.scene_id import SceneId
+from src.pacman.ui.transitions import Push, Quit, Replace, Transition
 
 
 class Menu:
-
     def __init__(self) -> None:
         self.items: list[str] = ["Start", "Instructions", "Highscore", "Exit"]
         self.current: int = 0
@@ -28,7 +27,6 @@ class Menu:
 
 
 class MenuScene(Scene):
-
     def __init__(self) -> None:
         super().__init__()
 

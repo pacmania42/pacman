@@ -5,8 +5,8 @@ from typing import Any, Generator
 
 from mlx import Mlx
 
-from src.pacman.adapter import Adapter
-from src.pacman.settings import Settings
+from src.pacman.core.adapter import Adapter
+from src.pacman.core.settings import Settings
 
 
 class MazeView(Mlx):  # type: ignore[misc]

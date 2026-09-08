@@ -2,7 +2,7 @@ from typing import Any, Callable, Protocol
 
 from mlx.mlx import Mlx
 
-from src.pacman.settings import Settings
+from src.pacman.core.settings import Settings
 
 
 class EventSink(Protocol):
@@ -51,9 +51,7 @@ class Window:
         # key release
         self.mlx.mlx_hook(self.win_ptr, 3, 2, sink.on_key_up, None)
         # focus lost
-        self.mlx.mlx_hook(
-            self.win_ptr, 10, 1 << 21, sink.on_focus_out, None
-        )
+        self.mlx.mlx_hook(self.win_ptr, 10, 1 << 21, sink.on_focus_out, None)
 
         self.mlx.mlx_hook(self.win_ptr, 0x21, 0, self.exit, None)
         self.mlx.mlx_loop_hook(self.mlx_ptr, game_loop, None)

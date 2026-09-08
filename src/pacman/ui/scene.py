@@ -1,8 +1,8 @@
 from typing import Any, Optional
 
-from src.pacman.input import InputState
-from src.pacman.transitions import Transition
-from src.pacman.window import Window
+from src.pacman.core.input import InputState
+from src.pacman.core.window import Window
+from src.pacman.ui.transitions import Transition
 
 
 class Scene:
