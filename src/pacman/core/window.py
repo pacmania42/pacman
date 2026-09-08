@@ -25,20 +25,19 @@ class Window:
     format: int
 
     def __init__(
-        self,
-        stg: Settings,
-        sink: EventSink,
-        game_loop: Callable[[Any], None],
+        self, sink: EventSink, game_loop: Callable[[Any], None]
     ) -> None:
-        stg = stg
         self.mlx = Mlx()
         self.mlx_ptr = self.mlx.mlx_init()
         self.win_ptr = self.mlx.mlx_new_window(
-            self.mlx_ptr, stg.win_width, stg.win_height, stg.window_title
+            self.mlx_ptr,
+            Settings.win_width,
+            Settings.win_height,
+            Settings.window_title,
         )
 
         self.img_ptr = self.mlx.mlx_new_image(
-            self.mlx_ptr, stg.win_width, stg.win_height
+            self.mlx_ptr, Settings.win_width, Settings.win_height
         )
         pixels, bpp, ll, format = self.mlx.mlx_get_data_addr(self.img_ptr)
         self.pixels = pixels

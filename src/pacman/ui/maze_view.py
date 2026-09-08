@@ -5,12 +5,12 @@ from typing import Any, Generator
 
 from mlx import Mlx
 
-from src.pacman.core.adapter import Adapter
 from src.pacman.core.settings import Settings
+from src.pacman.state.maze import Maze
 
 
 class MazeView(Mlx):  # type: ignore[misc]
-    def __init__(self, adapter: Adapter, stg: Settings) -> None:
+    def __init__(self, adapter: Maze, stg: Settings) -> None:
         super().__init__()
         self.adp = adapter
         self.stg = stg
@@ -128,14 +128,14 @@ class MazeView(Mlx):  # type: ignore[misc]
                     self.stg.cell_dim,
                     color,
                 )
-            if (cell.col, cell.row) in self.adp.non_empty_corners:
-                self._put_box(
-                    x_offset + self.stg.cell_dim - self.stg.wall_thickness,
-                    y_offset,
-                    self.stg.wall_thickness,
-                    self.stg.wall_thickness,
-                    color,
-                )
+            # if (cell.col, cell.row) in self.adp.non_empty_corners:
+            #     self._put_box(
+            #         x_offset + self.stg.cell_dim - self.stg.wall_thickness,
+            #         y_offset,
+            #         self.stg.wall_thickness,
+            #         self.stg.wall_thickness,
+            #         color,
+            #     )
         self.put_image()
         yield
 
