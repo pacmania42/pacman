@@ -57,6 +57,24 @@ def test_valid_array_json() -> None:
     assert cfg.levels[0].width == 12
 
 
+def test_nonlist_levels() -> None:
+    config_json = '{"levels": 2}'
+    path = write_tempfile(config_json)
+    cfg = ConfigLoader().parse(path)
+
+    assert isinstance(cfg, Config)
+    assert cfg.lives == 3
+    assert cfg.levels[0].width == 11
+
+
+def test_nondict_json() -> None:
+    config_json = "2"
+    path = write_tempfile(config_json)
+
+    with pytest.raises(ConfigError):
+        ConfigLoader().parse(path)
+
+
 def test_nondict_level() -> None:
     config_json = '{"levels": [ "a","b"]}'
     path = write_tempfile(config_json)

@@ -85,11 +85,13 @@ class ConfigLoader:
             raise ConfigError(
                 f"Malformed config: line {err.lineno}, column {err.colno}"
             ) from err
-        if isinstance(data, list):
-            data = {"levels": data}
+
+        data = self.coerce_to_dict(data)
 
         # validate levels
         levels = data.get("levels", [])
+        if not isinstance(levels, list):
+            levels = []
         for level in levels.copy():
             if not isinstance(level, dict):
                 levels.remove(level)
@@ -108,3 +110,11 @@ class ConfigLoader:
                     key: str = str(e["loc"][0])
                     print(f"Invalid {key}, using default value.")
                     data.pop(key)
+
+    def coerce_to_dict(self, data: Any) -> dict[str, Any]:
+        if isinstance(data, list):
+            data = {"levels": data}
+        if isinstance(data, dict):
+            return data
+        else:
+            raise ConfigError(f"Invalid config: {data}")
