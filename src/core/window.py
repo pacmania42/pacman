@@ -74,12 +74,10 @@ class Window:
             self.mlx_ptr, self.win_ptr, x, y, color, string
         )
 
-    def clear(self) -> None:
-        self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
-
     def fill(self, color: int) -> None:
         """Repaint the whole back buffer, wiping the previous frame."""
-        self.put_box(0, 0, self.width, self.height, color)
+        size = self.height * self.width
+        self.pixels[0:size * self.bytes_pp] = self._to_pixel(color) * size
 
     def _to_pixel(self, color: int) -> bytes:
         """Pack an 0xRRGGBB color into one buffer pixel."""
