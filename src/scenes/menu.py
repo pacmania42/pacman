@@ -1,8 +1,8 @@
-from src.pacman.core.input import Action, InputState
-from src.pacman.core.window import Window
-from src.pacman.ui.scene import Scene
-from src.pacman.ui.scene_id import SceneId
-from src.pacman.ui.transitions import Push, Quit, Replace, Transition
+from src.core.input import Action, InputState
+from src.core.scene import Scene
+from src.core.scene_id import SceneId
+from src.core.transitions import Push, Quit, Replace, Transition
+from src.core.window import Window
 
 
 class Menu:

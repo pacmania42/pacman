@@ -1,9 +1,9 @@
 from typing import List
 
-from src.pacman.core.input import Action, InputState
-from src.pacman.core.window import Window
-from src.pacman.ui.scene import Scene
-from src.pacman.ui.transitions import Pop, Transition
+from src.core.input import Action, InputState
+from src.core.scene import Scene
+from src.core.transitions import Pop, Transition
+from src.core.window import Window
 
 
 class InstructionsScene(Scene):

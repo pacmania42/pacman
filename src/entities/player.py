@@ -1,6 +1,6 @@
-from src.pacman.core.config import Config
-from src.pacman.state.maze import Maze
-from src.pacman.state.models import Actor, ActorStatus, Direction
+from src.core.config import Config
+from src.entities.maze import Maze
+from src.entities.models import Actor, ActorStatus, Direction
 
 
 class Player(Actor):

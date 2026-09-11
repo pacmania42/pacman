@@ -1,4 +1,4 @@
-from src.pacman.main import main
+from src.main import main
 
 
 def run() -> None:
