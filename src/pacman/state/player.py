@@ -1,22 +1,13 @@
-from random import randint
-
 from src.pacman.core.config import Config
 from src.pacman.state.maze import Maze
 from src.pacman.state.models import Actor, ActorStatus, Direction
 
 
 class Player(Actor):
-    def __init__(
-        self,
-        cfg: Config,
-        maze: Maze,
-    ) -> None:
+    def __init__(self, cfg: Config, maze: Maze) -> None:
         value = 0
         lives = cfg.lives
-        spawn_position = (  # TODO: add bound checks
-            randint(0, maze.width - 1),
-            randint(0, maze.height - 1),
-        )
+        spawn_position = (0, 0)
         spawn_delay = 2  # TODO: get from config
         super().__init__(
             value=value,
@@ -30,7 +21,7 @@ class Player(Actor):
         self.value += actor.value
 
     def get_eaten(self) -> None:
-        self.status = ActorStatus.EATEN
+        self.status = ActorStatus.SPAWNING
         self.lives -= 1
         if self.value > 0:
             self.respawn()
@@ -48,7 +39,7 @@ class Player(Actor):
         self.position = (x, y)
 
     def respawn(self) -> None:
-        self.status = ActorStatus.SPAWNING
+        self.status = ActorStatus.FLEEING
         self.position = self.spawn_position
 
 

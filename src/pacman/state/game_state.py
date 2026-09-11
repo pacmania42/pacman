@@ -1,6 +1,8 @@
 from enum import IntEnum, auto
+from random import randint
 
 from src.pacman.core.config import Config
+from src.pacman.core.settings import Settings
 from src.pacman.state.ghost import Ghost
 from src.pacman.state.maze import Maze
 from src.pacman.state.models import Pacgum, SuperPacgum
@@ -21,16 +23,54 @@ class GameState:
     pacgums: list[Pacgum]
     superpacgums: list[SuperPacgum]
 
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, settings: Settings) -> None:
+        self.config = config
+        self.settings = settings
         self.status = GameStatus.ACTIVE
         self.maze = Maze()
         self.pacman = Player(config, self.maze)
         self.superpacgums = [
-            SuperPacgum((0, 0), config),
+            SuperPacgum(
+                position=(0, 0),
+                cfg=self.config,
+            ),
+        ]
+        self.pacgums = [
+            Pacgum(
+                position=(
+                    randint(0, self.maze.width),
+                    randint(0, self.maze.height),
+                ),
+                cfg=self.config,
+            )
         ]
         self.ghosts = [
-            Ghost((0, 0)),
-            Ghost((0, self.maze.height - 1)),
-            Ghost((self.maze.width - 1, 0)),
-            Ghost((self.maze.width - 1, self.maze.height - 1)),
+            Ghost(  # TODO: create a ghost house
+                cfg=self.config,
+                pos=(
+                    randint(0, self.maze.width),
+                    randint(0, self.maze.height),
+                ),
+            ),
+            Ghost(  # TODO: create a ghost house
+                cfg=self.config,
+                pos=(
+                    randint(0, self.maze.width),
+                    randint(0, self.maze.height),
+                ),
+            ),
+            Ghost(  # TODO: create a ghost house
+                cfg=self.config,
+                pos=(
+                    randint(0, self.maze.width),
+                    randint(0, self.maze.height),
+                ),
+            ),
+            Ghost(  # TODO: create a ghost house
+                cfg=self.config,
+                pos=(
+                    randint(0, self.maze.width),
+                    randint(0, self.maze.height),
+                ),
+            ),
         ]
