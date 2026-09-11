@@ -100,7 +100,11 @@ class MenuScene(Scene):
                 )
                 cursor_w = window.text_width(theme.CURSOR, scale)
                 window.put_text(
-                    x - cursor_w - theme.GAP, y, theme.CURSOR, color, scale
+                    x - cursor_w - theme.GAP,
+                    y + 10,
+                    theme.CURSOR,
+                    color,
+                    scale
                 )
 
-            window.put_text(x, y, label, color, scale)
+            window.put_text(x, y + scale * 2, label, color, scale)
