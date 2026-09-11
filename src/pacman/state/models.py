@@ -58,7 +58,6 @@ class SuperPacgum(Edible):
 class ActorStatus(IntEnum):
     FLEEING = auto()
     CHASING = auto()
-    EATEN = auto()
     SPAWNING = auto()
 
 
