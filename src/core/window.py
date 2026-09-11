@@ -20,13 +20,15 @@ class Window:
     mlx_ptr: int | None
     win_ptr: int | None
     pixels: memoryview
-    bpp: int
+    bytes_pp: int
     line_size: int
     format: int
 
     def __init__(
         self, sink: EventSink, game_loop: Callable[[Any], None]
     ) -> None:
+        self.width = Settings.win_width
+        self.height = Settings.win_height
         self.mlx = Mlx()
         self.mlx_ptr = self.mlx.mlx_init()
         self.win_ptr = self.mlx.mlx_new_window(
@@ -41,7 +43,7 @@ class Window:
         )
         pixels, bpp, ll, format = self.mlx.mlx_get_data_addr(self.img_ptr)
         self.pixels = pixels
-        self.bpp = bpp
+        self.bytes_pp = bpp // 8
         self.line_size = ll
         self.format = format
 
@@ -70,3 +72,41 @@ class Window:
 
     def clear(self) -> None:
         self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
+
+    def fill(self, color: int) -> None:
+        """Repaint the whole back buffer, wiping the previous frame."""
+        self.put_box(0, 0, self.width, self.height, color)
+
+    def _to_pixel(self, color: int) -> bytes:
+        """Pack an 0xRRGGBB color into one buffer pixel."""
+        return bytes(
+            ((color & 0xFF), (color >> 8 & 0xFF), (color >> 16 & 0xFF), 0xFF)
+        )
+
+    def put_box(
+        self, x: int, y: int, width: int, height: int, color: int
+    ) -> None:
+        """Fill a rectangle of the back buffer, clipped to the window."""
+        if x < 0:
+            width += x
+            x = 0
+        if y < 0:
+            height += y
+            y = 0
+        width = min(width, self.width - x)
+        height = min(height, self.height - y)
+        if width <= 0 or height <= 0:
+            return
+
+        row_bytes = self._to_pixel(color) * width
+        start = x * self.bytes_pp
+        end = start + width * self.bytes_pp
+
+        for r in range(height):
+            offset = (y + r) * self.line_size
+            self.pixels[slice(offset + start, offset + end)] = row_bytes
+
+    def draw_image(self) -> None:
+        self.mlx.mlx_put_image_to_window(
+            self.mlx_ptr, self.win_ptr, self.img_ptr, 0, 0
+        )

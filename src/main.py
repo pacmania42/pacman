@@ -19,12 +19,13 @@ class Game:
         self.window.show()
 
     def game_loop(self, _: Any) -> None:
-        self.window.clear()
         self.scenes.update(self.input.begin_frame())
         if self.scenes.should_quit:
             self.window.exit(None)
             return
+        self.window.fill(Settings.off_color)
         self.scenes.draw(self.window)
+        self.window.draw_image()
 
 
 def main() -> None:
