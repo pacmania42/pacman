@@ -28,33 +28,6 @@ class Edible(ABC):
     def get_eaten(self) -> None: ...
 
 
-class Pacgum(Edible):
-    def __init__(self, position: tuple[int, int], cfg: Config) -> None:
-        position = position
-        value = cfg.points_per_pacgum
-        super().__init__(position=position, value=value)
-
-    def eat(self, actor: "Actor") -> None:
-        pass
-
-    def get_eaten(self) -> None:
-        self.is_active = False
-
-
-class SuperPacgum(Edible):
-    def __init__(self, position: tuple[int, int], cfg: Config) -> None:
-        position = position
-        value = cfg.points_per_pacgum
-        super().__init__(position=position, value=value)
-
-    def eat(self, actor: "Actor") -> None:
-        pass
-
-    def get_eaten(self) -> None:
-        self.is_active = False
-        # TODO: make ghosts edible
-
-
 class ActorStatus(IntEnum):
     FLEEING = auto()
     CHASING = auto()

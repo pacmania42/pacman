@@ -2,30 +2,37 @@ import math
 import random
 
 from src.core.config import Config
-from src.entities.models import Actor, ActorStatus, Direction
+
+from .maze import Maze
+from .models import Actor, ActorStatus, Direction
 
 
 class Ghost(Actor):
-    all_ghost_status = ActorStatus.CHASING
+    all_ghost_status: ActorStatus = ActorStatus.CHASING
 
-    def __init__(self, cfg: Config, pos: tuple[int, int]) -> None:
+    def __init__(
+        self, cfg: Config, position: tuple[int, int], maze: Maze
+    ) -> None:
         value = cfg.points_per_ghost
         lives = math.inf
-        spawn_position = pos
+        x, y = position
+        spawn_position = x, y
         spawn_delay = 2  # TODO: get from config
+
         super().__init__(
             value=value,
             lives=lives,
-            status=ActorStatus.SPAWNING,
+            status=ActorStatus.CHASING,
             spawn_position=spawn_position,
             spawn_delay=spawn_delay,
         )
+
+        maze.grid[y][x].edible = self
 
     def eat(self, actor: "Actor") -> None:
         pass
 
     def get_eaten(self) -> None:
-        self.status = ActorStatus.FLEEING
         self.lives -= 1
         if self.value > 0:
             self.respawn()

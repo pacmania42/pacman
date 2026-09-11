@@ -1,14 +1,19 @@
 from src.core.config import Config
-from src.entities.maze import Maze
-from src.entities.models import Actor, ActorStatus, Direction
+
+from .maze import Maze
+from .models import Actor, ActorStatus, Direction
 
 
 class Player(Actor):
-    def __init__(self, cfg: Config, maze: Maze) -> None:
+    def __init__(
+        self, position: tuple[int, int], cfg: Config, maze: Maze
+    ) -> None:
         value = 0
         lives = cfg.lives
-        spawn_position = (0, 0)
+        x, y = position
+        spawn_position = (x, y)
         spawn_delay = 2  # TODO: get from config
+
         super().__init__(
             value=value,
             lives=lives,
@@ -16,6 +21,8 @@ class Player(Actor):
             spawn_position=spawn_position,
             spawn_delay=spawn_delay,
         )
+
+        maze.grid[y][x].edible = self
 
     def eat(self, actor: "Actor") -> None:
         self.value += actor.value
