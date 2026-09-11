@@ -1,16 +1,6 @@
 from mazegenerator import MazeGenerator
 
-
-class Cell:
-    def __init__(self, val: int, row: int, col: int) -> None:
-        self.row = row
-        self.col = col
-
-        self.val = val
-        self.n = bool(self.val & 0b0001)
-        self.e = bool(self.val & 0b0010)
-        self.s = bool(self.val & 0b0100)
-        self.w = bool(self.val & 0b1000)
+from .cell import Cell
 
 
 class MazeError(Exception):
@@ -18,19 +8,20 @@ class MazeError(Exception):
 
 
 class Maze:
-    gen: MazeGenerator
     grid: list[list[Cell]]
-    cells: list[Cell]
     height: int
     width: int
+    pattern_ranges: tuple[int, int, int, int]
+    center: tuple[int, int]
 
     def generate(self, width: int, height: int) -> None:
-        self.gen = MazeGenerator(size=(width, height))
-        self.gen.generate(42)
-        self.grid = self._create_grid(self.gen.maze)
-        self.cells = [cell for row in self.grid for cell in row]
+        self._gen = MazeGenerator(size=(width, height))
+        self._gen.generate(42)
+        self.grid = self._create_grid(self._gen.maze)
         self.height = len(self.grid)
         self.width = len(self.grid[0])
+        self.pattern_ranges = self._get_pattern_ranges()
+        self.center = self._get_center()
 
     def _create_grid(self, maze: list[list[int]]) -> list[list[Cell]]:
         grid: list[list[Cell]] = []
@@ -41,3 +32,23 @@ class Maze:
                 row_cells.append(cell)
             grid.append(row_cells)
         return grid
+
+    def _get_pattern_ranges(self) -> tuple[int, int, int, int]:
+        pattern_coords = [
+            (cell.col, cell.row)
+            for row in self.grid
+            for cell in row
+            if cell.val == 15
+        ]
+
+        min_x = min([x for (x, _) in pattern_coords])
+        max_x = max([x for (x, _) in pattern_coords])
+        min_y = min([y for (_, y) in pattern_coords])
+        max_y = max([y for (_, y) in pattern_coords])
+
+        return (min_x, min_y, max_x, max_y)
+
+    def _get_center(self) -> tuple[int, int]:
+        min_x, min_y, *_ = self.pattern_ranges
+
+        return min_x + 7 // 2, min_y + 5 // 2
