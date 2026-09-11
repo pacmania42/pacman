@@ -1,7 +1,8 @@
-from typing import Any, Callable, Protocol
+from typing import Any, Callable, Optional, Protocol
 
 from mlx.mlx import Mlx
 
+from src.core.font import PixelFont
 from src.core.settings import Settings
 
 
@@ -46,6 +47,9 @@ class Window:
         self.bytes_pp = bpp // 8
         self.line_size = ll
         self.format = format
+
+        self.font = PixelFont(self.mlx, self.mlx_ptr)
+        self.text_scale = Settings.text_scale
 
         # key press
         self.mlx.mlx_hook(self.win_ptr, 2, 1, sink.on_key_down, None)
@@ -105,6 +109,62 @@ class Window:
         for r in range(height):
             offset = (y + r) * self.line_size
             self.pixels[slice(offset + start, offset + end)] = row_bytes
+
+    def _scale(self, scale: Optional[int]) -> int:
+        return max(1, self.text_scale if scale is None else scale)
+
+    def text_width(self, text: str, scale: Optional[int] = None) -> int:
+        """Return the width `text` occupies once drawn, in pixels."""
+        return self.font.measure(text, self._scale(scale))
+
+    def text_height(self, scale: Optional[int] = None) -> int:
+        """Return the line-to-line advance, in pixels."""
+        return self.font.line_height * self._scale(scale)
+
+    def ink_height(self, scale: Optional[int] = None) -> int:
+        """Return the height of the glyphs themselves, without leading.
+
+        Use this to sit a rule or a box tight against a line of text;
+        use `text_height()` to stack lines.
+        """
+        return self.font.ink_height * self._scale(scale)
+
+    def put_text(
+        self,
+        x: int,
+        y: int,
+        text: str,
+        color: int = 0xFFFFFF,
+        scale: Optional[int] = None,
+    ) -> None:
+        """Put `text` into the back buffer, over whatever is there.
+
+        Nothing reaches the screen until `draw_image()` is called, so
+        several calls compose on top of each other
+
+        Args:
+            x: Left edge of the first glyph
+            y: Top edge of the line
+            text: The string to draw
+            color: 0xRRGGBB ink color
+            scale: Whole-number magnification
+        """
+        factor = self._scale(scale)
+        pixel = self._to_pixel(color)
+        for row, col, length in self.font.layout(x, y, text, factor):
+            if col < 0:
+                length += col
+                col = 0
+            length = min(length, self.width - col)
+            if length <= 0:
+                continue
+            row_bytes = pixel * length
+            start = col * self.bytes_pp
+            end = start + length * self.bytes_pp
+            for step in range(factor):
+                if 0 <= row + step < self.height:
+                    offset = (row + step) * self.line_size
+                    self.pixels[offset + start:offset + end] = row_bytes
 
     def draw_image(self) -> None:
         self.mlx.mlx_put_image_to_window(
