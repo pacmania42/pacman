@@ -1,6 +1,7 @@
 from typing import Dict
 
 from src.core.input import Action
+from src.ui import theme
 
 
 class Settings:
@@ -18,11 +19,11 @@ class Settings:
     y_offset = 30
 
     # text
-    text_scale = 1
-    
+    text_scale = theme.SCALE_BODY
+
     # colors
-    off_color = 0x000000
-    text_color = 0x00FF00
+    off_color = theme.BG
+    text_color = theme.TEXT
     colors = (
         (0x1E51A4, 0xFFFF00),
         (0xBD632F, 0xABC4FF),
