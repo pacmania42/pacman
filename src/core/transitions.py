@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Optional, Union
 
-from src.pacman.ui.scene_id import SceneId
+from src.core.scene_id import SceneId
 
 
 @dataclass(frozen=True)

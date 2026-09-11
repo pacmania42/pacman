@@ -1,11 +1,11 @@
 from typing import Any
 
-from src.pacman.core.config import Config, ConfigError, ConfigLoader
-from src.pacman.core.input import EventBuffer, InputTracker
-from src.pacman.core.settings import Settings
-from src.pacman.core.window import Window
-from src.pacman.ui.scene_id import SceneId
-from src.pacman.ui.scene_stack import SceneStack, build_scene_stack
+from src.core.config import Config, ConfigError, ConfigLoader
+from src.core.input import EventBuffer, InputTracker
+from src.core.scene_id import SceneId
+from src.core.scene_stack import SceneStack, build_scene_stack
+from src.core.settings import Settings
+from src.core.window import Window
 
 
 class Game:

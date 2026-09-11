@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum, auto
 
-from src.pacman.core.config import Config
+from src.core.config import Config
 
 
 class Direction(Enum):

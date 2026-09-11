@@ -1,12 +1,12 @@
 from enum import IntEnum, auto
 from random import randint
 
-from src.pacman.core.config import Config
-from src.pacman.core.settings import Settings
-from src.pacman.state.ghost import Ghost
-from src.pacman.state.maze import Maze
-from src.pacman.state.models import Pacgum, SuperPacgum
-from src.pacman.state.player import Player
+from src.core.config import Config
+from src.core.settings import Settings
+from src.entities.ghost import Ghost
+from src.entities.maze import Maze
+from src.entities.models import Pacgum, SuperPacgum
+from src.entities.player import Player
 
 
 class GameStatus(IntEnum):

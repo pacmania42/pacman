@@ -7,7 +7,6 @@ FOCUS_LOST = None
 
 
 class Action(Enum):
-
     UP = auto()
     DOWN = auto()
     LEFT = auto()

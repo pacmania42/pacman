@@ -1,8 +1,8 @@
 import math
 import random
 
-from src.pacman.core.config import Config
-from src.pacman.state.models import Actor, ActorStatus, Direction
+from src.core.config import Config
+from src.entities.models import Actor, ActorStatus, Direction
 
 
 class Ghost(Actor):

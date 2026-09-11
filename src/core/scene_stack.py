@@ -1,12 +1,12 @@
 from typing import Any, Callable, Dict, List, Optional
 
-from src.pacman.core.input import Action, InputState
-from src.pacman.core.window import Window
-from src.pacman.ui.scene import Scene
-from src.pacman.ui.scene_id import SceneId
-from src.pacman.ui.scenes.instructions import InstructionsScene
-from src.pacman.ui.scenes.menu import MenuScene
-from src.pacman.ui.transitions import Pop, Push, Quit, Replace, Transition
+from src.core.input import Action, InputState
+from src.core.scene import Scene
+from src.core.scene_id import SceneId
+from src.core.transitions import Pop, Push, Quit, Replace, Transition
+from src.core.window import Window
+from src.scenes.instructions import InstructionsScene
+from src.scenes.menu import MenuScene
 
 
 class GameplayScene(Scene):

@@ -2,7 +2,7 @@ from typing import Any, Callable, Protocol
 
 from mlx.mlx import Mlx
 
-from src.pacman.core.settings import Settings
+from src.core.settings import Settings
 
 
 class EventSink(Protocol):

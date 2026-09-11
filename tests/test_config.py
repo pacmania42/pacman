@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from src.pacman.core.config import (
+from src.core.config import (
     Config,
     ConfigError,
     ConfigLoader,
