@@ -20,7 +20,7 @@ class GameplayScene(Scene):
         return None
 
     def draw(self, window: Window) -> None:
-        window.write(50, 50, 0xFFFFFF, f"Level: {self.current_level}")
+        window.put_text(50, 50, f"Level: {self.current_level}")
 
     def on_resume(self, result: Optional[Any] = None) -> None:
         print("Resume gameplay")

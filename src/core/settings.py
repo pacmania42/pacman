@@ -17,6 +17,9 @@ class Settings:
     x_offset = 30
     y_offset = 30
 
+    # text
+    text_scale = 1
+    
     # colors
     off_color = 0x000000
     text_color = 0x00FF00
