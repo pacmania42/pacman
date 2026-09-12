@@ -23,10 +23,13 @@ class Pacgum(Edible):
 
 
 class SuperPacgum(Edible):
-    def __init__(self, position: tuple[int, int], cfg: Config) -> None:
-        position = position
+    def __init__(
+        self, position: tuple[int, int], cfg: Config, maze: Maze
+    ) -> None:
+        col, row = position
         value = cfg.points_per_pacgum
         super().__init__(position=position, value=value)
+        maze.grid[row][col].edible = self
 
     def eat(self, actor: "Actor") -> None:
         pass

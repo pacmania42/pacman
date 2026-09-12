@@ -64,9 +64,10 @@ class MenuScene(Scene):
         width = window.text_width(title, theme.SCALE_HERO)
         ui.centered(window, top, title, theme.TITLE, theme.SCALE_HERO)
         rule_y = top + window.ink_height(theme.SCALE_HERO) + theme.GAP
-        return ui.ghost_rule(
-            window, (window.width - width) // 2, rule_y, width
-        ) + 2 * theme.GAP
+        return (
+            ui.ghost_rule(window, (window.width - width) // 2, rule_y, width)
+            + 2 * theme.GAP
+        )
 
     def _draw_items(self, window: Window, top: int) -> None:
         items = self.menu.get_items()
@@ -74,10 +75,13 @@ class MenuScene(Scene):
         pitch = row_height + 2 * theme.GAP
         top = ui.block_top(window, top, len(items) * pitch)
 
-        bar_width = max(
-            window.text_width(item.upper(), theme.SCALE_ITEM_ACTIVE)
-            for item in items
-        ) + 2 * theme.MARGIN
+        bar_width = (
+            max(
+                window.text_width(item.upper(), theme.SCALE_ITEM_ACTIVE)
+                for item in items
+            )
+            + 2 * theme.MARGIN
+        )
         bar_x = (window.width - bar_width) // 2
 
         for i, item in enumerate(items):
@@ -104,7 +108,7 @@ class MenuScene(Scene):
                     y + 10,
                     theme.CURSOR,
                     color,
-                    scale
+                    scale,
                 )
 
             window.put_text(x, y + scale * 2, label, color, scale)

@@ -5,25 +5,9 @@ from src.core.scene import Scene
 from src.core.scene_id import SceneId
 from src.core.transitions import Pop, Push, Quit, Replace, Transition
 from src.core.window import Window
+from src.scenes.gameplay import GameplayScene
 from src.scenes.instructions import InstructionsScene
 from src.scenes.menu import MenuScene
-
-
-class GameplayScene(Scene):
-    def __init__(self) -> None:
-        super().__init__()
-        self.current_level = 1
-
-    def update(self, inputs: InputState) -> Transition:
-        if inputs.was_pressed(Action.PAUSE):
-            return Push(SceneId.PAUSE)
-        return None
-
-    def draw(self, window: Window) -> None:
-        window.put_text(50, 50, f"Level: {self.current_level}")
-
-    def on_resume(self, result: Optional[Any] = None) -> None:
-        print("Resume gameplay")
 
 
 class PauseScene(Scene):

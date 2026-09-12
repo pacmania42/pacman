@@ -13,7 +13,8 @@ class Settings:
 
     # spacings
     cell_dim = 72
-    wall_thickness = cell_dim // 10
+    # wall_thickness = cell_dim // 10
+    wall_thickness = 1
     txt_pane_width = 350
     x_offset = 30
     y_offset = 30
