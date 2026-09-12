@@ -1,6 +1,6 @@
 from enum import IntEnum, auto
 
-from src.core.config import Config
+from src.core.config import Config, Level
 from src.core.settings import Settings
 from src.entities import Ghost, Maze, Pacgum, Player, SuperPacgum
 
@@ -13,42 +13,56 @@ class GameStatus(IntEnum):
 
 class GameState:
     status: GameStatus
-    pacman: Player
+    player: Player
     maze: Maze
     ghosts: tuple[Ghost, Ghost, Ghost, Ghost]
     superpacgums: tuple[SuperPacgum, SuperPacgum, SuperPacgum, SuperPacgum]
     pacgums: list[Pacgum]
+    levels: list[Level]
+    curr_level: Level
 
     def __init__(self, config: Config, settings: Settings) -> None:
         self.config = config
+        self.levels = config.levels
         self.settings = settings
-        self.status = GameStatus.ACTIVE
-        self.maze = Maze()
-        self.pacman = Player(
+        self.start_game()
+
+    def _init_entities(self) -> None:
+        height = self.curr_level.height
+        width = self.curr_level.width
+
+        self.maze = Maze(width=width, height=height)
+        self.maze.generate(42)
+        self.player = Player(
             position=self.maze.center,
-            cfg=config,
+            cfg=self.config,
             maze=self.maze,
         )
         self._init_superpacgums()
         self._init_ghosts()
         self._init_pacgums()
 
+    def start_game(self) -> None:
+        self.curr_level = self.levels[0]
+        self.status = GameStatus.ACTIVE
+        self._init_entities()
+
+    def restart_level(self) -> None:
+        self.status = GameStatus.ACTIVE
+        # TODO: wip
+
     def _init_superpacgums(self) -> None:
-        red = SuperPacgum(
-            position=(0, 0),
-            cfg=self.config,
-        )
+        red = SuperPacgum(position=(0, 0), cfg=self.config, maze=self.maze)
         pink = SuperPacgum(
-            position=(0, self.maze.height - 1),
-            cfg=self.config,
+            position=(0, self.maze.height - 1), cfg=self.config, maze=self.maze
         )
         cyan = SuperPacgum(
-            position=(self.maze.width - 1, 0),
-            cfg=self.config,
+            position=(self.maze.width - 1, 0), cfg=self.config, maze=self.maze
         )
         yellow = SuperPacgum(
             position=(self.maze.width - 1, self.maze.height - 1),
             cfg=self.config,
+            maze=self.maze,
         )
 
         self.superpacgums = (red, pink, cyan, yellow)
@@ -79,13 +93,12 @@ class GameState:
 
     def _init_pacgums(self) -> None:
         min_x, min_y, max_x, max_y = self.maze.pattern_ranges
-        height = self.maze.height
-        width = self.maze.width
+        pacgums: list[Pacgum] = []
 
-        pacgums = []
-
-        for y in list(range(0, min_y)) + list(range(max_y + 1, height)):
-            for x in list(range(0, min_x)) + list(range(max_x + 1, width)):
+        for y in range(self.maze.height):
+            for x in range(self.maze.width):
+                if min_x > x and x < max_x and (min_y > y < max_y):
+                    continue
                 if not self.maze.grid[y][x].edible:
                     pacgums.append(
                         Pacgum(
@@ -94,3 +107,4 @@ class GameState:
                             maze=self.maze,
                         )
                     )
+        self.pacgums = pacgums

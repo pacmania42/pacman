@@ -11,7 +11,7 @@ from src.core.config import (
     Config,
     ConfigError,
     ConfigLoader,
-    LevelConfig,
+    Level,
 )
 
 
@@ -170,16 +170,16 @@ def test_config_invalid_fields() -> None:
 
 # LevelConfig tests
 def test_levelconfig_missing_field() -> None:
-    res = LevelConfig(width=10)
-    assert res.height == LevelConfig.model_fields["height"].default
+    res = Level(width=10)
+    assert res.height == Level.model_fields["height"].default
 
 
 def test_levelconfig_invalid_field() -> None:
-    res = LevelConfig(
+    res = Level(
         width=10,
         height="invalid",  # type: ignore
     )
-    assert res.height == LevelConfig.model_fields["height"].default
+    assert res.height == Level.model_fields["height"].default
 
 
 def test_config_levels_min_length() -> None:

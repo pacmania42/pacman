@@ -14,9 +14,13 @@ class Maze:
     pattern_ranges: tuple[int, int, int, int]
     center: tuple[int, int]
 
-    def generate(self, width: int, height: int) -> None:
-        self._gen = MazeGenerator(size=(width, height))
-        self._gen.generate(42)
+    def __init__(self, width: int, height: int) -> None:
+        self.width = width
+        self.height = height
+
+    def generate(self, seed: int) -> None:
+        self._gen = MazeGenerator(size=(self.width, self.height))
+        self._gen.generate(seed)
         self.grid = self._create_grid(self._gen.maze)
         self.height = len(self.grid)
         self.width = len(self.grid[0])
@@ -41,10 +45,16 @@ class Maze:
             if cell.val == 15
         ]
 
-        min_x = min([x for (x, _) in pattern_coords])
-        max_x = max([x for (x, _) in pattern_coords])
-        min_y = min([y for (_, y) in pattern_coords])
-        max_y = max([y for (_, y) in pattern_coords])
+        if pattern_coords:
+            min_x = min([x for (x, _) in pattern_coords])
+            max_x = max([x for (x, _) in pattern_coords])
+            min_y = min([y for (_, y) in pattern_coords])
+            max_y = max([y for (_, y) in pattern_coords])
+        else:
+            min_x = self.width // 4
+            max_x = self.width - 1 - min_x
+            min_y = self.height // 4
+            max_y = self.height - 1 - min_y
 
         return (min_x, min_y, max_x, max_y)
 

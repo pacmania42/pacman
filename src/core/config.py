@@ -12,9 +12,10 @@ from pydantic import (
 )
 
 
-class LevelConfig(BaseModel):
+class Level(BaseModel):
     width: int = Field(ge=6, le=20, default=10)
     height: int = Field(ge=6, le=20, default=10)
+    seed: int | None = Field(default=None)
 
     @field_validator("width", "height", mode="before")
     @classmethod
@@ -40,8 +41,8 @@ class Config(BaseModel):
     points_per_ghost: int = Field(ge=0, default=200)
     seed: int = Field(default=42)
     level_max_time: int = Field(gt=0, default=90)
-    levels: list[LevelConfig] = Field(
-        min_length=1, default_factory=lambda: [LevelConfig()]
+    levels: list[Level] = Field(
+        min_length=1, default_factory=lambda: [Level()]
     )
 
 

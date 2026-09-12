@@ -77,7 +77,9 @@ class Window:
     def fill(self, color: int) -> None:
         """Repaint the whole back buffer, wiping the previous frame."""
         size = self.height * self.width
-        self.pixels[0:size * self.bytes_pp] = self._to_pixel(color) * size
+        self.pixels[slice(0, size * self.bytes_pp)] = (
+            self._to_pixel(color) * size
+        )
 
     def _to_pixel(self, color: int) -> bytes:
         """Pack an 0xRRGGBB color into one buffer pixel."""
@@ -162,7 +164,9 @@ class Window:
             for step in range(factor):
                 if 0 <= row + step < self.height:
                     offset = (row + step) * self.line_size
-                    self.pixels[offset + start:offset + end] = row_bytes
+                    self.pixels[slice(offset + start, offset + end)] = (
+                        row_bytes
+                    )
 
     def draw_image(self) -> None:
         self.mlx.mlx_put_image_to_window(
