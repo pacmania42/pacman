@@ -20,6 +20,8 @@ class GameState:
     pacgums: list[Pacgum]
     levels: list[Level]
     curr_level: Level
+    elapsed: float
+    time_left: float
 
     def __init__(self, config: Config, settings: Settings) -> None:
         self.config = config
@@ -66,6 +68,8 @@ class GameState:
     def start_game(self) -> None:
         self.curr_level = self.levels[0]
         self.status = GameStatus.ACTIVE
+        self.elapsed = 0.0
+        self.time_left = float(self.config.level_max_time)
         self._init_entities()
 
     def restart_level(self) -> None:
@@ -79,6 +83,12 @@ class GameState:
     def resume_game(self) -> None:
         if self.status == GameStatus.PAUSED:
             self.status = GameStatus.PAUSED
+
+    def update(self, dt: float, wanted: Direction | None) -> None:
+        self.elapsed += dt
+        self.time_left -= dt
+        # TODO move player / ghosts
+        # TODO collisions...
 
     def _init_superpacgums(self) -> None:
         red = SuperPacgum(position=(0, 0), config=self.config, maze=self.maze)
