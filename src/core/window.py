@@ -3,7 +3,9 @@ from typing import Any, Callable, Optional, Protocol
 from mlx.mlx import Mlx
 
 from src.core.font import PixelFont
+from src.core.image import Image, ImageError
 from src.core.settings import Settings
+from src.core.sprite import Frame, Sprites
 
 
 class EventSink(Protocol):
@@ -49,6 +51,7 @@ class Window:
         self.format = format
 
         self.font = PixelFont(self.mlx, self.mlx_ptr)
+        self.sprites = Sprites(self.png_file_to_image)
         self.text_scale = Settings.text_scale
 
         # key press
@@ -73,6 +76,15 @@ class Window:
         self.mlx.mlx_string_put(
             self.mlx_ptr, self.win_ptr, x, y, color, string
         )
+
+    def png_file_to_image(self, filename: str) -> Image:
+        img, width, height = self.mlx.mlx_png_file_to_image(
+            self.mlx_ptr, filename
+        )
+        if img is None:
+            raise ImageError(f"cannot load image: {filename}")
+        pixels, bpp, line_size, _ = self.mlx.mlx_get_data_addr(img)
+        return Image(pixels, bpp // 8, line_size, width, height)
 
     def fill(self, color: int) -> None:
         """Repaint the whole back buffer, wiping the previous frame."""
@@ -172,3 +184,28 @@ class Window:
         self.mlx.mlx_put_image_to_window(
             self.mlx_ptr, self.win_ptr, self.img_ptr, 0, 0
         )
+
+    def blit(self, frame: Frame, x: int, y: int, alpha_min: int = 128) -> None:
+        """Copy a frame into the back buffer
+        Block image transfer
+        """
+        src, sbpp, sll = (
+            frame.sheet.pixels,
+            frame.sheet.bytes_pp,
+            frame.sheet.line_size,
+        )
+        for row in range(frame.height):
+            ty = y + row
+            if not 0 <= ty < self.height:
+                continue
+            sbase = row * sll + frame.x0 * sbpp
+            dbase = ty * self.line_size
+            for col in range(frame.width):
+                tx = x + col
+                if not 0 <= tx < self.width:
+                    continue
+                s = sbase + col * sbpp
+                if src[s + 3] < alpha_min:
+                    continue
+                d = dbase + tx * self.bytes_pp
+                self.pixels[d:d + 4] = src[s:s + 4]
