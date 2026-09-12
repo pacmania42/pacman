@@ -9,6 +9,7 @@ from src.core.transitions import Push, Quit, Transition
 from src.core.window import Window
 from src.entities import Direction, Ghost, Maze, Pacgum, Player, SuperPacgum
 from src.game_state import GameState
+from src.ui.game_view import GameView
 
 
 class GameplayScene(Scene):
@@ -17,11 +18,7 @@ class GameplayScene(Scene):
         self.stg = Settings()
         self.config = config
         self.game = GameState(config=self.config, settings=self.stg)
-        self.maze = self.game.maze
-        self.player = self.game.player
-        self.superpacgums = self.game.superpacgums
-        self.pacgums = self.game.pacgums
-        self.ghosts = self.game.ghosts
+        self.view = GameView(self.stg)
 
     def update(self, inputs: InputState) -> Transition:
         if inputs.was_pressed(Action.PAUSE):
@@ -39,14 +36,12 @@ class GameplayScene(Scene):
         elif inputs.was_pressed(Action.LEFT):
             self.game.move_player(direction=Direction.WEST)
 
+        self.game.update(Settings.tick, None)
+        self.view.tick(Settings.tick)
         return None
 
     def draw(self, window: Window) -> None:
-        self._draw_maze(window, self.maze)
-        self._draw_player(window, self.player)
-        self._draw_ghosts(window, self.ghosts)
-        self._draw_superpacgums(window, self.superpacgums)
-        self._draw_pacgums(window, self.pacgums)
+        self.view.draw(window, self.game)
 
     def on_resume(self, result: Optional[Any] = None) -> None:
         self.game.resume_game()
