@@ -31,6 +31,18 @@ class Frame:
     height: int
 
 
+@dataclass(frozen=True)
+class Animation:
+
+    sheet: SpriteId
+    fps: float
+    loop: bool = True
+
+    def frame_index(self, t: float, count: int) -> int:
+        i = int(t * self.fps)
+        return i % count if self.loop else min(i, count - 1)
+
+
 class SpriteSheet:
     def __init__(self, sheet: Image, count: int) -> None:
         w = sheet.width // count
@@ -40,6 +52,9 @@ class SpriteSheet:
 
     def __getitem__(self, i: int) -> Frame:
         return self.frames[i % len(self.frames)]
+
+    def __len__(self) -> int:
+        return len(self.frames)
 
 
 class Sprites:
@@ -57,3 +72,7 @@ class Sprites:
 
     def __getitem__(self, sid: SpriteId) -> SpriteSheet:
         return self.sheets[sid]
+
+    def frame(self, anim: Animation, t: float) -> Frame:
+        sheet = self.sheets[anim.sheet]
+        return sheet[anim.frame_index(t, len(sheet))]
