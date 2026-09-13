@@ -1,4 +1,4 @@
-from src.core.config import Config
+from src.core.context import Context
 from src.core.input import Action, InputState
 from src.core.scene import Scene
 from src.core.transitions import Pop, Transition
@@ -8,8 +8,8 @@ from src.core.window import Window
 class PauseScene(Scene):
     is_overlay = True
 
-    def __init__(self, config: Config) -> None:
-        self.config = config
+    def __init__(self, ctx: Context) -> None:
+        pass
 
     def update(self, inputs: InputState) -> Transition:
         if inputs.any_pressed(Action.PAUSE, Action.BACK):
