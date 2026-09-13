@@ -1,35 +1,17 @@
 from typing import Any, Callable, Dict, List, Optional
 
-from src.core.input import Action, InputState
+from src.core.input import InputState
 from src.core.scene import Scene
 from src.core.scene_id import SceneId
 from src.core.transitions import Pop, Push, Quit, Replace, Transition
 from src.core.window import Window
-from src.scenes.gameplay import GameplayScene
-from src.scenes.instructions import InstructionsScene
-from src.scenes.menu import MenuScene
-
-
-class PauseScene(Scene):
-    is_overlay = True
-
-    def update(self, inputs: InputState) -> Transition:
-        if inputs.any_pressed(Action.PAUSE, Action.BACK):
-            return Pop()
-        return None
-
-    def draw(self, window: Window) -> None:
-        window.write(400, 400, 0xFFFF00, "PAUSED")
-
-
-class HighScoreScene(Scene):
-    def update(self, inputs: InputState) -> Transition:
-        if inputs.any_pressed(Action.CONFIRM, Action.BACK):
-            return Pop()
-        return None
-
-    def draw(self, window: Window) -> None:
-        window.write(50, 50, 0xFFFFFF, "High Scores")
+from src.scenes import (
+    GameplayScene,
+    HighScoreScene,
+    InstructionsScene,
+    MenuScene,
+    PauseScene,
+)
 
 
 class SceneStack:

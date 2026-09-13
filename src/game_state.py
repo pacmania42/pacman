@@ -2,7 +2,7 @@ from enum import IntEnum, auto
 
 from src.core.config import Config, Level
 from src.core.settings import Settings
-from src.entities import Ghost, Maze, Pacgum, Player, SuperPacgum
+from src.entities import Direction, Ghost, Maze, Pacgum, Player, SuperPacgum
 
 
 class GameStatus(IntEnum):
@@ -27,6 +27,27 @@ class GameState:
         self.settings = settings
         self.start_game()
 
+    def move_player(self, direction: Direction) -> None:
+        col, row = self.player.position
+        cell = self.maze.grid[row][col]
+
+        if direction == Direction.NORTH and not cell.n:
+            row -= 1
+        elif direction == Direction.SOUTH and not cell.s:
+            row += 1
+        elif direction == Direction.EAST and not cell.e:
+            col += 1
+        elif direction == Direction.WEST and not cell.w:
+            col -= 1
+        else:
+            return
+
+        col = max(0, min(col, self.maze.width - 1))
+        row = max(0, min(row, self.maze.height - 1))
+
+        self.player.position = (col, row)
+        self.maze.grid[row][col].edible = self.player
+
     def _init_entities(self) -> None:
         height = self.curr_level.height
         width = self.curr_level.width
@@ -50,6 +71,14 @@ class GameState:
     def restart_level(self) -> None:
         self.status = GameStatus.ACTIVE
         # TODO: wip
+
+    def pause_game(self) -> None:
+        if self.status == GameStatus.ACTIVE:
+            self.status = GameStatus.PAUSED
+
+    def resume_game(self) -> None:
+        if self.status == GameStatus.PAUSED:
+            self.status = GameStatus.PAUSED
 
     def _init_superpacgums(self) -> None:
         red = SuperPacgum(position=(0, 0), cfg=self.config, maze=self.maze)
@@ -97,14 +126,15 @@ class GameState:
 
         for y in range(self.maze.height):
             for x in range(self.maze.width):
-                if min_x > x and x < max_x and (min_y > y < max_y):
+                if (min_x <= x <= max_x) and (min_y <= y <= max_y):
                     continue
-                if not self.maze.grid[y][x].edible:
-                    pacgums.append(
-                        Pacgum(
-                            position=(x, y),
-                            cfg=self.config,
-                            maze=self.maze,
-                        )
-                    )
+                if self.maze.grid[y][x].edible:
+                    continue
+                pacgum = Pacgum(
+                    position=(x, y),
+                    cfg=self.config,
+                    maze=self.maze,
+                )
+                self.maze.grid[y][x].edible = pacgum
+                pacgums.append(pacgum)
         self.pacgums = pacgums

@@ -1,10 +1,22 @@
 from mazegenerator import MazeGenerator
 
-from .cell import Cell
-
 
 class MazeError(Exception):
     pass
+
+
+class Cell:
+    def __init__(self, val: int, row: int, col: int) -> None:
+        self.row = row
+        self.col = col
+
+        self.val = val
+        self.n = bool(self.val & 0b0001)
+        self.e = bool(self.val & 0b0010)
+        self.s = bool(self.val & 0b0100)
+        self.w = bool(self.val & 0b1000)
+
+        self.edible: object | None = None
 
 
 class Maze:

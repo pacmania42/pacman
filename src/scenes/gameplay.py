@@ -5,9 +5,9 @@ from src.core.input import Action, InputState
 from src.core.scene import Scene
 from src.core.scene_id import SceneId
 from src.core.settings import Settings
-from src.core.transitions import Push, Transition
+from src.core.transitions import Push, Quit, Transition
 from src.core.window import Window
-from src.entities import Ghost, Maze, Pacgum, Player, SuperPacgum
+from src.entities import Direction, Ghost, Maze, Pacgum, Player, SuperPacgum
 from src.game_state import GameState
 
 
@@ -25,7 +25,20 @@ class GameplayScene(Scene):
 
     def update(self, inputs: InputState) -> Transition:
         if inputs.was_pressed(Action.PAUSE):
+            self.game.pause_game()
             return Push(SceneId.PAUSE)
+        elif inputs.was_pressed(Action.BACK):
+            return Quit()
+
+        elif inputs.was_pressed(Action.UP):
+            self.game.move_player(direction=Direction.NORTH)
+        elif inputs.was_pressed(Action.DOWN):
+            self.game.move_player(direction=Direction.SOUTH)
+        elif inputs.was_pressed(Action.RIGHT):
+            self.game.move_player(direction=Direction.EAST)
+        elif inputs.was_pressed(Action.LEFT):
+            self.game.move_player(direction=Direction.WEST)
+
         return None
 
     def draw(self, window: Window) -> None:
@@ -36,7 +49,7 @@ class GameplayScene(Scene):
         self._draw_pacgums(window, self.pacgums)
 
     def on_resume(self, result: Optional[Any] = None) -> None:
-        print("Resume gameplay")
+        self.game.resume_game()
 
     def _draw_maze(self, window: Window, maze: Maze) -> None:
         maze_width = maze.width * self.stg.cell_dim
@@ -76,8 +89,8 @@ class GameplayScene(Scene):
         height = 20
         col, row = player.position
 
-        x = col * self.stg.cell_dim + (self.stg.cell_dim // 2) - width
-        y = row * self.stg.cell_dim + (self.stg.cell_dim // 2) - height
+        x = col * self.stg.cell_dim + (self.stg.cell_dim - width) // 2
+        y = row * self.stg.cell_dim + (self.stg.cell_dim - height) // 2
 
         window.put_box(x, y, width, height, 0xFFFF00)
 
@@ -89,8 +102,8 @@ class GameplayScene(Scene):
         colors = [0x00FFFF, 0xFFA500, 0x00FF00, 0xFF0000]
         for ghost, color in zip(ghosts, colors, strict=True):
             col, row = ghost.position
-            x = col * self.stg.cell_dim + (self.stg.cell_dim // 2) - width
-            y = row * self.stg.cell_dim + (self.stg.cell_dim // 2) - height
+            x = col * self.stg.cell_dim + (self.stg.cell_dim - width) // 2
+            y = row * self.stg.cell_dim + (self.stg.cell_dim - height) // 2
 
             window.put_box(x, y, width, height, color)
 
@@ -105,8 +118,8 @@ class GameplayScene(Scene):
         height = 25
         for spg in superpacgums:
             col, row = spg.position
-            x = col * self.stg.cell_dim + (self.stg.cell_dim // 2) - width
-            y = row * self.stg.cell_dim + (self.stg.cell_dim // 2) - height
+            x = col * self.stg.cell_dim + (self.stg.cell_dim - width) // 2
+            y = row * self.stg.cell_dim + (self.stg.cell_dim - height) // 2
 
             window.put_box(x, y, width, height, 0xDDDDDD)
 
@@ -115,7 +128,7 @@ class GameplayScene(Scene):
         height = 10
         for pg in pacgums:
             col, row = pg.position
-            x = col * self.stg.cell_dim + (self.stg.cell_dim // 2) - width
-            y = row * self.stg.cell_dim + (self.stg.cell_dim // 2) - height
+            x = col * self.stg.cell_dim + (self.stg.cell_dim - width) // 2
+            y = row * self.stg.cell_dim + (self.stg.cell_dim - height) // 2
 
             window.put_box(x, y, width, height, 0xAA5555)

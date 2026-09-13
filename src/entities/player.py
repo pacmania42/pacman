@@ -10,19 +10,17 @@ class Player(Actor):
     ) -> None:
         value = 0
         lives = cfg.lives
-        x, y = position
-        spawn_position = (x, y)
+        spawn_position = position
         spawn_delay = 2  # TODO: get from config
 
         super().__init__(
+            maze=maze,
             value=value,
             lives=lives,
             status=ActorStatus.FLEEING,
             spawn_position=spawn_position,
             spawn_delay=spawn_delay,
         )
-
-        maze.grid[y][x].edible = self
 
     def eat(self, actor: "Actor") -> None:
         self.value += actor.value
