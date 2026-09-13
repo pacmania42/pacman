@@ -1,6 +1,7 @@
 from typing import Any
 
 from src.core.config import Config, ConfigError, ConfigLoader
+from src.core.highscore import HighScore
 from src.core.input import EventBuffer, InputTracker
 from src.core.scene_stack import SceneStack
 from src.core.settings import Settings
@@ -31,6 +32,11 @@ def main() -> None:
         config = ConfigLoader().load()
     except ConfigError as e:
         print(e)
+        return
+    try:
+        highscore = HighScore(config.highscore_filename)
+    except Exception as e:
+        print(f"Error by loading highscore: {e}")
         return
 
     Game(config)
