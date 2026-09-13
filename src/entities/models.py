@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum, auto
 
+from .maze import Maze
+
 
 class Direction(Enum):
     NORTH = (0, -1)
@@ -14,7 +16,11 @@ class Edible(ABC):
     value: int
     is_active: bool
 
-    def __init__(self, position: tuple[int, int], value: int) -> None:
+    def __init__(
+        self, maze: Maze, position: tuple[int, int], value: int
+    ) -> None:
+        col, row = position
+        maze.grid[row][col].edible = self
         self.position = position
         self.value = value
         self.is_active = True
@@ -40,13 +46,14 @@ class Actor(Edible):
 
     def __init__(
         self,
+        maze: Maze,
         value: int,
         lives: float,
         status: ActorStatus,
         spawn_position: tuple[int, int],
         spawn_delay: int,
     ):
-        super().__init__(spawn_position, value)
+        super().__init__(maze, spawn_position, value)
         self.lives = lives
         self.status = status
         self.spawn_position = spawn_position

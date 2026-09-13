@@ -42,10 +42,10 @@ class Settings:
         0x73: Action.DOWN,
         0x61: Action.LEFT,
         0x64: Action.RIGHT,
-        0xFF0D: Action.CONFIRM,
-        0x20: Action.CONFIRM,
-        0xFF1B: Action.BACK,
-        0x70: Action.PAUSE,
+        0xFF0D: Action.CONFIRM,  # enter
+        0x20: Action.CONFIRM,  # space
+        0xFF1B: Action.BACK,  # escape
+        0x70: Action.PAUSE,  # enter
     }
 
     # keybindings
