@@ -36,7 +36,12 @@ class InstructionsScene(Scene):
         return None
 
     def draw(self, window: Window) -> None:
-        top = ui.screen_title(window, theme.MARGIN // 2, "INSTRUCTIONS")
+        top = ui.screen_title(
+            window,
+            theme.MARGIN // 2,
+            "INSTRUCTIONS",
+            ui.rule_shift(self.clock),
+        )
         rows = self._rows()
         height = sum(
             gap + (window.text_height(scale) if text else 0)
@@ -45,10 +50,12 @@ class InstructionsScene(Scene):
         x = ui.block_left(window, [(t, s) for t, _, s, _ in rows])
         y = ui.block_top(window, top, height)
 
-        for text, color, scale, gap in rows:
+        for index, (text, color, scale, gap) in enumerate(rows):
             y += gap
-            if text:
-                y = ui.line(window, x, y, text, color, scale)
+            if not text:
+                continue
+            faded = ui.reveal(color, index, self.clock)
+            y = ui.line(window, x, y, text, faded, scale)
 
         ui.footer(window, "ESC   back to menu")
 
