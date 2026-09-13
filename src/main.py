@@ -1,6 +1,7 @@
 from typing import Any
 
-from src.core.config import Config, ConfigError, ConfigLoader
+from src.core.config import ConfigError, ConfigLoader
+from src.core.context import Context
 from src.core.highscore import HighScore
 from src.core.input import EventBuffer, InputTracker
 from src.core.scene_stack import SceneStack
@@ -9,9 +10,9 @@ from src.core.window import Window
 
 
 class Game:
-    def __init__(self, config: Config) -> None:
-        self.config = config
-        self.scenes = SceneStack(config)
+    def __init__(self, ctx: Context) -> None:
+        self.ctx = ctx
+        self.scenes = SceneStack(self.ctx)
         events = EventBuffer()
         self.input = InputTracker(Settings.bindings, events)
         self.window = Window(events, self.game_loop)
@@ -33,10 +34,10 @@ def main() -> None:
     except ConfigError as e:
         print(e)
         return
-    try:
-        highscore = HighScore(config.highscore_filename)
-    except Exception as e:
-        print(f"Error by loading highscore: {e}")
-        return
 
-    Game(config)
+    Game(
+        Context(
+            config=config,
+            highscore=HighScore(config.highscore_filename),
+        )
+    )

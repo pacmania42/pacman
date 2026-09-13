@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from src.core.config import Config
+from src.core.context import Context
 from src.core.input import Action, InputState
 from src.core.scene import Scene
 from src.core.scene_id import SceneId
@@ -13,10 +13,10 @@ from src.ui.game_view import GameView
 
 
 class GameplayScene(Scene):
-    def __init__(self, config: Config) -> None:
+    def __init__(self, ctx: Context) -> None:
         super().__init__()
         self.stg = Settings()
-        self.config = config
+        self.config = ctx.config
         self.game = GameState(config=self.config, settings=self.stg)
         self.view = GameView(self.stg)
 

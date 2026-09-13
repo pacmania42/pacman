@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict, List, Optional
 
-from src.core.config import Config
+from src.core.context import Context
 from src.core.input import InputState
 from src.core.scene import Scene
 from src.core.scene_id import SceneId
@@ -18,9 +18,9 @@ from src.scenes import (
 class SceneStack:
     """A Last-In-First-Out stack of scenes."""
 
-    def __init__(self, config: Config) -> None:
-        self.config = config
-        self.factories: Dict[SceneId, Callable[[Config], Scene]] = {}
+    def __init__(self, ctx: Context) -> None:
+        self.ctx = ctx
+        self.factories: Dict[SceneId, Callable[[Context], Scene]] = {}
         self.stack: List[Scene] = []
         self.should_quit = False
 
@@ -33,7 +33,7 @@ class SceneStack:
         self.push(SceneId.MENU)
 
     def register(
-        self, name: SceneId, factory: Callable[[Config], Scene]
+        self, name: SceneId, factory: Callable[[Context], Scene]
     ) -> None:
         """Bind an id to the factory that builds that scene."""
         self.factories[name] = factory
@@ -42,7 +42,7 @@ class SceneStack:
         """Build a fresh instance, so state never leaks between visits."""
         if name not in self.factories:
             raise ValueError(f"Scene '{name.value}' is not registered.")
-        return self.factories[name](self.config)
+        return self.factories[name](self.ctx)
 
     def push(self, name: SceneId, payload: Optional[Any] = None) -> None:
         """Pushes a new scene to the top of the stack"""
