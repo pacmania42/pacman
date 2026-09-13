@@ -22,6 +22,7 @@ class Player(Actor):
             spawn_delay=spawn_delay,
         )
         self.moving = False  # TODO: derive, once movement exists
+        self.facing = Direction.EAST  # TODO: set by movement
 
     def eat(self, actor: "Actor") -> None:
         self.value += actor.value
