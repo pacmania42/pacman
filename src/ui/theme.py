@@ -15,6 +15,9 @@ Grid
     from `Window.text_height()`, so mixing scales never breaks spacing.
     Horizontal insets are multiples of MARGIN.
 
+Motion
+    Timings for ui animations
+
 Contrast
     These colors assume a black background. BLUE, SURFACE and HIGHLIGHT
     are fills only, never text: they are too dark to read against BG.
@@ -95,3 +98,34 @@ RULE_HEIGHT: Final[int] = 6
 """Thickness of the four-ghost divider."""
 CURSOR: Final[str] = ">"
 """Marker drawn beside the active menu entry."""
+
+# ----------------------------------------------------------------- motion
+
+REVEAL_STEP: Final[float] = 0.08
+"""Delay between one row of a screen fading in and the next"""
+REVEAL_FADE: Final[float] = 0.35
+"""Seconds a single row takes to fade in"""
+PULSE_PERIOD: Final[float] = 1.6
+"""Seconds for one full pulse of a highlighted row"""
+RULE_SPEED: Final[float] = 120.0
+"""Pixels per second for the colour bar to scroll"""
+
+
+# ----------------------------------------------------------------- blending
+
+
+def mix(color: int, other: int, t: float) -> int:
+    """Blend two palette colors; `t` runs 0.0 (color) to 1.0 (other).
+
+    Lets a screen animate a color without leaving the palette: pick the
+    two ends from the roles above and drive `t` from a clock.
+    """
+    t = min(1.0, max(0.0, t))
+    return sum(
+        round(
+            ((color >> shift) & 0xFF) * (1.0 - t)
+            + ((other >> shift) & 0xFF) * t
+        )
+        << shift
+        for shift in (16, 8, 0)
+    )
