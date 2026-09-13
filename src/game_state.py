@@ -2,7 +2,14 @@ from enum import IntEnum, auto
 
 from src.core.config import Config, Level
 from src.core.settings import Settings
-from src.entities import Ghost, Maze, Pacgum, Player, SuperPacgum
+from src.entities import (
+    Direction,
+    Ghost,
+    Maze,
+    Pacgum,
+    Player,
+    SuperPacgum,
+)
 
 
 class GameStatus(IntEnum):
@@ -20,6 +27,8 @@ class GameState:
     pacgums: list[Pacgum]
     levels: list[Level]
     curr_level: Level
+    elapsed: float
+    time_left: float
 
     def __init__(self, config: Config, settings: Settings) -> None:
         self.config = config
@@ -45,11 +54,19 @@ class GameState:
     def start_game(self) -> None:
         self.curr_level = self.levels[0]
         self.status = GameStatus.ACTIVE
+        self.elapsed = 0.0
+        self.time_left = float(self.config.level_max_time)
         self._init_entities()
 
     def restart_level(self) -> None:
         self.status = GameStatus.ACTIVE
         # TODO: wip
+
+    def update(self, dt: float, wanted: Direction | None) -> None:
+        self.elapsed += dt
+        self.time_left -= dt
+        # TODO move player / ghosts
+        # TODO collisions...
 
     def _init_superpacgums(self) -> None:
         red = SuperPacgum(position=(0, 0), cfg=self.config, maze=self.maze)

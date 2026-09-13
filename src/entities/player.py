@@ -21,6 +21,7 @@ class Player(Actor):
             spawn_position=spawn_position,
             spawn_delay=spawn_delay,
         )
+        self.moving = False  # TODO: derive, once movement exists
 
         maze.grid[y][x].edible = self
 
