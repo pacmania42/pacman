@@ -3,7 +3,7 @@
 from src.core.settings import Settings
 from src.core.sprite import Animation, SpriteId
 from src.core.window import Window
-from src.entities import Ghost, Maze, Pacgum, Player, SuperPacgum
+from src.entities import Direction, Ghost, Maze, Pacgum, Player, SuperPacgum
 from src.game_state import GameState
 
 PLAYER_IDLE = Animation(SpriteId.SHROOM_IDLE, fps=6)
@@ -20,6 +20,7 @@ class GameView:
         self.clock = 0.0
         self.player_anim: Animation | None = None
         self.player_anim_start = 0.0
+        self.player_flip = False
 
     def tick(self, dt: float) -> None:
         """Advance the animation clock"""
@@ -73,11 +74,16 @@ class GameView:
         t = self.clock - self.player_anim_start
         frame = window.sprites.frame(anim, t)
 
+        if player.facing is Direction.WEST:
+            self.player_flip = True
+        elif player.facing is Direction.EAST:
+            self.player_flip = False
+
         col, row = player.position
         x = col * self.stg.cell_dim + (self.stg.cell_dim - frame.width) // 2
         y = row * self.stg.cell_dim + (self.stg.cell_dim - frame.height) // 2
 
-        window.blit(frame, x, y)
+        window.blit(frame, x, y, flip=self.player_flip)
 
     def _draw_ghosts(
         self, window: Window, ghosts: tuple[Ghost, Ghost, Ghost, Ghost]

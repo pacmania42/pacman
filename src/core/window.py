@@ -185,7 +185,14 @@ class Window:
             self.mlx_ptr, self.win_ptr, self.img_ptr, 0, 0
         )
 
-    def blit(self, frame: Frame, x: int, y: int, alpha_min: int = 128) -> None:
+    def blit(
+        self,
+        frame: Frame,
+        x: int,
+        y: int,
+        flip: bool = False,
+        alpha_min: int = 128,
+    ) -> None:
         """Copy a frame into the back buffer
         Block image transfer
         """
@@ -194,6 +201,7 @@ class Window:
             frame.sheet.bytes_pp,
             frame.sheet.line_size,
         )
+        last = frame.width - 1
         for row in range(frame.height):
             ty = y + row
             if not 0 <= ty < self.height:
@@ -204,7 +212,7 @@ class Window:
                 tx = x + col
                 if not 0 <= tx < self.width:
                     continue
-                s = sbase + col * sbpp
+                s = sbase + (last - col if flip else col) * sbpp
                 if src[s + 3] < alpha_min:
                     continue
                 d = dbase + tx * self.bytes_pp
