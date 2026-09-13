@@ -12,8 +12,17 @@ class Scene:
     """This scene does not cover the screen: draw the one below
     it first."""
 
+    clock: float
+    """how long has this screen been on view, resets when
+    the scene is rebuilt
+    """
+
     def __init__(self) -> None:
-        pass
+        self.clock = 0.0
+
+    def advance(self, dt: float) -> None:
+        """Increment the animation clock by one frame"""
+        self.clock += dt
 
     def on_enter(self, payload: Optional[Any] = None) -> None:
         """Called when this scene is added to the stack."""

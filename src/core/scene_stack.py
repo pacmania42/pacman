@@ -4,6 +4,7 @@ from src.core.context import Context
 from src.core.input import InputState
 from src.core.scene import Scene
 from src.core.scene_id import SceneId
+from src.core.settings import Settings
 from src.core.transitions import Pop, Push, Quit, Replace, Transition
 from src.core.window import Window
 from src.scenes import (
@@ -105,6 +106,8 @@ class SceneStack:
         """Only update the top-most scene on the stack"""
         if not self.stack:
             return
+
+        self.stack[-1].advance(Settings.tick)
 
         # The stack is only ever mutated here, never mid-update.
         intent = self.stack[-1].update(inputs)
