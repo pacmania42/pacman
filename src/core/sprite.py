@@ -13,8 +13,8 @@ Loader = Callable[[str], Image]
 
 
 class SpriteId(Enum):
-    SHROOM_IDLE = ("shroom_idle.png", 4)  # (file, frame count)
-    SHROOM_WALK = ("shroom_walk.png", 4)
+    SHROOM_IDLE = ("shroom_idle_32.png", 4)  # (file, frame count)
+    SHROOM_WALK = ("shroom_walk_32.png", 4)
 
 
 class SpriteError(Exception):
