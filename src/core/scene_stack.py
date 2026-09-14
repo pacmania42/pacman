@@ -1,5 +1,6 @@
 from typing import Any, Callable, Dict, List, Optional
 
+from src.core.config import Config
 from src.core.input import InputState
 from src.core.scene import Scene
 from src.core.scene_id import SceneId
@@ -17,12 +18,23 @@ from src.scenes import (
 class SceneStack:
     """A Last-In-First-Out stack of scenes."""
 
-    def __init__(self) -> None:
-        self.factories: Dict[SceneId, Callable[[], Scene]] = {}
+    def __init__(self, config: Config) -> None:
+        self.config = config
+        self.factories: Dict[SceneId, Callable[[Config], Scene]] = {}
         self.stack: List[Scene] = []
         self.should_quit = False
 
-    def register(self, name: SceneId, factory: Callable[[], Scene]) -> None:
+        self.register(SceneId.GAMEPLAY, GameplayScene)
+        self.register(SceneId.PAUSE, PauseScene)
+        self.register(SceneId.HIGHSCORE, HighScoreScene)
+        self.register(SceneId.INSTRUCTIONS, InstructionsScene)
+        self.register(SceneId.MENU, MenuScene)
+
+        self.push(SceneId.MENU)
+
+    def register(
+        self, name: SceneId, factory: Callable[[Config], Scene]
+    ) -> None:
         """Bind an id to the factory that builds that scene."""
         self.factories[name] = factory
 
@@ -30,7 +42,7 @@ class SceneStack:
         """Build a fresh instance, so state never leaks between visits."""
         if name not in self.factories:
             raise ValueError(f"Scene '{name.value}' is not registered.")
-        return self.factories[name]()
+        return self.factories[name](self.config)
 
     def push(self, name: SceneId, payload: Optional[Any] = None) -> None:
         """Pushes a new scene to the top of the stack"""
@@ -109,16 +121,3 @@ class SceneStack:
 
         for scene in self.stack[bottom:]:
             scene.draw(window)
-
-
-def build_scene_stack() -> SceneStack:
-    """Registers every scene. The caller decides which one starts."""
-    scenes = SceneStack()
-
-    scenes.register(SceneId.GAMEPLAY, GameplayScene)
-    scenes.register(SceneId.PAUSE, PauseScene)
-    scenes.register(SceneId.HIGHSCORE, HighScoreScene)
-    scenes.register(SceneId.INSTRUCTIONS, InstructionsScene)
-    scenes.register(SceneId.MENU, MenuScene)
-
-    return scenes

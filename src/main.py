@@ -2,8 +2,7 @@ from typing import Any
 
 from src.core.config import Config, ConfigError, ConfigLoader
 from src.core.input import EventBuffer, InputTracker
-from src.core.scene_id import SceneId
-from src.core.scene_stack import SceneStack, build_scene_stack
+from src.core.scene_stack import SceneStack
 from src.core.settings import Settings
 from src.core.window import Window
 
@@ -11,8 +10,7 @@ from src.core.window import Window
 class Game:
     def __init__(self, config: Config) -> None:
         self.config = config
-        self.scenes: SceneStack = build_scene_stack()
-        self.scenes.push(SceneId.MENU)
+        self.scenes = SceneStack(config)
         events = EventBuffer()
         self.input = InputTracker(Settings.bindings, events)
         self.window = Window(events, self.game_loop)
