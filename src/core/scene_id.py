@@ -7,5 +7,6 @@ class SceneId(Enum):
     MENU = "Menu"
     GAMEPLAY = "Gameplay"
     PAUSE = "Pause"
+    GAMEOVER = "GameOver"
     HIGHSCORE = "HighScore"
     INSTRUCTIONS = "Instructions"
