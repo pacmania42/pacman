@@ -8,6 +8,7 @@ from src.core.settings import Settings
 from src.core.transitions import Pop, Push, Quit, Replace, Transition
 from src.core.window import Window
 from src.scenes import (
+    GameOverScene,
     GameplayScene,
     HighScoreScene,
     InstructionsScene,
@@ -27,6 +28,7 @@ class SceneStack:
 
         self.register(SceneId.GAMEPLAY, GameplayScene)
         self.register(SceneId.PAUSE, PauseScene)
+        self.register(SceneId.GAMEOVER, GameOverScene)
         self.register(SceneId.HIGHSCORE, HighScoreScene)
         self.register(SceneId.INSTRUCTIONS, InstructionsScene)
         self.register(SceneId.MENU, MenuScene)

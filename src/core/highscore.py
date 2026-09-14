@@ -1,12 +1,16 @@
 import os
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Final
 
 from pydantic import BaseModel, Field, TypeAdapter, ValidationError
 
+LIST_MAX_SIZE: Final[int] = 10
+
+NAME_MAX_LENGTH: Final[int] = 10
+
 
 class HighscoreItem(BaseModel):
-    name: str = Field(max_length=10, pattern=r"^[A-Za-z0-9 ]+$")
+    name: str = Field(max_length=NAME_MAX_LENGTH, pattern=r"^[A-Za-z0-9 ]+$")
     score: int = Field(ge=0)
 
 
@@ -29,7 +33,7 @@ class HighScore:
 
         try:
             items: list[HighscoreItem] = TypeAdapter(
-                Annotated[list[HighscoreItem], Field(max_length=10)]
+                Annotated[list[HighscoreItem], Field(max_length=LIST_MAX_SIZE)]
             ).validate_json(content)
         except ValidationError as e:
             print(e)
@@ -50,8 +54,17 @@ class HighScore:
         item = HighscoreItem(name=name, score=score)
         self.data.append(item)
         self.data.sort(key=lambda x: x.score, reverse=True)
-        del self.data[10:]
+        del self.data[LIST_MAX_SIZE:]
         return item
+
+    def qualifies(self, score: int) -> bool:
+        """if a `score` would stay in the table once added.
+
+        On a tie the older entry keeps its place
+        """
+        if len(self.data) < LIST_MAX_SIZE:
+            return True
+        return score > min(item.score for item in self.data)
 
     def save_to_file(self) -> None:
         json_data = TypeAdapter(list[HighscoreItem]).dump_json(
