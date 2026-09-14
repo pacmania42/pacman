@@ -2,7 +2,7 @@ from src.core.context import Context
 from src.core.input import Action, InputState
 from src.core.scene import Scene
 from src.core.scene_id import SceneId
-from src.core.transitions import Push, Quit, Replace, Transition
+from src.core.transitions import Push, Quit, Transition
 from src.core.window import Window
 from src.ui import theme, ui
 
@@ -44,7 +44,7 @@ class MenuScene(Scene):
         elif inputs.was_pressed(Action.CONFIRM):
             action = self.menu.get_item()
             if action == "Start":
-                return Replace(SceneId.GAMEPLAY)
+                return Push(SceneId.GAMEPLAY)
             if action == "Instructions":
                 return Push(SceneId.INSTRUCTIONS)
             if action == "Highscore":
