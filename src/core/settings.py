@@ -7,12 +7,12 @@ from src.ui import theme
 class Settings:
     #
     tick = 1 / 60
-    win_width = 1200
-    win_height = 800
+    win_width = 1400
+    win_height = 1000
     window_title: str = "Pac-Man"
 
     # spacings
-    cell_dim = 72
+    cell_dim = 60
     # wall_thickness = cell_dim // 10
     wall_thickness = 1
     txt_pane_width = 350

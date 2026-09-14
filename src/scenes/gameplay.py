@@ -12,10 +12,10 @@ from src.game_state import GameState
 
 
 class GameplayScene(Scene):
-    def __init__(self) -> None:
+    def __init__(self, config: Config) -> None:
         super().__init__()
         self.stg = Settings()
-        self.config = Config()  # TODO: get the instance
+        self.config = config
         self.game = GameState(config=self.config, settings=self.stg)
         self.maze = self.game.maze
         self.player = self.game.player

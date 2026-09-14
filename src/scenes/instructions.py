@@ -1,5 +1,6 @@
 from itertools import cycle
 
+from src.core.config import Config
 from src.core.input import Action, InputState
 from src.core.scene import Scene
 from src.core.transitions import Pop, Transition
@@ -8,8 +9,9 @@ from src.ui import theme, ui
 
 
 class InstructionsScene(Scene):
-    def __init__(self) -> None:
+    def __init__(self, config: Config) -> None:
         super().__init__()
+        self.config = config
         self.instructions: list[str] = [
             "HOW TO PLAY",
             "Eat every dot in the maze to clear the level.",
