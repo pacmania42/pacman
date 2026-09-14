@@ -67,6 +67,14 @@ class GameplayScene(Scene):
         for cell in cells:
             x_offset = cell.col * self.stg.cell_dim
             y_offset = cell.row * self.stg.cell_dim
+            if all([cell.n, cell.e, cell.s, cell.w]):
+                window.put_box(
+                    x_offset + self.stg.wall_thickness,
+                    y_offset + self.stg.wall_thickness,
+                    self.stg.cell_dim - 2 * self.stg.wall_thickness,
+                    self.stg.cell_dim - 2 * self.stg.wall_thickness,
+                    0xFF0000,
+                )
             if cell.n:
                 window.put_box(
                     x_offset,
