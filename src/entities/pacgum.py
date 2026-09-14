@@ -7,9 +7,9 @@ from .models import Actor, ActorStatus, Edible
 
 class Pacgum(Edible):
     def __init__(
-        self, position: tuple[int, int], cfg: Config, maze: Maze
+        self, position: tuple[int, int], config: Config, maze: Maze
     ) -> None:
-        value = cfg.points_per_pacgum
+        value = config.points_per_pacgum
         super().__init__(maze=maze, position=position, value=value)
 
     def eat(self, actor: Actor) -> None:
@@ -19,15 +19,12 @@ class Pacgum(Edible):
         self.is_active = False
 
 
-class SuperPacgum(Edible):
+class SuperPacgum(Pacgum):
     def __init__(
-        self, position: tuple[int, int], cfg: Config, maze: Maze
+        self, position: tuple[int, int], config: Config, maze: Maze
     ) -> None:
-        value = cfg.points_per_pacgum
-        super().__init__(maze=maze, position=position, value=value)
-
-    def eat(self, actor: "Actor") -> None:
-        pass
+        super().__init__(position=position, config=config, maze=maze)
+        self.value = config.points_per_pacgum
 
     def get_eaten(self) -> None:
         self.is_active = False

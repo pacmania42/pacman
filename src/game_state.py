@@ -81,16 +81,20 @@ class GameState:
             self.status = GameStatus.PAUSED
 
     def _init_superpacgums(self) -> None:
-        red = SuperPacgum(position=(0, 0), cfg=self.config, maze=self.maze)
+        red = SuperPacgum(position=(0, 0), config=self.config, maze=self.maze)
         pink = SuperPacgum(
-            position=(0, self.maze.height - 1), cfg=self.config, maze=self.maze
+            position=(0, self.maze.height - 1),
+            config=self.config,
+            maze=self.maze,
         )
         cyan = SuperPacgum(
-            position=(self.maze.width - 1, 0), cfg=self.config, maze=self.maze
+            position=(self.maze.width - 1, 0),
+            config=self.config,
+            maze=self.maze,
         )
         yellow = SuperPacgum(
             position=(self.maze.width - 1, self.maze.height - 1),
-            cfg=self.config,
+            config=self.config,
             maze=self.maze,
         )
 
@@ -132,7 +136,7 @@ class GameState:
                     continue
                 pacgum = Pacgum(
                     position=(x, y),
-                    cfg=self.config,
+                    config=self.config,
                     maze=self.maze,
                 )
                 self.maze.grid[y][x].edible = pacgum
