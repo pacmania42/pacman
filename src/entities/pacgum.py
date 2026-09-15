@@ -1,31 +1,24 @@
 from src.core.config import Config
 
-from .ghost import Ghost
 from .maze import Maze
-from .models import Actor, ActorStatus, Edible
+from .models import Edible
 
 
 class Pacgum(Edible):
+    """"""
+
     def __init__(
-        self, position: tuple[int, int], config: Config, maze: Maze
+        self, position: tuple[int, int], maze: Maze, config: Config
     ) -> None:
         value = config.points_per_pacgum
-        super().__init__(maze=maze, position=position, value=value)
-
-    def eat(self, actor: Actor) -> None:
-        pass
-
-    def get_eaten(self) -> None:
-        self.is_active = False
+        super().__init__(lives=1, value=value, position=position, maze=maze)
 
 
 class SuperPacgum(Pacgum):
+    """"""
+
     def __init__(
-        self, position: tuple[int, int], config: Config, maze: Maze
+        self, position: tuple[int, int], maze: Maze, config: Config
     ) -> None:
         super().__init__(position=position, config=config, maze=maze)
         self.value = config.points_per_pacgum
-
-    def get_eaten(self) -> None:
-        self.is_active = False
-        Ghost.all_ghost_status = ActorStatus.FLEEING

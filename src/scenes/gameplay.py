@@ -21,6 +21,7 @@ class GameplayScene(Scene):
         self.view = GameView(self.stg)
 
     def update(self, inputs: InputState) -> Transition:
+        wanted_direction = None
         if inputs.was_pressed(Action.PAUSE):
             self.game.pause_game()
             return Push(SceneId.PAUSE)
@@ -28,15 +29,15 @@ class GameplayScene(Scene):
             return Quit()
 
         elif inputs.was_pressed(Action.UP):
-            self.game.move_player(direction=Direction.NORTH)
+            wanted_direction = Direction.NORTH
         elif inputs.was_pressed(Action.DOWN):
-            self.game.move_player(direction=Direction.SOUTH)
+            wanted_direction = Direction.SOUTH
         elif inputs.was_pressed(Action.RIGHT):
-            self.game.move_player(direction=Direction.EAST)
+            wanted_direction = Direction.EAST
         elif inputs.was_pressed(Action.LEFT):
-            self.game.move_player(direction=Direction.WEST)
+            wanted_direction = Direction.WEST
 
-        self.game.update(Settings.tick, None)
+        self.game.update(Settings.tick, wanted_direction)
         self.view.tick(Settings.tick)
         return None
 

@@ -1,10 +1,13 @@
 import math
-import random
 
 from src.core.config import Config
 
 from .maze import Maze
-from .models import Actor, ActorStatus, Direction
+from .models import Actor, ActorStatus
+
+
+class GhostMovementError(Exception):
+    pass
 
 
 class Ghost(Actor):
@@ -22,36 +25,11 @@ class Ghost(Actor):
             maze=maze,
             value=value,
             lives=lives,
-            status=ActorStatus.CHASING,
+            status=Ghost.all_ghost_status,
             spawn_position=spawn_position,
             spawn_delay=spawn_delay,
         )
 
-    def eat(self, actor: "Actor") -> None:
-        pass
-
-    def get_eaten(self) -> None:
-        self.lives -= 1
-        if self.value > 0:
-            self.respawn()
-
-    def move(self, dt: float, direction: Direction | None) -> None:
-        if direction is not None:
-            raise GhostMovementError("Player movement needs direction")
-        direction = random.choice([*Direction])
-        x, y = direction.value
-        x = self.position[0] + round(x * dt)
-        y = self.position[1] + round(y * dt)
-
-        if not (0 < x < 100) or not (0 < y < 100):
-            return
-
-        self.position = (x, y)
-
     def respawn(self) -> None:
         self.status = Ghost.all_ghost_status
         self.position = self.spawn_position
-
-
-class GhostMovementError(Exception):
-    pass

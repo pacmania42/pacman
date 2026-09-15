@@ -7,6 +7,8 @@ class MazeError(Exception):
 
 class Cell:
     def __init__(self, val: int, row: int, col: int) -> None:
+        from .models import Edible
+
         self.row = row
         self.col = col
 
@@ -16,7 +18,7 @@ class Cell:
         self.s = bool(self.val & 0b0100)
         self.w = bool(self.val & 0b1000)
 
-        self.edible: object | None = None
+        self.edibles: list[Edible] = []
 
 
 class Maze:

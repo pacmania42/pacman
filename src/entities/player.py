@@ -1,7 +1,11 @@
 from src.core.config import Config
 
 from .maze import Maze
-from .models import Actor, ActorStatus, Direction
+from .models import Actor, ActorStatus, Direction, Edible
+
+
+class PlayerError(Exception):
+    pass
 
 
 class Player(Actor):
@@ -24,31 +28,10 @@ class Player(Actor):
         self.moving = False  # TODO: derive, once movement exists
         self.facing = Direction.EAST  # TODO: set by movement
 
-    def eat(self, actor: "Actor") -> None:
-        self.value += actor.value
-
-    def get_eaten(self) -> None:
-        self.status = ActorStatus.SPAWNING
-        self.lives -= 1
-        if self.value > 0:
-            self.respawn()
-
-    def move(self, dt: float, direction: Direction | None) -> None:
-        if direction is None:
-            raise PlayerError("Player movement needs direction")
-        x, y = direction.value
-        x = self.position[0] + round(x * dt)
-        y = self.position[1] + round(y * dt)
-
-        if not (0 < x < 100) or not (0 < y < 100):
-            return
-
-        self.position = (x, y)
+    def eat(self, edible: Edible) -> None:
+        self.value += edible.value
+        # TODO: implement eat
 
     def respawn(self) -> None:
         self.status = ActorStatus.FLEEING
         self.position = self.spawn_position
-
-
-class PlayerError(Exception):
-    pass

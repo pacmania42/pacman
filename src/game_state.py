@@ -29,27 +29,6 @@ class GameState:
         self.settings = settings
         self.start_game()
 
-    def move_player(self, direction: Direction) -> None:
-        col, row = self.player.position
-        cell = self.maze.grid[row][col]
-
-        if direction == Direction.NORTH and not cell.n:
-            row -= 1
-        elif direction == Direction.SOUTH and not cell.s:
-            row += 1
-        elif direction == Direction.EAST and not cell.e:
-            col += 1
-        elif direction == Direction.WEST and not cell.w:
-            col -= 1
-        else:
-            return
-
-        col = max(0, min(col, self.maze.width - 1))
-        row = max(0, min(row, self.maze.height - 1))
-
-        self.player.position = (col, row)
-        self.maze.grid[row][col].edible = self.player
-
     def _init_entities(self) -> None:
         height = self.curr_level.height
         width = self.curr_level.width
@@ -87,8 +66,8 @@ class GameState:
     def update(self, dt: float, wanted: Direction | None) -> None:
         self.elapsed += dt
         self.time_left -= dt
-        # TODO move player / ghosts
-        # TODO collisions...
+        if wanted:
+            self.player.move(dt, wanted)
 
     def _init_superpacgums(self) -> None:
         red = SuperPacgum(position=(0, 0), config=self.config, maze=self.maze)
@@ -142,13 +121,12 @@ class GameState:
             for x in range(self.maze.width):
                 if (min_x <= x <= max_x) and (min_y <= y <= max_y):
                     continue
-                if self.maze.grid[y][x].edible:
+                if self.maze.grid[y][x].edibles:
                     continue
                 pacgum = Pacgum(
                     position=(x, y),
                     config=self.config,
                     maze=self.maze,
                 )
-                self.maze.grid[y][x].edible = pacgum
                 pacgums.append(pacgum)
         self.pacgums = pacgums
