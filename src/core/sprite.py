@@ -44,7 +44,6 @@ class Frame:
 
 @dataclass(frozen=True)
 class Animation:
-
     sheet: SpriteId
     fps: float
     loop: bool = True

@@ -1,3 +1,4 @@
+import time
 from typing import Any
 
 from src.core.config import ConfigError, ConfigLoader
@@ -16,16 +17,20 @@ class Game:
         events = EventBuffer()
         self.input = InputTracker(Settings.bindings, events)
         self.window = Window(events, self.game_loop)
+        self.last_tick = 0.0
         self.window.show()
 
     def game_loop(self, _: Any) -> None:
-        self.scenes.update(self.input.begin_frame())
-        if self.scenes.should_quit:
-            self.window.exit(None)
-            return
-        self.window.fill(Settings.off_color)
-        self.scenes.draw(self.window)
-        self.window.draw_image()
+        now = time.monotonic()
+        if now >= self.last_tick + 1 / 60:
+            self.last_tick = now
+            self.scenes.update(self.input.begin_frame())
+            if self.scenes.should_quit:
+                self.window.exit(None)
+                return
+            self.window.fill(Settings.off_color)
+            self.scenes.draw(self.window)
+            self.window.draw_image()
 
 
 def main() -> None:

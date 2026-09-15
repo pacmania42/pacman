@@ -1,7 +1,12 @@
 from src.core.config import Config
+from src.core.settings import Settings
 
 from .maze import Maze
-from .models import Actor, ActorStatus, Direction
+from .models import Actor, Direction
+
+
+class PlayerError(Exception):
+    pass
 
 
 class Player(Actor):
@@ -12,43 +17,21 @@ class Player(Actor):
         lives = cfg.lives
         spawn_position = position
         spawn_delay = 2  # TODO: get from config
+        size = Settings.player_size
 
         super().__init__(
             maze=maze,
             value=value,
             lives=lives,
-            status=ActorStatus.FLEEING,
-            spawn_position=spawn_position,
+            position=spawn_position,
+            size=size,
             spawn_delay=spawn_delay,
         )
         self.moving = False  # TODO: derive, once movement exists
         self.facing = Direction.EAST  # TODO: set by movement
-
-    def eat(self, actor: "Actor") -> None:
-        self.value += actor.value
+        self.respawn_center = self.center
 
     def get_eaten(self) -> None:
-        self.status = ActorStatus.SPAWNING
         self.lives -= 1
-        if self.value > 0:
-            self.respawn()
-
-    def move(self, dt: float, direction: Direction | None) -> None:
-        if direction is None:
-            raise PlayerError("Player movement needs direction")
-        x, y = direction.value
-        x = self.position[0] + round(x * dt)
-        y = self.position[1] + round(y * dt)
-
-        if not (0 < x < 100) or not (0 < y < 100):
-            return
-
-        self.position = (x, y)
-
-    def respawn(self) -> None:
-        self.status = ActorStatus.FLEEING
-        self.position = self.spawn_position
-
-
-class PlayerError(Exception):
-    pass
+        if self.lives:
+            self.center = self.respawn_center

@@ -216,4 +216,4 @@ class Window:
                 if src[s + 3] < alpha_min:
                     continue
                 d = dbase + tx * self.bytes_pp
-                self.pixels[d:d + 4] = src[s:s + 4]
+                self.pixels[slice(d, d + 4)] = src[slice(s, s + 4)]

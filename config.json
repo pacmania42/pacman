@@ -3,7 +3,7 @@
   "highscore_filename": "highscore.json",
   "levels": [
     # comments
-    { "width": 15, "height": 15},
+    { "width": 16, "height": 16},
     { "width": 12, "height": 12 },
     { "width": 12, "height": 12 },
     { "width": 12, "height": 12 },
@@ -17,6 +17,7 @@
   "lives": 3,
   "pacgum": 42,
   "points_per_pacgum": 50,
+  "points_per_superpacgum": 100,
   "points_per_ghost": 200,
   "seed": 42,
   "level_max_time": 90

@@ -1,59 +1,36 @@
 import math
-import random
 
 from src.core.config import Config
+from src.core.settings import Settings
 
 from .maze import Maze
-from .models import Actor, ActorStatus, Direction
+from .models import Actor, Direction
 
 
 class Ghost(Actor):
-    all_ghost_status: ActorStatus = ActorStatus.CHASING
+    can_eat: bool = True
 
     def __init__(
         self, cfg: Config, position: tuple[int, int], maze: Maze
     ) -> None:
         value = cfg.points_per_ghost
         lives = math.inf
-        spawn_position = position
         spawn_delay = 2  # TODO: get from config
+        size = Settings.ghost_size
 
         super().__init__(
             maze=maze,
             value=value,
             lives=lives,
-            status=ActorStatus.CHASING,
-            spawn_position=spawn_position,
+            position=position,
+            size=size,
             spawn_delay=spawn_delay,
         )
         self.moving = False  # TODO: derive, once movement exists
         self.facing = Direction.EAST  # TODO: set by movement
 
-    def eat(self, actor: "Actor") -> None:
-        pass
-
     def get_eaten(self) -> None:
+        self.respawn_loc = self.center
         self.lives -= 1
-        if self.value > 0:
-            self.respawn()
-
-    def move(self, dt: float, direction: Direction | None) -> None:
-        if direction is not None:
-            raise GhostMovementError("Player movement needs direction")
-        direction = random.choice([*Direction])
-        x, y = direction.value
-        x = self.position[0] + round(x * dt)
-        y = self.position[1] + round(y * dt)
-
-        if not (0 < x < 100) or not (0 < y < 100):
-            return
-
-        self.position = (x, y)
-
-    def respawn(self) -> None:
-        self.status = Ghost.all_ghost_status
-        self.position = self.spawn_position
-
-
-class GhostMovementError(Exception):
-    pass
+        if self.lives:
+            self.cell = self.respawn_loc

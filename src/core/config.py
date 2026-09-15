@@ -13,8 +13,8 @@ from pydantic import (
 
 
 class Level(BaseModel):
-    width: int = Field(ge=6, le=20, default=10)
-    height: int = Field(ge=6, le=20, default=10)
+    width: int = Field(ge=6, le=16, default=10)
+    height: int = Field(ge=6, le=16, default=10)
     seed: int | None = Field(default=None)
 
     @field_validator("width", "height", mode="before")
@@ -25,7 +25,7 @@ class Level(BaseModel):
         default: int = cls.model_fields[info.field_name].default
         try:
             v = int(v)
-            if v < 6 or v > 20:
+            if v < 6 or v > 16:
                 raise ValueError
             return v
         except (TypeError, ValueError, OverflowError):
@@ -37,6 +37,7 @@ class Config(BaseModel):
     highscore_filename: str = Field(default="highscore.json")
     lives: int = Field(ge=1, default=3)
     pacgum: int = Field(ge=0, default=42)
+    points_per_superpacgum: int = Field(ge=0, default=50)
     points_per_pacgum: int = Field(ge=0, default=50)
     points_per_ghost: int = Field(ge=0, default=200)
     seed: int = Field(default=42)
