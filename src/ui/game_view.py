@@ -5,7 +5,9 @@ import math
 from src.core.settings import Settings
 from src.core.sprite import Animation, Frame, SpriteId
 from src.core.window import Window
-from src.entities import Direction, Ghost, Maze, Pacgum, Player, SuperPacgum
+from src.entities import Ghost, Maze, Player
+from src.entities.models import Direction
+from src.entities.pacgum import Pacgum, SuperPacgum
 from src.game_state import GameState
 from src.ui import theme, ui
 
@@ -26,7 +28,6 @@ SUPERGUM = Animation(SpriteId.SUPERGUM, fps=6)
 
 
 class ActorAnim:
-
     def __init__(self) -> None:
         self.anim: Animation | None = None
         self.start = 0.0
@@ -51,7 +52,6 @@ class GameView:
     def __init__(self, stg: Settings) -> None:
         self.stg = stg
         self.clock = 0.0
-        self.top = 0  # top to start to draw the maze
         self.player_anim = ActorAnim()
         self.ghost_anims = tuple(ActorAnim() for _ in GHOST_ANIMS)
 
@@ -60,7 +60,6 @@ class GameView:
         self.clock += dt
 
     def draw(self, window: Window, game: GameState) -> None:
-        self.top = self._draw_hud(window, game)
         self._draw_maze(window, game.maze)
         self._draw_pacgums(window, game.pacgums)
         self._draw_superpacgums(window, game.superpacgums)
@@ -127,10 +126,10 @@ class GameView:
         maze_width = maze.width * self.stg.cell_dim
         maze_height = maze.height * self.stg.cell_dim
 
-        window.put_box(0, self.top, maze_width, maze_height, 0xFFFFFF)
+        window.put_box(0, 0, maze_width, maze_height, 0xFFFFFF)
         window.put_box(
             self.stg.wall_thickness,
-            self.top + self.stg.wall_thickness,
+            self.stg.wall_thickness,
             maze_width - 2 * self.stg.wall_thickness,
             maze_height - 2 * self.stg.wall_thickness,
             0,
@@ -138,8 +137,18 @@ class GameView:
         cells = [cell for row in maze.grid for cell in row]
         for cell in cells:
             x_offset = cell.col * self.stg.cell_dim
-            y_offset = cell.row * self.stg.cell_dim + self.top
-            if cell.n:
+            y_offset = cell.row * self.stg.cell_dim
+
+            if not any([cell.n, cell.e, cell.s, cell.w]):
+                window.put_box(
+                    x_offset + self.stg.wall_thickness,
+                    y_offset + self.stg.wall_thickness,
+                    self.stg.cell_dim - 2 * self.stg.wall_thickness,
+                    self.stg.cell_dim - 2 * self.stg.wall_thickness,
+                    0x0000FF,
+                )
+
+            if not cell.n:
                 window.put_box(
                     x_offset,
                     y_offset,
@@ -147,7 +156,7 @@ class GameView:
                     self.stg.wall_thickness,
                     0xFFFFFF,
                 )
-            if cell.e:
+            if not cell.e:
                 window.put_box(
                     x_offset + self.stg.cell_dim - self.stg.wall_thickness,
                     y_offset,
@@ -165,13 +174,16 @@ class GameView:
         walk: Animation,
     ) -> None:
         """draw blit of the actor's current frame"""
+        if not actor.lives:
+            return
         anim = walk if actor.moving else idle
         frame = state.frame(window, self.clock, anim, actor.facing)
 
-        col, row = actor.position
-        x = col * self.stg.cell_dim + (self.stg.cell_dim - frame.width) // 2
-        y = row * self.stg.cell_dim + self.top
-        y += (self.stg.cell_dim - frame.height) // 2
+        col = actor.center.x
+        row = actor.center.y
+        x = col - frame.width // 2
+        y = row
+        y -= frame.height // 2
 
         window.blit(frame, x, y, flip=state.flip)
 
@@ -180,9 +192,7 @@ class GameView:
             window, player, self.player_anim, PLAYER_IDLE, PLAYER_WALK
         )
 
-    def _draw_ghosts(
-        self, window: Window, ghosts: tuple[Ghost, Ghost, Ghost, Ghost]
-    ) -> None:
+    def _draw_ghosts(self, window: Window, ghosts: set[Ghost]) -> None:
         for ghost, state, (idle, walk) in zip(
             ghosts, self.ghost_anims, GHOST_ANIMS, strict=True
         ):
@@ -191,27 +201,23 @@ class GameView:
     def _draw_superpacgums(
         self,
         window: Window,
-        superpacgums: tuple[
-            SuperPacgum, SuperPacgum, SuperPacgum, SuperPacgum
-        ],
+        superpacgums: set[SuperPacgum],
     ) -> None:
         frame = window.sprites.frame(SUPERGUM, self.clock)
-        x_pad = (self.stg.cell_dim - frame.width) // 2
-        y_pad = (self.stg.cell_dim - frame.height) // 2
+        x_pad = frame.width // 2
+        y_pad = frame.height // 2
         for spg in superpacgums:
-            col, row = spg.position
-            x = col * self.stg.cell_dim + x_pad
-            y = row * self.stg.cell_dim + self.top + y_pad
+            x = spg.center.x - x_pad
+            y = spg.center.y - y_pad
 
             window.blit(frame, x, y)
 
-    def _draw_pacgums(self, window: Window, pacgums: list[Pacgum]) -> None:
+    def _draw_pacgums(self, window: Window, pacgums: set[Pacgum]) -> None:
         gum = window.sprites.still(SpriteId.GUM)
-        x_pad = (self.stg.cell_dim - gum.width) // 2
-        y_pad = (self.stg.cell_dim - gum.height) // 2
+        x_pad = gum.width // 2
+        y_pad = gum.height // 2
         for pg in pacgums:
-            col, row = pg.position
-            x = col * self.stg.cell_dim + x_pad
-            y = row * self.stg.cell_dim + self.top + y_pad
+            x = pg.center.x - x_pad
+            y = pg.center.y - y_pad
 
             window.blit(gum, x, y)

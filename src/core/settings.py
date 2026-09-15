@@ -12,7 +12,6 @@ class Settings:
     window_title: str = "Pac-Man"
 
     # spacings
-    cell_dim = 60
     # wall_thickness = cell_dim // 10
     wall_thickness = 1
     txt_pane_width = 350
@@ -54,3 +53,12 @@ class Settings:
     toggle_path = 0x70
     change_color = 0x63
     toggle_animation = 0x61
+
+    # used by the state
+    speed = 7
+    cell_dim = 60
+    player_size = (40, 40)
+    ghost_size = (40, 40)
+    pacgum_size = (10, 10)
+    superpacgum_size = (25, 25)
+    collision_threshold = 30

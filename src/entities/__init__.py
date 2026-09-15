@@ -1,6 +1,6 @@
 from .ghost import Ghost
 from .maze import Cell, Maze
-from .models import Actor, ActorStatus, Direction, Edible
+from .models import Actor, Direction, Edible, Location
 from .pacgum import Pacgum, SuperPacgum
 from .player import Player
 
@@ -14,5 +14,5 @@ __all__ = [
     "Edible",
     "Player",
     "Direction",
-    "ActorStatus",
+    "Location",
 ]
