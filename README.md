@@ -8,4 +8,5 @@
 
 Fonts from [peaberry-pixel-font](https://emhuo.itch.io/peaberry-pixel-font)
 
-Sprites shroom https://caz-bee.itch.io/cute-shroom-character-sprite
+Sprites scout https://zneeke.itch.io/goblin-scout-silhouette
+Sprites ghosts https://penusbmic.itch.io/monster-pack-i
