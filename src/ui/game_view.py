@@ -1,15 +1,43 @@
 """Draws a GameState onto a Window"""
 
 from src.core.settings import Settings
-from src.core.sprite import Animation, SpriteId
+from src.core.sprite import Animation, Frame, SpriteId
 from src.core.window import Window
 from src.entities import Direction, Ghost, Maze, Pacgum, Player, SuperPacgum
 from src.game_state import GameState
 
-PLAYER_IDLE = Animation(SpriteId.SHROOM_IDLE, fps=6)
-PLAYER_WALK = Animation(SpriteId.SHROOM_WALK, fps=10)
+PLAYER_IDLE = Animation(SpriteId.SCOUT_IDLE, fps=10)
+PLAYER_WALK = Animation(SpriteId.SCOUT_WALK, fps=10)
 
-GHOST_COLORS = (0x00FFFF, 0xFFA500, 0x00FF00, 0xFF0000)
+GHOST_ANIMS: tuple[tuple[Animation, Animation], ...] = tuple(
+    (Animation(idle, fps=10), Animation(walk, fps=10))
+    for idle, walk in (
+        (SpriteId.GHOST_C_IDLE, SpriteId.GHOST_C_WALK),
+        (SpriteId.GHOST_O_IDLE, SpriteId.GHOST_O_WALK),
+        (SpriteId.GHOST_P_IDLE, SpriteId.GHOST_P_WALK),
+        (SpriteId.GHOST_R_IDLE, SpriteId.GHOST_R_WALK),
+    )
+)
+
+
+class ActorAnim:
+
+    def __init__(self) -> None:
+        self.anim: Animation | None = None
+        self.start = 0.0
+        self.flip = False
+
+    def frame(
+        self, window: Window, clock: float, anim: Animation, facing: Direction
+    ) -> Frame:
+        if anim is not self.anim:  # state changed: restart at frame 0
+            self.anim = anim
+            self.start = clock
+        if facing is Direction.WEST:
+            self.flip = True
+        elif facing is Direction.EAST:
+            self.flip = False
+        return window.sprites.frame(anim, clock - self.start)
 
 
 class GameView:
@@ -18,9 +46,8 @@ class GameView:
     def __init__(self, stg: Settings) -> None:
         self.stg = stg
         self.clock = 0.0
-        self.player_anim: Animation | None = None
-        self.player_anim_start = 0.0
-        self.player_flip = False
+        self.player_anim = ActorAnim()
+        self.ghost_anims = tuple(ActorAnim() for _ in GHOST_ANIMS)
 
     def tick(self, dt: float) -> None:
         """Advance the animation clock"""
@@ -66,37 +93,36 @@ class GameView:
                     0xFFFFFF,
                 )
 
-    def _draw_player(self, window: Window, player: Player) -> None:
-        anim = PLAYER_WALK if player.moving else PLAYER_IDLE
-        if anim is not self.player_anim:  # state changed: restart at frame 0
-            self.player_anim = anim
-            self.player_anim_start = self.clock
-        t = self.clock - self.player_anim_start
-        frame = window.sprites.frame(anim, t)
+    def _draw_actor(
+        self,
+        window: Window,
+        actor: Player | Ghost,
+        state: ActorAnim,
+        idle: Animation,
+        walk: Animation,
+    ) -> None:
+        """draw blit of the actor's current frame"""
+        anim = walk if actor.moving else idle
+        frame = state.frame(window, self.clock, anim, actor.facing)
 
-        if player.facing is Direction.WEST:
-            self.player_flip = True
-        elif player.facing is Direction.EAST:
-            self.player_flip = False
-
-        col, row = player.position
+        col, row = actor.position
         x = col * self.stg.cell_dim + (self.stg.cell_dim - frame.width) // 2
         y = row * self.stg.cell_dim + (self.stg.cell_dim - frame.height) // 2
 
-        window.blit(frame, x, y, flip=self.player_flip)
+        window.blit(frame, x, y, flip=state.flip)
+
+    def _draw_player(self, window: Window, player: Player) -> None:
+        self._draw_actor(
+            window, player, self.player_anim, PLAYER_IDLE, PLAYER_WALK
+        )
 
     def _draw_ghosts(
         self, window: Window, ghosts: tuple[Ghost, Ghost, Ghost, Ghost]
     ) -> None:
-        width = 20
-        height = 20
-        colors = [0x00FFFF, 0xFFA500, 0x00FF00, 0xFF0000]
-        for ghost, color in zip(ghosts, colors, strict=True):
-            col, row = ghost.position
-            x = col * self.stg.cell_dim + (self.stg.cell_dim // 2) - width
-            y = row * self.stg.cell_dim + (self.stg.cell_dim // 2) - height
-
-            window.put_box(x, y, width, height, color)
+        for ghost, state, (idle, walk) in zip(
+            ghosts, self.ghost_anims, GHOST_ANIMS, strict=True
+        ):
+            self._draw_actor(window, ghost, state, idle, walk)
 
     def _draw_superpacgums(
         self,
