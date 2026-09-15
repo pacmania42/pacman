@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import IntEnum, auto
 
 from src.core.config import Config, Level
@@ -9,6 +10,14 @@ class GameStatus(IntEnum):
     ACTIVE = auto()
     PAUSED = auto()
     OVER = auto()
+
+
+@dataclass(frozen=True)
+class GameResult:
+    """How a game ended, gameplay pass this to the game over screen"""
+
+    won: bool
+    score: int
 
 
 class GameState:
