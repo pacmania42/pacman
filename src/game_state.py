@@ -66,8 +66,8 @@ class GameState:
     def update(self, dt: float, wanted: Direction | None) -> None:
         self.elapsed += dt
         self.time_left -= dt
-        if wanted:
-            self.player.move(dt, wanted)
+        self.player.move(dt, wanted)
+        # TODO: move ghosts
 
     def _init_superpacgums(self) -> None:
         red = SuperPacgum(position=(0, 0), config=self.config, maze=self.maze)
