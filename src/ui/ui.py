@@ -90,9 +90,7 @@ def ghost_rule(
     return y + theme.RULE_HEIGHT
 
 
-def screen_title(
-    window: Window, y: int, text: str, shift: int = 0
-) -> int:
+def screen_title(window: Window, y: int, text: str, shift: int = 0) -> int:
     """Draw a screen title over its divider, return the next free y
 
     `shift` is handed to `ghost_rule`
