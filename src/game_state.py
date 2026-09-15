@@ -1,8 +1,15 @@
 from enum import IntEnum, auto
 
-from src.core.config import Config, Level
+from src.core.config import Config
 from src.core.settings import Settings
-from src.entities import Direction, Ghost, Maze, Pacgum, Player, SuperPacgum
+from src.entities import (
+    Direction,
+    Ghost,
+    Maze,
+    Pacgum,
+    Player,
+    SuperPacgum,
+)
 
 
 class GameStatus(IntEnum):
@@ -12,37 +19,11 @@ class GameStatus(IntEnum):
 
 
 class GameState:
-    status: GameStatus
-    player: Player
-    maze: Maze
-    ghosts: tuple[Ghost, Ghost, Ghost, Ghost]
-    superpacgums: tuple[SuperPacgum, SuperPacgum, SuperPacgum, SuperPacgum]
-    pacgums: list[Pacgum]
-    levels: list[Level]
-    curr_level: Level
-    elapsed: float
-    time_left: float
-
     def __init__(self, config: Config, settings: Settings) -> None:
         self.config = config
         self.levels = config.levels
         self.settings = settings
         self.start_game()
-
-    def _init_entities(self) -> None:
-        height = self.curr_level.height
-        width = self.curr_level.width
-
-        self.maze = Maze(width=width, height=height)
-        self.maze.generate(42)
-        self.player = Player(
-            position=self.maze.center,
-            cfg=self.config,
-            maze=self.maze,
-        )
-        self._init_superpacgums()
-        self._init_ghosts()
-        self._init_pacgums()
 
     def start_game(self) -> None:
         self.curr_level = self.levels[0]
@@ -67,29 +48,46 @@ class GameState:
         self.elapsed += dt
         self.time_left -= dt
         self.player.move(dt, wanted)
+        self._check_collision()
+
+        # check for game over
+        if self.player.lives == 0:
+            self.status = GameStatus.OVER
+            return
+
         # TODO: move ghosts
 
-    def _init_superpacgums(self) -> None:
-        red = SuperPacgum(position=(0, 0), config=self.config, maze=self.maze)
-        pink = SuperPacgum(
-            position=(0, self.maze.height - 1),
-            config=self.config,
-            maze=self.maze,
-        )
-        cyan = SuperPacgum(
-            position=(self.maze.width - 1, 0),
-            config=self.config,
-            maze=self.maze,
-        )
-        yellow = SuperPacgum(
-            position=(self.maze.width - 1, self.maze.height - 1),
-            config=self.config,
-            maze=self.maze,
-        )
+    def _init_entities(self) -> None:
+        height = self.curr_level.height
+        width = self.curr_level.width
 
-        self.superpacgums = (red, pink, cyan, yellow)
+        self.maze = Maze(width=width, height=height)
+        self.maze.generate(42)
+        self.player = Player(
+            position=self.maze.center,
+            cfg=self.config,
+            maze=self.maze,
+        )
+        self.ghosts = self._create_ghosts()
+        self.superpacgums = self._create_superpacgums()
+        self.pacgums = self._create_pacgums()
 
-    def _init_ghosts(self) -> None:
+    def _check_collision(self) -> None:
+        entities = self.player.cell.edibles - set([self.player])
+        superpacgums = entities & self.superpacgums
+        ghosts = entities & self.ghosts
+
+        if superpacgums:
+            Ghost.can_eat = False
+
+        if ghosts and Ghost.can_eat:
+            self.player.get_eaten()
+            return
+
+        for entity in entities:
+            self.player.eat(entity)
+
+    def _create_ghosts(self) -> set[Ghost]:
         cyan = Ghost(
             position=(1, 0),
             cfg=self.config,
@@ -111,11 +109,11 @@ class GameState:
             maze=self.maze,
         )
 
-        self.ghosts = (cyan, yellow, green, red)
+        return set([cyan, yellow, green, red])
 
-    def _init_pacgums(self) -> None:
+    def _create_pacgums(self) -> set[Pacgum]:
         min_x, min_y, max_x, max_y = self.maze.pattern_ranges
-        pacgums: list[Pacgum] = []
+        pacgums: set[Pacgum] = set()
 
         for y in range(self.maze.height):
             for x in range(self.maze.width):
@@ -128,5 +126,29 @@ class GameState:
                     config=self.config,
                     maze=self.maze,
                 )
-                pacgums.append(pacgum)
-        self.pacgums = pacgums
+                pacgums.add(pacgum)
+        return set(pacgums)
+
+    def _create_superpacgums(self) -> set[SuperPacgum]:
+        red = SuperPacgum(
+            position=(0, 0),
+            config=self.config,
+            maze=self.maze,
+        )
+        pink = SuperPacgum(
+            position=(0, self.maze.height - 1),
+            config=self.config,
+            maze=self.maze,
+        )
+        cyan = SuperPacgum(
+            position=(self.maze.width - 1, 0),
+            config=self.config,
+            maze=self.maze,
+        )
+        yellow = SuperPacgum(
+            position=(self.maze.width - 1, self.maze.height - 1),
+            config=self.config,
+            maze=self.maze,
+        )
+
+        return set([red, pink, cyan, yellow])

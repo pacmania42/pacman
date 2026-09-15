@@ -1,7 +1,7 @@
 from src.core.config import Config
 
 from .maze import Maze
-from .models import Actor, ActorStatus, Direction, Edible
+from .models import Actor, Direction
 
 
 class PlayerError(Exception):
@@ -21,17 +21,19 @@ class Player(Actor):
             maze=maze,
             value=value,
             lives=lives,
-            status=ActorStatus.FLEEING,
-            spawn_position=spawn_position,
+            position=spawn_position,
             spawn_delay=spawn_delay,
         )
         self.moving = False  # TODO: derive, once movement exists
         self.facing = Direction.EAST  # TODO: set by movement
+        self.respawn_cell = self.cell
 
-    def eat(self, edible: Edible) -> None:
-        self.value += edible.value
-        # TODO: implement eat
+    def get_eaten(self) -> None:
+        self.cell.edibles.remove(self)
+        self.lives -= 1
+        self.respawn()
 
     def respawn(self) -> None:
-        self.status = ActorStatus.FLEEING
-        self.position = self.spawn_position
+        if self.lives:
+            self.cell = self.respawn_cell
+            self.cell.edibles.add(self)

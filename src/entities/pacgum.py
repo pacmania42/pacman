@@ -13,6 +13,13 @@ class Pacgum(Edible):
         value = config.points_per_pacgum
         super().__init__(lives=1, value=value, position=position, maze=maze)
 
+    def eat(self, edible: "Edible") -> None:
+        return
+
+    def get_eaten(self) -> None:
+        self.cell.edibles.remove(self)
+        self.lives -= 1
+
 
 class SuperPacgum(Pacgum):
     """"""

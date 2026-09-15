@@ -1,4 +1,5 @@
-from enum import Enum, IntEnum, auto
+from abc import ABC, abstractmethod
+from enum import Enum
 
 from .maze import Maze
 
@@ -10,75 +11,66 @@ class Direction(Enum):
     WEST = (-1, 0)
 
 
-class Edible:
-    lives: float
-    value: int
-    position: tuple[int, int]
-    maze: Maze
-
+class Edible(ABC):
     def __init__(
         self, lives: float, value: int, position: tuple[int, int], maze: Maze
     ) -> None:
-        col, row = position
-
         self.lives = lives
         self.value = value
-        self.position = position
         self.maze = maze
 
-        # update the cell
-        curr_cell = self.maze.grid[row][col]
-        curr_cell.edibles.append(self)
+        col, row = position
+        self.cell = self.maze.grid[row][col]
+        self.cell.edibles.add(self)
 
+    @abstractmethod
+    def eat(self, edible: "Edible") -> None: ...
 
-class ActorStatus(IntEnum):
-    FLEEING = auto()
-    CHASING = auto()
-    SPAWNING = auto()
+    @abstractmethod
+    def get_eaten(self) -> None: ...
 
 
 class Actor(Edible):
-    status: ActorStatus
-    spawn_position: tuple[int, int]
-    spawn_delay: int
-
     def __init__(
         self,
-        maze: Maze,
-        value: int,
         lives: float,
-        status: ActorStatus,
-        spawn_position: tuple[int, int],
+        value: int,
+        maze: Maze,
+        position: tuple[int, int],
         spawn_delay: int,
     ):
         super().__init__(
-            lives=lives, value=value, position=spawn_position, maze=maze
+            lives=lives, value=value, maze=maze, position=position
         )
-
-        self.status = status
-        self.spawn_position = spawn_position
         self.spawn_delay = spawn_delay
 
     def move(self, dt: float, direction: Direction | None) -> None:
-        # TODO: implement time-based movement calculation
-        col, row = self.position
-        prev_cell = self.maze.grid[row][col]
+        if not direction or not self.cell:
+            return
 
-        if direction == Direction.NORTH and not prev_cell.n:
-            row -= 1
-        elif direction == Direction.SOUTH and not prev_cell.s:
-            row += 1
-        elif direction == Direction.EAST and not prev_cell.e:
-            col += 1
-        elif direction == Direction.WEST and not prev_cell.w:
-            col -= 1
+        prev_cell = self.cell
+
+        if direction == Direction.NORTH and self.cell.n:
+            curr_cell = self.cell.n
+
+        elif direction == Direction.EAST and self.cell.e:
+            curr_cell = self.cell.e
+
+        elif direction == Direction.SOUTH and self.cell.s:
+            curr_cell = self.cell.s
+
+        elif direction == Direction.WEST and self.cell.w:
+            curr_cell = self.cell.w
         else:
             return
 
-        col = max(0, min(col, self.maze.width - 1))
-        row = max(0, min(row, self.maze.height - 1))
-        curr_cell = self.maze.grid[row][col]
+        if not curr_cell:
+            return
 
         prev_cell.edibles.remove(self)
-        self.position = (col, row)
-        curr_cell.edibles.append(self)
+        curr_cell.edibles.add(self)
+        self.cell = curr_cell
+
+    def eat(self, edible: Edible) -> None:
+        self.value += edible.value
+        edible.get_eaten()

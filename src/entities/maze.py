@@ -11,14 +11,14 @@ class Cell:
 
         self.row = row
         self.col = col
-
         self.val = val
-        self.n = bool(self.val & 0b0001)
-        self.e = bool(self.val & 0b0010)
-        self.s = bool(self.val & 0b0100)
-        self.w = bool(self.val & 0b1000)
+        self.edibles: set[Edible] = set()
 
-        self.edibles: list[Edible] = []
+    def set_neighbors(self, grid: list[list["Cell"]]) -> None:
+        self.n = None if (self.val & 0b0001) else grid[self.row - 1][self.col]
+        self.s = None if (self.val & 0b0100) else grid[self.row + 1][self.col]
+        self.e = None if (self.val & 0b0010) else grid[self.row][self.col + 1]
+        self.w = None if (self.val & 0b1000) else grid[self.row][self.col - 1]
 
 
 class Maze:
@@ -49,6 +49,9 @@ class Maze:
                 cell = Cell(maze[row][col], row, col)
                 row_cells.append(cell)
             grid.append(row_cells)
+        for row_cells in grid:
+            for cell in row_cells:
+                cell.set_neighbors(grid)
         return grid
 
     def _get_pattern_ranges(self) -> tuple[int, int, int, int]:
