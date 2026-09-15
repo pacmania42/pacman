@@ -13,8 +13,16 @@ Loader = Callable[[str], Image]
 
 
 class SpriteId(Enum):
-    SHROOM_IDLE = ("shroom_idle_32.png", 4)  # (file, frame count)
-    SHROOM_WALK = ("shroom_walk_32.png", 4)
+    SCOUT_IDLE = ("scout_grey_2x/scout_idle.png", 8)  # (file, frame count)
+    SCOUT_WALK = ("scout_grey_2x/scout_run.png", 8)
+    GHOST_C_IDLE = ("eyeball_cyan_2x/eyeball_idle.png", 9)
+    GHOST_C_WALK = ("eyeball_cyan_2x/eyeball_walk.png", 8)
+    GHOST_O_IDLE = ("eyeball_orange_2x/eyeball_idle.png", 9)
+    GHOST_O_WALK = ("eyeball_orange_2x/eyeball_walk.png", 8)
+    GHOST_P_IDLE = ("eyeball_pink_2x/eyeball_idle.png", 9)
+    GHOST_P_WALK = ("eyeball_pink_2x/eyeball_walk.png", 8)
+    GHOST_R_IDLE = ("eyeball_red_2x/eyeball_idle.png", 9)
+    GHOST_R_WALK = ("eyeball_red_2x/eyeball_walk.png", 8)
 
 
 class SpriteError(Exception):
