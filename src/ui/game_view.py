@@ -39,6 +39,16 @@ class GameView:
         for cell in cells:
             for entity in cell.edibles:
                 self._draw_entity(entity, window)
+        self._draw_hud(game, window)
+
+    def _draw_hud(self, game: GameState, window: Window) -> None:
+        maze_height = game.maze.height * self.stg.cell_dim
+        y_offset = maze_height + 10
+
+        window.put_text(50, y_offset, f"Lives: {game.player.lives}", 0xDDDDDD)
+        window.put_text(
+            150, y_offset, f"Points: {game.player.value}", 0xDDDDDD
+        )
 
     def _draw_maze(self, window: Window, maze: Maze) -> None:
         maze_width = maze.width * self.stg.cell_dim

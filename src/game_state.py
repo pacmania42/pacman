@@ -1,4 +1,5 @@
 from enum import IntEnum, auto
+from random import choice
 
 from src.core.config import Config
 from src.core.settings import Settings
@@ -48,14 +49,17 @@ class GameState:
         self.elapsed += dt
         self.time_left -= dt
         self.player.move(dt, wanted)
+        # TODO: move ghosts
+        # if wanted:
+        #     for ghost in self.ghosts:
+        #         ghost.move(dt, choice([*Direction, None]))
+
         self._check_collision()
 
         # check for game over
         if self.player.lives == 0:
             self.status = GameStatus.OVER
             return
-
-        # TODO: move ghosts
 
     def _init_entities(self) -> None:
         height = self.curr_level.height

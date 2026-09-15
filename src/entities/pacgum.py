@@ -28,4 +28,4 @@ class SuperPacgum(Pacgum):
         self, position: tuple[int, int], maze: Maze, config: Config
     ) -> None:
         super().__init__(position=position, config=config, maze=maze)
-        self.value = config.points_per_pacgum
+        self.value = config.points_per_superpacgum

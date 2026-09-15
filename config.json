@@ -17,6 +17,7 @@
   "lives": 3,
   "pacgum": 42,
   "points_per_pacgum": 50,
+  "points_per_superpacgum": 100,
   "points_per_ghost": 200,
   "seed": 42,
   "level_max_time": 90

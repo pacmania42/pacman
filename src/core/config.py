@@ -37,6 +37,7 @@ class Config(BaseModel):
     highscore_filename: str = Field(default="highscore.json")
     lives: int = Field(ge=1, default=3)
     pacgum: int = Field(ge=0, default=42)
+    points_per_superpacgum: int = Field(ge=0, default=50)
     points_per_pacgum: int = Field(ge=0, default=50)
     points_per_ghost: int = Field(ge=0, default=200)
     seed: int = Field(default=42)
