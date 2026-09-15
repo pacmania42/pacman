@@ -7,7 +7,9 @@ from src.core.scene import Scene
 from src.core.scene_id import SceneId
 from src.core.transitions import Pop, Replace, Transition
 from src.core.window import Window
+from src.game_state import GameResult
 from src.ui import theme, ui
+from src.ui.game_view import PLAYER_IDLE, PLAYER_WALK
 
 WHEEL: Final[str] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 "
 
@@ -21,16 +23,20 @@ REPEAT_RATE: Final[float] = 0.08
 
 
 class GameOverScene(Scene):
+    """Game over screen, won or lost"""
+
     def __init__(self, ctx: Context) -> None:
         super().__init__()
         self.highscore = ctx.highscore
+        self.won = False
         self.score = 0
         self.slots = [BLANK] * NAME_MAX_LENGTH
         self.cursor = 0
         self.repeat_at = REPEAT_DELAY
 
     def on_enter(self, payload: Optional[Any] = None) -> None:
-        self.score = payload if isinstance(payload, int) else 0
+        if isinstance(payload, GameResult):
+            self.won, self.score = payload.won, payload.score
 
     @property
     def name(self) -> str:
@@ -87,18 +93,59 @@ class GameOverScene(Scene):
         self.slots[self.cursor] = (self.slots[self.cursor] + step) % len(WHEEL)
 
     def draw(self, window: Window) -> None:
-        top = ui.screen_title(
-            window,
-            theme.MARGIN // 2,
-            "GAME OVER",
-            ui.rule_shift(self.clock),
-        )
+        top = self._draw_banner(window)
         if self.qualifies:
             self._draw_entry(window, top)
             ui.footer(window, self._hint())
         else:
             self._draw_score_only(window, top)
             ui.footer(window, "ENTER   back to menu")
+
+    def _draw_banner(self, window: Window) -> int:
+        if self.won:
+            return self._draw_victory(window)
+        return self._draw_defeat(window)
+
+    def _draw_victory(self, window: Window) -> int:
+        word, scale = "VICTORY", theme.SCALE_HERO
+        x, width = theme.MARGIN, window.width - 2 * theme.MARGIN
+        shift = ui.rule_shift(self.clock * 2)
+
+        y = ui.ghost_rule(window, x, theme.MARGIN // 2, width, shift)
+        y += theme.GAP
+        ui.centered(window, y + 10, word, ui.pulse(self.clock), scale)
+
+        frame = window.sprites.frame(PLAYER_WALK, self.clock)
+        half = window.text_width(word, scale) // 2 + 2 * theme.GAP
+
+        y += window.ink_height(scale) + theme.GAP
+        sprite_y = y - frame.height
+        window.blit(
+            frame, window.width // 2 - half - frame.width, sprite_y, flip=True
+        )
+        window.blit(frame, window.width // 2 + half, sprite_y, flip=True)
+        y = ui.ghost_rule(window, x, y, width, -shift) + 2 * theme.GAP
+        y = ui.centered(
+            window,
+            y,
+            "CONGRATULATIONS",
+            ui.reveal(theme.HEADINGS[2], 0, self.clock),
+            theme.SCALE_HEADING,
+        )
+        return y + theme.GAP
+
+    def _draw_defeat(self, window: Window) -> int:
+        y = ui.screen_title(window, theme.MARGIN // 2, "GAME OVER")
+        frame = window.sprites.frame(PLAYER_IDLE, self.clock)
+        window.blit(frame, (window.width - frame.width) // 2, y)
+        y = ui.centered(
+            window,
+            y + frame.height + theme.GAP,
+            "THE GHOSTS GOT YOU",
+            ui.reveal(theme.MUTED, 0, self.clock),
+            theme.SCALE_HEADING,
+        )
+        return y + theme.GAP
 
     def _draw_score(self, window: Window, y: int) -> int:
         y = ui.centered(
