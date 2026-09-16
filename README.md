@@ -10,3 +10,4 @@ Fonts from [peaberry-pixel-font](https://emhuo.itch.io/peaberry-pixel-font)
 
 Sprites scout https://zneeke.itch.io/goblin-scout-silhouette
 Sprites ghosts https://penusbmic.itch.io/monster-pack-i
+heart https://gamedevshlok.itch.io/heartpack
