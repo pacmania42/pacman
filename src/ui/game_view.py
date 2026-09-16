@@ -1,10 +1,13 @@
 """Draws a GameState onto a Window"""
 
+import math
+
 from src.core.settings import Settings
 from src.core.sprite import Animation, Frame, SpriteId
 from src.core.window import Window
 from src.entities import Direction, Ghost, Maze, Pacgum, Player, SuperPacgum
 from src.game_state import GameState
+from src.ui import theme, ui
 
 PLAYER_IDLE = Animation(SpriteId.SCOUT_IDLE, fps=10)
 PLAYER_WALK = Animation(SpriteId.SCOUT_WALK, fps=10)
@@ -46,6 +49,7 @@ class GameView:
     def __init__(self, stg: Settings) -> None:
         self.stg = stg
         self.clock = 0.0
+        self.top = 0  # top to start to draw the maze
         self.player_anim = ActorAnim()
         self.ghost_anims = tuple(ActorAnim() for _ in GHOST_ANIMS)
 
@@ -54,20 +58,77 @@ class GameView:
         self.clock += dt
 
     def draw(self, window: Window, game: GameState) -> None:
+        self.top = self._draw_hud(window, game)
         self._draw_maze(window, game.maze)
         self._draw_pacgums(window, game.pacgums)
         self._draw_superpacgums(window, game.superpacgums)
         self._draw_ghosts(window, game.ghosts)
         self._draw_player(window, game.player)
 
+    def _draw_hud(self, window: Window, game: GameState) -> int:
+        """draw score, lives and time
+
+        returns the y of the next line
+        """
+        pad = theme.GAP // 2
+        band = window.text_height(theme.SCALE_BODY)
+        width = min(window.width, game.maze.width * self.stg.cell_dim)
+        text_y = pad + (band - window.ink_height(theme.SCALE_BODY)) // 2
+
+        self._draw_score(window, text_y, game.player.value)
+        self._draw_lives(window, pad, band, width, game.player.lives)
+        self._draw_time(window, text_y, width, game.time_left)
+        return pad + band + pad
+
+    def _draw_score(self, window: Window, y: int, score: int) -> None:
+        window.put_text(0, y, "SCORE", theme.MUTED, theme.SCALE_BODY)
+        window.put_text(
+            window.text_width("SCORE ", theme.SCALE_BODY),
+            y,
+            f"{score:06d}",
+            theme.TITLE,
+            theme.SCALE_BODY,
+        )
+
+    def _draw_lives(
+        self, window: Window, y: int, band: int, width: int, lives: float
+    ) -> None:
+        heart = window.sprites.still(SpriteId.HEART)
+        count = max(0, int(lives))
+        slot = heart.width + theme.GAP // 2
+        x = (width - count * slot) // 2
+        top = y + (band - heart.height) // 2
+        for i in range(count):
+            window.blit(heart, x + i * slot, top)
+
+    def _draw_time(
+        self, window: Window, y: int, width: int, left: float
+    ) -> None:
+        left = max(0.0, left)
+        color = theme.TEXT
+        if left <= 10:  # last 10 seconds
+            color = ui.pulse(self.clock, theme.DANGER)
+
+        whole = math.ceil(left)
+        text = f"{whole // 60:02d}:{whole % 60:02d}"
+        x = width - window.text_width(text, theme.SCALE_BODY)
+        window.put_text(x, y, text, color, theme.SCALE_BODY)
+        window.put_text(
+            x - window.text_width("TIME ", theme.SCALE_BODY),
+            y,
+            "TIME",
+            theme.MUTED,
+            theme.SCALE_BODY,
+        )
+
     def _draw_maze(self, window: Window, maze: Maze) -> None:
         maze_width = maze.width * self.stg.cell_dim
         maze_height = maze.height * self.stg.cell_dim
 
-        window.put_box(0, 0, maze_width, maze_height, 0xFFFFFF)
+        window.put_box(0, self.top, maze_width, maze_height, 0xFFFFFF)
         window.put_box(
             self.stg.wall_thickness,
-            self.stg.wall_thickness,
+            self.top + self.stg.wall_thickness,
             maze_width - 2 * self.stg.wall_thickness,
             maze_height - 2 * self.stg.wall_thickness,
             0,
@@ -75,7 +136,7 @@ class GameView:
         cells = [cell for row in maze.grid for cell in row]
         for cell in cells:
             x_offset = cell.col * self.stg.cell_dim
-            y_offset = cell.row * self.stg.cell_dim
+            y_offset = cell.row * self.stg.cell_dim + self.top
             if cell.n:
                 window.put_box(
                     x_offset,
@@ -107,7 +168,8 @@ class GameView:
 
         col, row = actor.position
         x = col * self.stg.cell_dim + (self.stg.cell_dim - frame.width) // 2
-        y = row * self.stg.cell_dim + (self.stg.cell_dim - frame.height) // 2
+        y = row * self.stg.cell_dim + self.top
+        y += (self.stg.cell_dim - frame.height) // 2
 
         window.blit(frame, x, y, flip=state.flip)
 
@@ -138,7 +200,7 @@ class GameView:
             x = col * self.stg.cell_dim + (self.stg.cell_dim // 2) - width
             y = row * self.stg.cell_dim + (self.stg.cell_dim // 2) - height
 
-            window.put_box(x, y, width, height, 0xDDDDDD)
+            window.put_box(x, y + self.top, width, height, 0xDDDDDD)
 
     def _draw_pacgums(self, window: Window, pacgums: list[Pacgum]) -> None:
         width = 10
@@ -148,4 +210,4 @@ class GameView:
             x = col * self.stg.cell_dim + (self.stg.cell_dim // 2) - width
             y = row * self.stg.cell_dim + (self.stg.cell_dim // 2) - height
 
-            window.put_box(x, y, width, height, 0xAA5555)
+            window.put_box(x, y + self.top, width, height, 0xAA5555)

@@ -23,6 +23,7 @@ class SpriteId(Enum):
     GHOST_P_WALK = ("eyeball_pink_2x/eyeball_walk.png", 8)
     GHOST_R_IDLE = ("eyeball_red_2x/eyeball_idle.png", 9)
     GHOST_R_WALK = ("eyeball_red_2x/eyeball_walk.png", 8)
+    HEART = ("heart.png", 1)
 
 
 class SpriteError(Exception):
@@ -84,3 +85,7 @@ class Sprites:
     def frame(self, anim: Animation, t: float) -> Frame:
         sheet = self.sheets[anim.sheet]
         return sheet[anim.frame_index(t, len(sheet))]
+
+    def still(self, sid: SpriteId) -> Frame:
+        """the only frame of a one frame sheet"""
+        return self.sheets[sid][0]
