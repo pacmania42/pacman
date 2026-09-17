@@ -65,28 +65,46 @@ class GameView:
         self._draw_superpacgums(window, game.superpacgums)
         self._draw_ghosts(window, game.ghosts)
         self._draw_player(window, game.player)
+        self._draw_hud(window, game)
 
     def _draw_hud(self, window: Window, game: GameState) -> int:
         """draw score, lives and time
 
         returns the y of the next line
         """
+        top = window.height - 35
         pad = theme.GAP // 2
         band = window.text_height(theme.SCALE_BODY)
-        width = min(window.width, game.maze.width * self.stg.cell_dim)
+        width = window.width
         text_y = pad + (band - window.ink_height(theme.SCALE_BODY)) // 2
 
-        self._draw_score(window, text_y, game.player.value)
-        self._draw_lives(window, pad, band, width, game.player.lives)
-        self._draw_time(window, text_y, width, game.time_left)
-        return pad + band + pad
+        self._draw_info(window, top + text_y, game.player.value, 1)
+        self._draw_lives(window, top + pad, band, width, game.player.lives)
+        self._draw_time(window, top + text_y, width, game.time_left)
+        return top + pad + band + pad
 
-    def _draw_score(self, window: Window, y: int, score: int) -> None:
+    def _draw_info(self, window: Window, y: int, score: int, level: int) -> None:
         window.put_text(0, y, "SCORE", theme.MUTED, theme.SCALE_BODY)
         window.put_text(
             window.text_width("SCORE ", theme.SCALE_BODY),
             y,
             f"{score:06d}",
+            theme.TITLE,
+            theme.SCALE_BODY,
+        )
+
+        x_next = window.text_width("   SCORE 000000", theme.SCALE_BODY)
+        window.put_text(
+            x_next,
+            y,
+            " |    LEVEL",
+            theme.MUTED,
+            theme.SCALE_BODY
+        )
+        window.put_text(
+            window.text_width(" |    LEVEL ", theme.SCALE_BODY) + x_next,
+            y,
+            f"{level:02d}",
             theme.TITLE,
             theme.SCALE_BODY,
         )
