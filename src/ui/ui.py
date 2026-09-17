@@ -107,6 +107,60 @@ def screen_title(window: Window, y: int, text: str, shift: int = 0) -> int:
     return y + 2 * theme.GAP
 
 
+def _menu_item_y_space(window: Window) -> int:
+    """vertical distance between two menu items"""
+    return window.ink_height(theme.SCALE_ITEM_ACTIVE) + 2 * theme.GAP
+
+
+def menu_width(window: Window, items: list[str]) -> int:
+    return (
+        max(
+            window.text_width(item.upper(), theme.SCALE_ITEM_ACTIVE)
+            for item in items
+        )
+        + 2 * theme.MARGIN
+    )
+
+
+def menu_height(window: Window, count: int) -> int:
+    return count * _menu_item_y_space(window)
+
+
+def menu(window: Window, top: int, items: list[str], current: int) -> int:
+    """draw menu centered, return the next free y
+    """
+    row_height = window.ink_height(theme.SCALE_ITEM_ACTIVE)
+    item_y_space = _menu_item_y_space(window)
+    bar_width = menu_width(window, items)
+    bar_x = (window.width - bar_width) // 2
+
+    for i, item in enumerate(items):
+        active = i == current
+        scale = theme.SCALE_ITEM_ACTIVE if active else theme.SCALE_ITEM
+        color = theme.SELECTED if active else theme.TEXT
+        label = item.upper()
+
+        row_y = top + i * item_y_space
+        x = (window.width - window.text_width(label, scale)) // 2
+        y = row_y + (row_height - window.ink_height(scale)) // 2
+
+        if active:
+            window.put_box(
+                bar_x,
+                row_y - theme.GAP // 2,
+                bar_width,
+                row_height + theme.GAP,
+                theme.HIGHLIGHT,
+            )
+            cursor_w = window.text_width(theme.CURSOR, scale)
+            window.put_text(
+                x - cursor_w - theme.GAP, y + 10, theme.CURSOR, color, scale
+            )
+
+        window.put_text(x, y + scale * 2, label, color, scale)
+    return top + menu_height(window, len(items))
+
+
 def footer(window: Window, text: str) -> None:
     """Draw the hint line that sits at the bottom of every screen."""
     y = window.height - theme.MARGIN - window.text_height(theme.SCALE_BODY)
