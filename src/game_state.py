@@ -59,6 +59,10 @@ class GameState:
         self.elapsed += dt
         self.time_left -= dt
         self.player.move(dt, wanted)
+        for ghost in self.ghosts:
+            dir = ghost.chase(self.player.center, self.maze)
+            print(ghost.center.x, ghost.center.y, dir)
+            ghost.move(dt, dir)
 
         collided_entities = self._check_collision()
         self._handle_collision(collided_entities)
