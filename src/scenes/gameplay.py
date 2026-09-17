@@ -5,7 +5,7 @@ from src.core.input import Action, InputState
 from src.core.scene import Scene
 from src.core.scene_id import SceneId
 from src.core.settings import Settings
-from src.core.transitions import Push, Quit, Replace, Transition
+from src.core.transitions import Pop, Push, Quit, Replace, Transition
 from src.core.window import Window
 from src.entities import Direction
 from src.game_state import GameState, GameStatus

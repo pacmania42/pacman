@@ -127,8 +127,7 @@ def menu_height(window: Window, count: int) -> int:
 
 
 def menu(window: Window, top: int, items: list[str], current: int) -> int:
-    """draw menu centered, return the next free y
-    """
+    """draw menu centered, return the next free y"""
     row_height = window.ink_height(theme.SCALE_ITEM_ACTIVE)
     item_y_space = _menu_item_y_space(window)
     bar_width = menu_width(window, items)

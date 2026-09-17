@@ -83,7 +83,9 @@ class GameView:
         self._draw_time(window, top + text_y, width, game.time_left)
         return top + pad + band + pad
 
-    def _draw_info(self, window: Window, y: int, score: int, level: int) -> None:
+    def _draw_info(
+        self, window: Window, y: int, score: int, level: int
+    ) -> None:
         window.put_text(0, y, "SCORE", theme.MUTED, theme.SCALE_BODY)
         window.put_text(
             window.text_width("SCORE ", theme.SCALE_BODY),
@@ -95,11 +97,7 @@ class GameView:
 
         x_next = window.text_width("   SCORE 000000", theme.SCALE_BODY)
         window.put_text(
-            x_next,
-            y,
-            " |    LEVEL",
-            theme.MUTED,
-            theme.SCALE_BODY
+            x_next, y, " |    LEVEL", theme.MUTED, theme.SCALE_BODY
         )
         window.put_text(
             window.text_width(" |    LEVEL ", theme.SCALE_BODY) + x_next,
@@ -235,7 +233,6 @@ class GameView:
         x_pad = gum.width // 2
         y_pad = gum.height // 2
         for pg in [pg for pg in pacgums if pg.lives]:
-
             x = pg.center.x - x_pad
             y = pg.center.y - y_pad
 
