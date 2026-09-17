@@ -143,7 +143,7 @@ class GameView:
         maze_width = maze.width * self.stg.cell_dim
         maze_height = maze.height * self.stg.cell_dim
 
-        window.put_box(0, 0, maze_width, maze_height, 0xFFFFFF)
+        window.put_box(0, 0, maze_width, maze_height, theme.MUTED)
         window.put_box(
             self.stg.wall_thickness,
             self.stg.wall_thickness,
@@ -162,7 +162,7 @@ class GameView:
                     y_offset + self.stg.wall_thickness,
                     self.stg.cell_dim - 2 * self.stg.wall_thickness,
                     self.stg.cell_dim - 2 * self.stg.wall_thickness,
-                    0x0000FF,
+                    0x111111,
                 )
 
             if not cell.n:
@@ -171,7 +171,7 @@ class GameView:
                     y_offset,
                     self.stg.cell_dim,
                     self.stg.wall_thickness,
-                    0xFFFFFF,
+                    theme.MUTED,
                 )
             if not cell.e:
                 window.put_box(
@@ -179,7 +179,7 @@ class GameView:
                     y_offset,
                     self.stg.wall_thickness,
                     self.stg.cell_dim,
-                    0xFFFFFF,
+                    theme.MUTED,
                 )
 
     def _draw_actor(
@@ -196,13 +196,12 @@ class GameView:
         anim = walk if actor.is_moving else idle
         frame = state.frame(window, self.clock, anim, actor.facing)
 
-        col = actor.center.x
-        row = actor.center.y
-        x = col - frame.width // 2
-        y = row
-        y -= frame.height // 2
-
-        window.blit(frame, floor(x), floor(y), flip=state.flip)
+        window.blit(
+            frame,
+            floor(actor.center.x - frame.width // 2),
+            floor(actor.center.y - frame.height // 2),
+            flip=state.flip,
+        )
 
     def _draw_player(self, window: Window, player: Player) -> None:
         self._draw_actor(
