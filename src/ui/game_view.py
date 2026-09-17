@@ -206,7 +206,7 @@ class GameView:
         frame = window.sprites.frame(SUPERGUM, self.clock)
         x_pad = frame.width // 2
         y_pad = frame.height // 2
-        for spg in superpacgums:
+        for spg in [spg for spg in superpacgums if spg.lives]:
             x = spg.center.x - x_pad
             y = spg.center.y - y_pad
 
@@ -216,7 +216,8 @@ class GameView:
         gum = window.sprites.still(SpriteId.GUM)
         x_pad = gum.width // 2
         y_pad = gum.height // 2
-        for pg in pacgums:
+        for pg in [pg for pg in pacgums if pg.lives]:
+
             x = pg.center.x - x_pad
             y = pg.center.y - y_pad
 
