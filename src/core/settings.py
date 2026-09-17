@@ -7,7 +7,7 @@ from src.ui import theme
 class Settings:
     #
     tick = 1 / 60
-    win_width = 1400
+    win_width = 960
     win_height = 1000
     window_title: str = "Pac-Man"
 
@@ -61,4 +61,4 @@ class Settings:
     ghost_size = (40, 40)
     pacgum_size = (10, 10)
     superpacgum_size = (25, 25)
-    collision_threshold = 30
+    collision_threshold = 40
