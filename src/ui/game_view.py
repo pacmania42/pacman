@@ -22,6 +22,8 @@ GHOST_ANIMS: tuple[tuple[Animation, Animation], ...] = tuple(
     )
 )
 
+SUPERGUM = Animation(SpriteId.SUPERGUM, fps=6)
+
 
 class ActorAnim:
 
@@ -193,14 +195,15 @@ class GameView:
             SuperPacgum, SuperPacgum, SuperPacgum, SuperPacgum
         ],
     ) -> None:
-        width = 25
-        height = 25
+        frame = window.sprites.frame(SUPERGUM, self.clock)
+        x_pad = (self.stg.cell_dim - frame.width) // 2
+        y_pad = (self.stg.cell_dim - frame.height) // 2
         for spg in superpacgums:
             col, row = spg.position
-            x = col * self.stg.cell_dim + (self.stg.cell_dim // 2) - width
-            y = row * self.stg.cell_dim + (self.stg.cell_dim // 2) - height
+            x = col * self.stg.cell_dim + x_pad
+            y = row * self.stg.cell_dim + self.top + y_pad
 
-            window.put_box(x, y + self.top, width, height, 0xDDDDDD)
+            window.blit(frame, x, y)
 
     def _draw_pacgums(self, window: Window, pacgums: list[Pacgum]) -> None:
         gum = window.sprites.still(SpriteId.GUM)
