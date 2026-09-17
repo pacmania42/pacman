@@ -203,11 +203,12 @@ class GameView:
             window.put_box(x, y + self.top, width, height, 0xDDDDDD)
 
     def _draw_pacgums(self, window: Window, pacgums: list[Pacgum]) -> None:
-        width = 10
-        height = 10
+        gum = window.sprites.still(SpriteId.GUM)
+        x_pad = (self.stg.cell_dim - gum.width) // 2
+        y_pad = (self.stg.cell_dim - gum.height) // 2
         for pg in pacgums:
             col, row = pg.position
-            x = col * self.stg.cell_dim + (self.stg.cell_dim // 2) - width
-            y = row * self.stg.cell_dim + (self.stg.cell_dim // 2) - height
+            x = col * self.stg.cell_dim + x_pad
+            y = row * self.stg.cell_dim + self.top + y_pad
 
-            window.put_box(x, y + self.top, width, height, 0xAA5555)
+            window.blit(gum, x, y)

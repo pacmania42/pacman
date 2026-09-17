@@ -24,6 +24,7 @@ class SpriteId(Enum):
     GHOST_R_IDLE = ("eyeball_red_2x/eyeball_idle.png", 9)
     GHOST_R_WALK = ("eyeball_red_2x/eyeball_walk.png", 8)
     HEART = ("heart.png", 1)
+    GUM = ("gum.png", 1)
 
 
 class SpriteError(Exception):
