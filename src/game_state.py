@@ -53,7 +53,7 @@ class GameState:
 
     def resume_game(self) -> None:
         if self.status == GameStatus.PAUSED:
-            self.status = GameStatus.PAUSED
+            self.status = GameStatus.ACTIVE
 
     def update(self, dt: float, wanted: Direction | None) -> None:
         self.elapsed += dt

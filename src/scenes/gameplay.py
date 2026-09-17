@@ -9,6 +9,7 @@ from src.core.transitions import Push, Quit, Replace, Transition
 from src.core.window import Window
 from src.entities import Direction
 from src.game_state import GameState, GameStatus
+from src.scenes.pause import PauseChoice
 from src.ui.game_view import GameView
 
 
@@ -19,10 +20,13 @@ class GameplayScene(Scene):
         self.config = ctx.config
         self.game = GameState(config=self.config, settings=self.stg)
         self.view = GameView(self.stg)
+        self.leaving = False
 
     def update(self, inputs: InputState) -> Transition:
         if self.game.status == GameStatus.OVER:
             return Replace(SceneId.GAMEOVER)
+        if self.leaving:
+            return Pop()
         if inputs.was_pressed(Action.PAUSE):
             self.game.pause_game()
             return Push(SceneId.PAUSE)
@@ -47,4 +51,7 @@ class GameplayScene(Scene):
         self.view.draw(window, self.game)
 
     def on_resume(self, result: Optional[Any] = None) -> None:
-        self.game.resume_game()
+        if result is PauseChoice.MAIN_MENU:
+            self.leaving = True
+        else:
+            self.game.resume_game()
