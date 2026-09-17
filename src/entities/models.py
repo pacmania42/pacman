@@ -15,6 +15,11 @@ class Direction(Enum):
     SOUTH = ((0, 1), "s")
     WEST = ((-1, 0), "w")
 
+    @property
+    def opposite(self) -> "Direction":
+        (dx, dy), _ = self.value
+        return next(d for d in Direction if d.value[0] == (-dx, -dy))
+
 
 @dataclass
 class Location:
