@@ -56,9 +56,14 @@ class Settings:
 
     # used by the state
     speed = 7
+    player_speed = 7
+    ghost_speed = 4
     cell_dim = 60
     player_size = (40, 40)
     ghost_size = (40, 40)
     pacgum_size = (10, 10)
     superpacgum_size = (25, 25)
-    collision_threshold = 40
+    collision_threshold = 20
+
+    # timings
+    eating_duration = 6.0  # seconds the ghosts can be eaten

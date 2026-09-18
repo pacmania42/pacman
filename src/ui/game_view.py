@@ -1,8 +1,8 @@
 """Draws a GameState onto a Window"""
 
 import math
-from math import floor
 from dataclasses import replace
+from math import floor
 
 from src.core.settings import Settings
 from src.core.sprite import Animation, Frame, SpriteId
@@ -42,7 +42,7 @@ class ActorAnim:
     def frame(
         self, window: Window, clock: float, actor: Player | Ghost
     ) -> Frame:
-        anim = self.walk if actor.moving else self.idle
+        anim = self.walk if actor.is_moving else self.idle
         if actor.state is ActorState.DYING and self.death:
             anim = self.death
         elif actor.state is ActorState.REBORN and self.reborn:
