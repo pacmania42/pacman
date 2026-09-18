@@ -31,4 +31,4 @@ class Ghost(Actor):
         self.respawn_loc = self.center
         self.lives -= 1
         if self.lives:
-            self.cell = self.respawn_loc
+            self.respawn()

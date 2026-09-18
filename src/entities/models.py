@@ -90,8 +90,9 @@ class Actor(Edible):
         self.spawn_delay: float = spawn_delay
         self.direction: Direction | None = None
         self.next_direction: Direction | None = None
-        self.moving: bool = False
+        self.is_moving: bool = False
         self.facing: Direction = Direction.EAST
+        self.respawn_loc = Location(self.center.x, self.center.y)
 
     def move(self, dt: float, direction: Direction | None) -> None:
         if direction and direction != self.direction:
@@ -102,7 +103,7 @@ class Actor(Edible):
         if self.center == turn_point:
             self.direction = self.next_direction
             self.next_direction = None
-            self.moving = False
+            self.is_moving = False
             turn_point = self.end_of_path()
             if self.direction:
                 self.facing = self.direction
@@ -110,7 +111,7 @@ class Actor(Edible):
         if not self.direction:
             return
 
-        self.moving = True
+        self.is_moving = True
         dx, dy = self.direction.value[0]
         next_x = self.center.x + dx * Settings.speed
         next_y = self.center.y + dy * Settings.speed
@@ -147,3 +148,10 @@ class Actor(Edible):
     def eat(self, edible: Edible) -> None:
         self.value += edible.value
         edible.get_eaten()
+
+    def respawn(self) -> None:
+        self.center.x = self.respawn_loc.x
+        self.center.y = self.respawn_loc.y
+        self.direction = None
+        self.next_direction = None
+        self.is_moving = False
