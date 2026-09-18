@@ -193,7 +193,7 @@ class GameView:
         """draw blit of the actor's current frame"""
         if not actor.lives:
             return
-        anim = walk if actor.moving else idle
+        anim = walk if actor.is_moving else idle
         frame = state.frame(window, self.clock, anim, actor.facing)
 
         col = actor.center.x

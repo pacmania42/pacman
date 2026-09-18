@@ -27,9 +27,8 @@ class Player(Actor):
             size=size,
             spawn_delay=spawn_delay,
         )
-        self.respawn_center = self.center
 
     def get_eaten(self) -> None:
         self.lives -= 1
         if self.lives:
-            self.center = self.respawn_center
+            self.respawn()
