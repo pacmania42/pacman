@@ -4,7 +4,7 @@ from src.core.config import Config
 from src.core.settings import Settings
 
 from .maze import Maze
-from .models import Actor, Direction
+from .models import Actor
 
 
 class Ghost(Actor):
@@ -26,8 +26,6 @@ class Ghost(Actor):
             size=size,
             spawn_delay=spawn_delay,
         )
-        self.moving = False  # TODO: derive, once movement exists
-        self.facing = Direction.EAST  # TODO: set by movement
 
     def get_eaten(self) -> None:
         self.respawn_loc = self.center

@@ -194,12 +194,7 @@ class GameView:
         if not actor.lives:
             return
         anim = walk if actor.moving else idle
-        frame = state.frame(
-            window,
-            self.clock,
-            anim,
-            actor.direction if actor.direction else Direction.EAST,
-        )
+        frame = state.frame(window, self.clock, anim, actor.facing)
 
         col = actor.center.x
         row = actor.center.y
