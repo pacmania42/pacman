@@ -15,6 +15,7 @@ Loader = Callable[[str], Image]
 class SpriteId(Enum):
     SCOUT_IDLE = ("scout_grey_2x/scout_idle.png", 8)  # (file, frame count)
     SCOUT_WALK = ("scout_grey_2x/scout_run.png", 8)
+    SCOUT_DEATH = ("scout_grey_2x/scout_death.png", 12)
     GHOST_C_IDLE = ("eyeball_cyan_2x/eyeball_idle.png", 9)
     GHOST_C_WALK = ("eyeball_cyan_2x/eyeball_walk.png", 8)
     GHOST_C_DEATH = ("eyeball_cyan_2x/eyeball_death.png", 12)

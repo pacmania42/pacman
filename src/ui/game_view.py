@@ -15,6 +15,7 @@ from src.ui import theme, ui
 
 PLAYER_IDLE = Animation(SpriteId.SCOUT_IDLE, fps=10)
 PLAYER_WALK = Animation(SpriteId.SCOUT_WALK, fps=10)
+PLAYER_DEATH = Animation(SpriteId.SCOUT_DEATH, fps=10, loop=False)
 
 GHOST_SHEETS = (
     (SpriteId.GHOST_C_IDLE, SpriteId.GHOST_C_WALK, SpriteId.GHOST_C_DEATH),
@@ -62,7 +63,7 @@ class GameView:
     def __init__(self, stg: Settings) -> None:
         self.stg = stg
         self.clock = 0.0
-        self.player_anim = ActorAnim(PLAYER_IDLE, PLAYER_WALK)
+        self.player_anim = ActorAnim(PLAYER_IDLE, PLAYER_WALK, PLAYER_DEATH)
         self.ghost_anims = tuple(
             ActorAnim(
                 Animation(idle, fps=10),
