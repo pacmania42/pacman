@@ -2,12 +2,13 @@
 
 import math
 from math import floor
+from dataclasses import replace
 
 from src.core.settings import Settings
 from src.core.sprite import Animation, Frame, SpriteId
 from src.core.window import Window
 from src.entities import Ghost, Maze, Player
-from src.entities.models import Direction
+from src.entities.models import ActorState, Direction
 from src.entities.pacgum import Pacgum, SuperPacgum
 from src.game_state import GameState
 from src.ui import theme, ui
@@ -15,34 +16,42 @@ from src.ui import theme, ui
 PLAYER_IDLE = Animation(SpriteId.SCOUT_IDLE, fps=10)
 PLAYER_WALK = Animation(SpriteId.SCOUT_WALK, fps=10)
 
-GHOST_ANIMS: tuple[tuple[Animation, Animation], ...] = tuple(
-    (Animation(idle, fps=10), Animation(walk, fps=10))
-    for idle, walk in (
-        (SpriteId.GHOST_C_IDLE, SpriteId.GHOST_C_WALK),
-        (SpriteId.GHOST_O_IDLE, SpriteId.GHOST_O_WALK),
-        (SpriteId.GHOST_P_IDLE, SpriteId.GHOST_P_WALK),
-        (SpriteId.GHOST_R_IDLE, SpriteId.GHOST_R_WALK),
-    )
+GHOST_SHEETS = (
+    (SpriteId.GHOST_C_IDLE, SpriteId.GHOST_C_WALK, SpriteId.GHOST_C_DEATH),
+    (SpriteId.GHOST_O_IDLE, SpriteId.GHOST_O_WALK, SpriteId.GHOST_O_DEATH),
+    (SpriteId.GHOST_P_IDLE, SpriteId.GHOST_P_WALK, SpriteId.GHOST_P_DEATH),
+    (SpriteId.GHOST_R_IDLE, SpriteId.GHOST_R_WALK, SpriteId.GHOST_R_DEATH),
 )
 
 SUPERGUM = Animation(SpriteId.SUPERGUM, fps=6)
 
 
 class ActorAnim:
-    def __init__(self) -> None:
+    def __init__(
+        self, idle: Animation, walk: Animation, death: Animation | None = None
+    ) -> None:
+        self.idle = idle
+        self.walk = walk
+        self.death = death
+        self.reborn = replace(death, reverse=True) if death else None
         self.anim: Animation | None = None
         self.start = 0.0
         self.flip = False
 
     def frame(
-        self, window: Window, clock: float, anim: Animation, facing: Direction
+        self, window: Window, clock: float, actor: Player | Ghost
     ) -> Frame:
+        anim = self.walk if actor.moving else self.idle
+        if actor.state is ActorState.DYING and self.death:
+            anim = self.death
+        elif actor.state is ActorState.REBORN and self.reborn:
+            anim = self.reborn
         if anim is not self.anim:  # state changed: restart at frame 0
             self.anim = anim
             self.start = clock
-        if facing is Direction.WEST:
+        if actor.facing is Direction.WEST:
             self.flip = True
-        elif facing is Direction.EAST:
+        elif actor.facing is Direction.EAST:
             self.flip = False
         return window.sprites.frame(anim, clock - self.start)
 
@@ -53,8 +62,15 @@ class GameView:
     def __init__(self, stg: Settings) -> None:
         self.stg = stg
         self.clock = 0.0
-        self.player_anim = ActorAnim()
-        self.ghost_anims = tuple(ActorAnim() for _ in GHOST_ANIMS)
+        self.player_anim = ActorAnim(PLAYER_IDLE, PLAYER_WALK)
+        self.ghost_anims = tuple(
+            ActorAnim(
+                Animation(idle, fps=10),
+                Animation(walk, fps=10),
+                Animation(death, fps=10, loop=False),
+            )
+            for idle, walk, death in GHOST_SHEETS
+        )
 
     def tick(self, dt: float) -> None:
         """Advance the animation clock"""
@@ -183,36 +199,26 @@ class GameView:
                 )
 
     def _draw_actor(
-        self,
-        window: Window,
-        actor: Player | Ghost,
-        state: ActorAnim,
-        idle: Animation,
-        walk: Animation,
+        self, window: Window, actor: Player | Ghost, anim: ActorAnim
     ) -> None:
         """draw blit of the actor's current frame"""
         if not actor.lives:
             return
-        anim = walk if actor.is_moving else idle
-        frame = state.frame(window, self.clock, anim, actor.facing)
+        frame = anim.frame(window, self.clock, actor)
 
         window.blit(
             frame,
             floor(actor.center.x - frame.width // 2),
             floor(actor.center.y - frame.height // 2),
-            flip=state.flip,
+            flip=anim.flip,
         )
 
     def _draw_player(self, window: Window, player: Player) -> None:
-        self._draw_actor(
-            window, player, self.player_anim, PLAYER_IDLE, PLAYER_WALK
-        )
+        self._draw_actor(window, player, self.player_anim)
 
     def _draw_ghosts(self, window: Window, ghosts: set[Ghost]) -> None:
-        for ghost, state, (idle, walk) in zip(
-            ghosts, self.ghost_anims, GHOST_ANIMS, strict=True
-        ):
-            self._draw_actor(window, ghost, state, idle, walk)
+        for ghost, anim in zip(ghosts, self.ghost_anims, strict=True):
+            self._draw_actor(window, ghost, anim)
 
     def _draw_superpacgums(
         self,

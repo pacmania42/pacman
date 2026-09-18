@@ -4,6 +4,7 @@ from enum import IntEnum, auto
 from src.core.config import Config
 from src.core.settings import Settings
 from src.entities import (
+    ActorState,
     Direction,
     Edible,
     Ghost,
@@ -60,9 +61,10 @@ class GameState:
         self.time_left -= dt
         self.player.move(dt, wanted)
         for ghost in self.ghosts:
-            dir = ghost.chase(self.player.center, self.maze)
-            print(ghost.center.x, ghost.center.y, dir)
-            ghost.move(dt, dir)
+            ghost.tick(dt)
+            if ghost.state is not ActorState.ALIVE:
+                continue
+            ghost.move(dt, ghost.chase(self.player.center, self.maze))
 
         collided_entities = self._check_collision()
         self._handle_collision(collided_entities)
@@ -97,7 +99,8 @@ class GameState:
         self.pacgums = self._create_pacgums()
 
     def _check_collision(self) -> set[Edible]:
-        all_edibles = [*self.pacgums, *self.superpacgums, *self.ghosts]
+        ghosts = [g for g in self.ghosts if g.state is ActorState.ALIVE]
+        all_edibles = [*self.pacgums, *self.superpacgums, *ghosts]
         return set(
             [
                 edible

@@ -17,12 +17,16 @@ class SpriteId(Enum):
     SCOUT_WALK = ("scout_grey_2x/scout_run.png", 8)
     GHOST_C_IDLE = ("eyeball_cyan_2x/eyeball_idle.png", 9)
     GHOST_C_WALK = ("eyeball_cyan_2x/eyeball_walk.png", 8)
+    GHOST_C_DEATH = ("eyeball_cyan_2x/eyeball_death.png", 12)
     GHOST_O_IDLE = ("eyeball_orange_2x/eyeball_idle.png", 9)
     GHOST_O_WALK = ("eyeball_orange_2x/eyeball_walk.png", 8)
+    GHOST_O_DEATH = ("eyeball_orange_2x/eyeball_death.png", 12)
     GHOST_P_IDLE = ("eyeball_pink_2x/eyeball_idle.png", 9)
     GHOST_P_WALK = ("eyeball_pink_2x/eyeball_walk.png", 8)
+    GHOST_P_DEATH = ("eyeball_pink_2x/eyeball_death.png", 12)
     GHOST_R_IDLE = ("eyeball_red_2x/eyeball_idle.png", 9)
     GHOST_R_WALK = ("eyeball_red_2x/eyeball_walk.png", 8)
+    GHOST_R_DEATH = ("eyeball_red_2x/eyeball_death.png", 12)
     HEART = ("heart.png", 1)
     GUM = ("gum.png", 1)
     SUPERGUM = ("supergum_1x.png", 9)
@@ -47,10 +51,13 @@ class Animation:
     sheet: SpriteId
     fps: float
     loop: bool = True
+    reverse: bool = False
+    """play the sheet backwards (e.g. for rebirth)"""
 
     def frame_index(self, t: float, count: int) -> int:
         i = int(t * self.fps)
-        return i % count if self.loop else min(i, count - 1)
+        i = i % count if self.loop else min(i, count - 1)
+        return count - 1 - i if self.reverse else i
 
 
 class SpriteSheet:
