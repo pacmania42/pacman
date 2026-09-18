@@ -18,14 +18,14 @@ class Direction(Enum):
 
 @dataclass
 class Location:
-    x: int
-    y: int
+    x: float
+    y: float
 
     @staticmethod
-    def from_grid(pos: tuple[int, int]) -> "Location":
+    def cell_center(pos: tuple[int, int]) -> "Location":
         col, row = pos
-        x = floor((col + 0.5) * Settings.cell_dim)
-        y = floor((row + 0.5) * Settings.cell_dim)
+        x = (col + 0.5) * Settings.cell_dim
+        y = (row + 0.5) * Settings.cell_dim
 
         return Location(x, y)
 
@@ -62,7 +62,7 @@ class Edible(ABC):
         self.maze = maze
         self.width = size[0]
         self.height = size[1]
-        self.center = Location.from_grid(position)
+        self.center = Location.cell_center(position)
 
     @abstractmethod
     def eat(self, edible: "Edible") -> None: ...
@@ -89,57 +89,55 @@ class Actor(Edible):
         )
         self.spawn_delay: float = spawn_delay
         self.direction: Direction | None = None
+        self.next_direction: Direction | None = None
         self.facing: Direction = Direction.WEST
 
     def move(self, dt: float, direction: Direction | None) -> None:
-        if not direction:  # continue on the same direction
-            direction = self.direction
-        else:  # change direction
-            self.direction = direction
+        if direction and direction != self.direction:
+            self.next_direction = direction
 
-        if direction is None:
+        turn_point = self.end_of_path()
+
+        if self.center == turn_point:
+            self.direction = self.next_direction
+            self.next_direction = None
+            turn_point = self.end_of_path()
+
+        if not self.direction:
             return
 
-        cell = Location.to_cell(self.center, self.maze)
-
-        # calculate the next position
-        dx, dy = direction.value[0]
+        dx, dy = self.direction.value[0]
         next_x = self.center.x + dx * Settings.speed
         next_y = self.center.y + dy * Settings.speed
 
-        next_x = self._clip_x(cell, direction, next_x)
-        next_y = self._clip_y(cell, direction, next_y)
+        self.center.x = self._clip(next_x, (self.center.x, turn_point.x))
+        self.center.y = self._clip(next_y, (self.center.y, turn_point.y))
 
-        next_center = Location(next_x, next_y)
-        self.center = next_center
+    def _clip(self, val: float, boundries: tuple[float, float]) -> float:
+        min_boundry = min(boundries)
+        max_boundry = max(boundries)
+        return max(min_boundry, min(val, max_boundry))
 
-    def _clip_x(self, cell: Cell, direction: Direction, x: int) -> int:
-        if direction == Direction.WEST:
-            limit_cell = self._farthest_cell(cell, direction)
-            limit = limit_cell.col * Settings.cell_dim + self.width // 2
-            return max(limit, x)
-        if direction == Direction.EAST:
-            limit_cell = self._farthest_cell(cell, direction)
-            limit = (limit_cell.col + 1) * Settings.cell_dim - self.width // 2
-            return min(x, limit)
-        return x
+    def end_of_path(self) -> Location:
+        cell = Location.to_cell(self.center, self.maze)
+        cell_center = Location.cell_center((cell.col, cell.row))
 
-    def _clip_y(self, cell: Cell, direction: Direction, y: int) -> int:
-        if direction == Direction.NORTH:
-            limit_cell = self._farthest_cell(cell, direction)
-            limit = limit_cell.row * Settings.cell_dim + self.height // 2
-            return max(limit, y)
-        if direction == Direction.SOUTH:
-            limit_cell = self._farthest_cell(cell, direction)
-            limit = (limit_cell.row + 1) * Settings.cell_dim - self.height // 2
-            return min(y, limit)
-        return y
+        if self.direction:
+            dx, dy = self.direction.value[0]
+            passed = (dx * (self.center.x - cell_center.x) > 0) or (
+                dy * (self.center.y - cell_center.y) > 0
+            )
+            if passed and getattr(cell, self.direction.value[1]):
+                cell = getattr(cell, self.direction.value[1])
 
-    def _farthest_cell(self, cell: Cell, direction: Direction) -> Cell:
-        limit_cell = cell
-        while getattr(limit_cell, direction.value[1]):
-            limit_cell = getattr(limit_cell, direction.value[1])
-        return limit_cell
+        while self.direction and getattr(cell, self.direction.value[1]):
+            if self.next_direction and getattr(
+                cell, self.next_direction.value[1]
+            ):
+                break
+            cell = getattr(cell, self.direction.value[1])
+
+        return Location.cell_center((cell.col, cell.row))
 
     def eat(self, edible: Edible) -> None:
         self.value += edible.value

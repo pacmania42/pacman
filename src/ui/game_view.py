@@ -1,6 +1,7 @@
 """Draws a GameState onto a Window"""
 
 import math
+from math import floor
 
 from src.core.settings import Settings
 from src.core.sprite import Animation, Frame, SpriteId
@@ -193,7 +194,12 @@ class GameView:
         if not actor.lives:
             return
         anim = walk if actor.moving else idle
-        frame = state.frame(window, self.clock, anim, actor.facing)
+        frame = state.frame(
+            window,
+            self.clock,
+            anim,
+            actor.direction if actor.direction else Direction.EAST,
+        )
 
         col = actor.center.x
         row = actor.center.y
@@ -201,7 +207,7 @@ class GameView:
         y = row
         y -= frame.height // 2
 
-        window.blit(frame, x, y, flip=state.flip)
+        window.blit(frame, floor(x), floor(y), flip=state.flip)
 
     def _draw_player(self, window: Window, player: Player) -> None:
         self._draw_actor(
@@ -226,7 +232,7 @@ class GameView:
             x = spg.center.x - x_pad
             y = spg.center.y - y_pad
 
-            window.blit(frame, x, y)
+            window.blit(frame, floor(x), floor(y))
 
     def _draw_pacgums(self, window: Window, pacgums: set[Pacgum]) -> None:
         gum = window.sprites.still(SpriteId.GUM)
@@ -236,4 +242,4 @@ class GameView:
             x = pg.center.x - x_pad
             y = pg.center.y - y_pad
 
-            window.blit(gum, x, y)
+            window.blit(gum, floor(x), floor(y))
