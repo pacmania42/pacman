@@ -90,7 +90,8 @@ class Actor(Edible):
         self.spawn_delay: float = spawn_delay
         self.direction: Direction | None = None
         self.next_direction: Direction | None = None
-        self.facing: Direction = Direction.WEST
+        self.moving: bool = False
+        self.facing: Direction = Direction.EAST
 
     def move(self, dt: float, direction: Direction | None) -> None:
         if direction and direction != self.direction:
@@ -101,11 +102,15 @@ class Actor(Edible):
         if self.center == turn_point:
             self.direction = self.next_direction
             self.next_direction = None
+            self.moving = False
             turn_point = self.end_of_path()
+            if self.direction:
+                self.facing = self.direction
 
         if not self.direction:
             return
 
+        self.moving = True
         dx, dy = self.direction.value[0]
         next_x = self.center.x + dx * Settings.speed
         next_y = self.center.y + dy * Settings.speed
