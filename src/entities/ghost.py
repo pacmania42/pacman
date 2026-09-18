@@ -31,10 +31,9 @@ class Ghost(Actor):
         )
 
     def get_eaten(self) -> None:
-        self.respawn_loc = self.center
         self.lives -= 1
         if self.lives:
-            self.respawn()
+            self.die()
 
     def chase(self, player: Location, maze: Maze) -> Direction | None:
         """pick a direction on cell middle

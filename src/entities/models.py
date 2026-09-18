@@ -1,7 +1,7 @@
 import math
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, auto
 from math import floor
 
 from src.core.settings import Settings
@@ -19,6 +19,12 @@ class Direction(Enum):
     def opposite(self) -> "Direction":
         (dx, dy), _ = self.value
         return next(d for d in Direction if d.value[0] == (-dx, -dy))
+
+
+class ActorState(Enum):
+    ALIVE = auto()
+    DYING = auto()
+    REBORN = auto()
 
 
 @dataclass
@@ -98,6 +104,31 @@ class Actor(Edible):
         self.is_moving: bool = False
         self.facing: Direction = Direction.EAST
         self.respawn_loc = Location(self.center.x, self.center.y)
+        self.state = ActorState.ALIVE
+        self.state_left = 0.0  # seconds before the current state ends
+
+    # TODO I add these states to test the animations,
+    # if something better in place we can use another solution
+    def die(self) -> None:
+        """start dying (timed)"""
+        self.state = ActorState.DYING
+        self.state_left = 1.2
+        self.moving = False
+        self.direction = None
+
+    def tick(self, dt: float) -> None:
+        """advance dying and rebirth"""
+        if self.state is ActorState.ALIVE:
+            return
+        self.state_left -= dt
+        if self.state_left > 0:
+            return
+        if self.state is ActorState.DYING:
+            self.state = ActorState.REBORN
+            self.state_left = 1.2
+            self.center = self.respawn_center
+        else:
+            self.state = ActorState.ALIVE
 
     def move(self, dt: float, direction: Direction | None) -> None:
         if direction and direction != self.direction:
