@@ -22,7 +22,7 @@ class Game:
 
     def game_loop(self, _: Any) -> None:
         now = time.monotonic()
-        if now >= self.last_tick + 1 / 60:
+        if now >= self.last_tick + Settings.tick:
             self.last_tick = now
             self.scenes.update(self.input.begin_frame())
             if self.scenes.should_quit:
