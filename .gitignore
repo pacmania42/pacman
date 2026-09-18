@@ -10,3 +10,4 @@ __pycache__/
 .synced
 dist/
 .githooks
+highscore.json
