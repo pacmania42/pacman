@@ -31,4 +31,4 @@ class Player(Actor):
     def get_eaten(self) -> None:
         self.lives -= 1
         if self.lives:
-            self.respawn()
+            self.die()
