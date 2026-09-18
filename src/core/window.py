@@ -192,10 +192,14 @@ class Window:
         y: int,
         flip: bool = False,
         alpha_min: int = 128,
+        tint: int | None = None,
     ) -> None:
         """Copy a frame into the back buffer
         Block image transfer
+
+        `tint` paints every opaque pixel
         """
+        pixel = self._to_pixel(tint) if tint is not None else None
         src, sbpp, sll = (
             frame.sheet.pixels,
             frame.sheet.bytes_pp,
@@ -216,4 +220,4 @@ class Window:
                 if src[s + 3] < alpha_min:
                     continue
                 d = dbase + tx * self.bytes_pp
-                self.pixels[slice(d, d + 4)] = src[slice(s, s + 4)]
+                self.pixels[slice(d, d + 4)] = pixel or src[slice(s, s + 4)]

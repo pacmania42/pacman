@@ -42,6 +42,7 @@ class GameState:
         self.status = GameStatus.ACTIVE
         self.elapsed = 0.0
         self.time_left = float(self.config.level_max_time)
+        self.frightened_left = 0.0
         self._init_entities()
 
     def restart_level(self) -> None:
@@ -59,6 +60,8 @@ class GameState:
     def update(self, dt: float, wanted: Direction | None) -> None:
         self.elapsed += dt
         self.time_left -= dt
+        self.frightened_left = max(0.0, self.frightened_left - dt)
+        Ghost.can_eat = self.frightened_left <= 0
         self.player.move(dt, wanted)
         for ghost in self.ghosts:
             ghost.tick(dt)
@@ -116,6 +119,7 @@ class GameState:
         collided_ghosts = collided.intersection(self.ghosts)
 
         if collided_spgs:
+            self.frightened_left = 6.0 # seconds the ghosts can be eaten 
             Ghost.can_eat = False
 
         if collided_ghosts and Ghost.can_eat:

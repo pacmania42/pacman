@@ -80,7 +80,8 @@ class GameView:
         self._draw_maze(window, game.maze)
         self._draw_pacgums(window, game.pacgums)
         self._draw_superpacgums(window, game.superpacgums)
-        self._draw_ghosts(window, game.ghosts)
+        tint = self._ghost_tint(game.frightened_left)
+        self._draw_ghosts(window, game.ghosts, tint)
         self._draw_player(window, game.player)
         self._draw_hud(window, game)
 
@@ -199,26 +200,43 @@ class GameView:
                 )
 
     def _draw_actor(
-        self, window: Window, actor: Player | Ghost, anim: ActorAnim
+        self,
+        window: Window,
+        actor: Player | Ghost,
+        anim: ActorAnim,
+        tint: int | None = None,
     ) -> None:
         """draw blit of the actor's current frame"""
         if not actor.lives:
             return
         frame = anim.frame(window, self.clock, actor)
+        if actor.state is not ActorState.ALIVE:
+            tint = None
 
         window.blit(
             frame,
             floor(actor.center.x - frame.width // 2),
             floor(actor.center.y - frame.height // 2),
             flip=anim.flip,
+            tint=tint,
         )
 
     def _draw_player(self, window: Window, player: Player) -> None:
         self._draw_actor(window, player, self.player_anim)
 
-    def _draw_ghosts(self, window: Window, ghosts: set[Ghost]) -> None:
+    def _ghost_tint(self, frightened_left: float) -> int | None:
+        if frightened_left <= 0:
+            return None
+        blink = int(self.clock * 2 * 4) % 2
+        if frightened_left > 2.0 or blink:
+            return theme.FRIGHT
+        return theme.WHITE
+
+    def _draw_ghosts(
+        self, window: Window, ghosts: set[Ghost], tint: int | None
+    ) -> None:
         for ghost, anim in zip(ghosts, self.ghost_anims, strict=True):
-            self._draw_actor(window, ghost, anim)
+            self._draw_actor(window, ghost, anim, tint)
 
     def _draw_superpacgums(
         self,
