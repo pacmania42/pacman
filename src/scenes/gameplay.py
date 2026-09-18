@@ -5,10 +5,10 @@ from src.core.input import Action, InputState
 from src.core.scene import Scene
 from src.core.scene_id import SceneId
 from src.core.settings import Settings
-from src.core.transitions import Pop, Push, Quit, Replace, Transition
+from src.core.transitions import Pop, Push, Replace, Transition
 from src.core.window import Window
 from src.entities import Direction
-from src.game_state import GameState, GameStatus
+from src.game_state import GameResult, GameState, GameStatus
 from src.scenes.pause import PauseChoice
 from src.ui.game_view import GameView
 
@@ -24,14 +24,18 @@ class GameplayScene(Scene):
 
     def update(self, inputs: InputState) -> Transition:
         if self.game.status == GameStatus.OVER:
-            return Replace(SceneId.GAMEOVER)
+            return Replace(
+                SceneId.GAMEOVER,
+                GameResult(self.game.won, self.game.player.value),
+            )
         if self.leaving:
             return Pop()
         if inputs.was_pressed(Action.PAUSE):
             self.game.pause_game()
             return Push(SceneId.PAUSE)
         elif inputs.was_pressed(Action.BACK):
-            return Quit()
+            self.game.pause_game()
+            return Push(SceneId.PAUSE)
 
         wanted_direction = None
         if inputs.was_pressed(Action.UP):
