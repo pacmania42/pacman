@@ -27,9 +27,8 @@ class GameStatus(IntEnum):
 class GameResult:
     """How a game ended, gameplay pass this to the game over screen"""
 
-    def __init__(self, won: bool, score: int) -> None:
-        self.won: bool = won
-        self.score: int = score
+    won: bool
+    score: int
 
 
 class GameState:
@@ -39,6 +38,7 @@ class GameState:
         self.levels = self.config.levels
         self.level_max_time = self.config.level_max_time
         self.curr_level_no = -1
+        self.won = False
 
         self.player = Player(cfg=self.config)
         self.ghosts = self._create_ghosts()
@@ -48,11 +48,11 @@ class GameState:
         self._start_level()
 
     def _start_level(self, next_level: bool = True) -> None:
-        if self.curr_level_no == len(self.levels) - 1:
-            self.status = GameStatus.OVER
-            return
-
         if next_level:
+            if self.curr_level_no == len(self.levels) - 1:
+                self.won = True
+                self.status = GameStatus.OVER
+                return
             self.curr_level_no += 1
 
         self.curr_level = self.levels[self.curr_level_no]
