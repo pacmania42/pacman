@@ -29,6 +29,7 @@ class Ghost(Actor):
             size=size,
             spawn_delay=spawn_delay,
         )
+        self.speed = Settings.ghost_speed
 
     def get_eaten(self) -> None:
         self.lives -= 1
@@ -43,8 +44,8 @@ class Ghost(Actor):
         When frightened take the farthest direction instead
         """
         cell = Location.to_cell(self.center, maze)
-        middle = Location.from_grid((cell.col, cell.row))
-        if Location.distance(self.center, middle) >= Settings.speed:
+        middle = Location.cell_center((cell.col, cell.row))
+        if Location.distance(self.center, middle) >= self.speed:
             return None
         self.center = middle  # changing center TODO fix when BUG fixed
 
@@ -58,7 +59,7 @@ class Ghost(Actor):
         def gap(direction: Direction) -> float:
             nxt = getattr(cell, direction.value[1])
             return Location.distance(
-                Location.from_grid((nxt.col, nxt.row)), player
+                Location.cell_center((nxt.col, nxt.row)), player
             )
 
         pick = min if Ghost.can_eat else max

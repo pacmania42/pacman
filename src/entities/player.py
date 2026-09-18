@@ -27,6 +27,7 @@ class Player(Actor):
             size=size,
             spawn_delay=spawn_delay,
         )
+        self.speed = Settings.player_speed
 
     def get_eaten(self) -> None:
         self.lives -= 1

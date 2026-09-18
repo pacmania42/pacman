@@ -106,6 +106,7 @@ class Actor(Edible):
         self.respawn_loc = Location(self.center.x, self.center.y)
         self.state = ActorState.ALIVE
         self.state_left = 0.0  # seconds before the current state ends
+        self.speed = Settings.speed
 
     # TODO I add these states to test the animations,
     # if something better in place we can use another solution
@@ -113,10 +114,11 @@ class Actor(Edible):
         """start dying (timed)"""
         self.state = ActorState.DYING
         self.state_left = 1.2
-        self.moving = False
+        self.is_moving = False
         self.direction = None
+        self.next_direction = None
 
-    def tick(self, dt: float) -> None:
+    def advance_state(self, dt: float) -> None:
         """advance dying and rebirth"""
         if self.state is ActorState.ALIVE:
             return
@@ -126,7 +128,8 @@ class Actor(Edible):
         if self.state is ActorState.DYING:
             self.state = ActorState.REBORN
             self.state_left = 1.2
-            self.center = self.respawn_center
+            self.center.x = self.respawn_loc.x
+            self.center.y = self.respawn_loc.y
         else:
             self.state = ActorState.ALIVE
 
@@ -149,8 +152,8 @@ class Actor(Edible):
 
         self.is_moving = True
         dx, dy = self.direction.value[0]
-        next_x = self.center.x + dx * Settings.speed
-        next_y = self.center.y + dy * Settings.speed
+        next_x = self.center.x + dx * self.speed
+        next_y = self.center.y + dy * self.speed
 
         self.center.x = self._clip(next_x, (self.center.x, turn_point.x))
         self.center.y = self._clip(next_y, (self.center.y, turn_point.y))
@@ -184,10 +187,3 @@ class Actor(Edible):
     def eat(self, edible: Edible) -> None:
         self.value += edible.value
         edible.get_eaten()
-
-    def respawn(self) -> None:
-        self.center.x = self.respawn_loc.x
-        self.center.y = self.respawn_loc.y
-        self.direction = None
-        self.next_direction = None
-        self.is_moving = False
