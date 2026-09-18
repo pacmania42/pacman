@@ -44,7 +44,7 @@ BLUE: Final[int] = 0x2121FF
 """Maze walls. Fill only, far too dark for text."""
 PEACH: Final[int] = 0xFFB897
 """Pellets and ghost eyes."""
-FRIGHT: Final[int] = 0x2121DE
+FRIGHT: Final[int] = 0x7A357F
 """Frightened ghosts."""
 NAVY: Final[int] = 0x0A0A28
 """Panel ground, one step off black."""

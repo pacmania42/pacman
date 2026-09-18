@@ -62,12 +62,12 @@ class GameState:
         self.time_left -= dt
         self.frightened_left = max(0.0, self.frightened_left - dt)
         Ghost.can_eat = self.frightened_left <= 0
-        self.player.tick(dt)
+        self.player.advance_state(dt)
         if self.player.state is not ActorState.ALIVE:
             return  # waits death play
         self.player.move(dt, wanted)
         for ghost in self.ghosts:
-            ghost.tick(dt)
+            ghost.advance_state(dt)
             if ghost.state is not ActorState.ALIVE:
                 continue
             ghost.move(dt, ghost.chase(self.player.center, self.maze))
@@ -122,7 +122,7 @@ class GameState:
         collided_ghosts = collided.intersection(self.ghosts)
 
         if collided_spgs:
-            self.frightened_left = 6.0  # seconds the ghosts can be eaten
+            self.frightened_left = Settings.eating_duration
             Ghost.can_eat = False
 
         if collided_ghosts and Ghost.can_eat:
