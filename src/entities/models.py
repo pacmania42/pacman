@@ -93,7 +93,7 @@ class Actor(Edible):
         maze: Maze,
         position: tuple[int, int],
         size: tuple[int, int],
-        spawn_delay: int,
+        spawn_delay: float,
     ):
         super().__init__(
             lives=lives, value=value, position=position, size=size, maze=maze
@@ -108,12 +108,10 @@ class Actor(Edible):
         self.state_left = 0.0  # seconds before the current state ends
         self.speed = Settings.speed
 
-    # TODO I add these states to test the animations,
-    # if something better in place we can use another solution
     def die(self) -> None:
         """start dying (timed)"""
         self.state = ActorState.DYING
-        self.state_left = 1.2
+        self.state_left = self.spawn_delay
         self.is_moving = False
         self.direction = None
         self.next_direction = None
@@ -127,7 +125,7 @@ class Actor(Edible):
             return
         if self.state is ActorState.DYING:
             self.state = ActorState.REBORN
-            self.state_left = 1.2
+            self.state_left = self.spawn_delay
             self.center.x = self.respawn_loc.x
             self.center.y = self.respawn_loc.y
         else:

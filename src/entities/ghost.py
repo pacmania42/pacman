@@ -16,7 +16,7 @@ class Ghost(Actor):
     ) -> None:
         value = cfg.points_per_ghost
         lives = math.inf
-        spawn_delay = 2  # TODO: get from config
+        spawn_delay = 1.2
         size = Settings.ghost_size
 
         self.ignore_turn_probability = random.uniform(0.1, 0.4)
@@ -47,7 +47,6 @@ class Ghost(Actor):
         middle = Location.cell_center((cell.col, cell.row))
         if Location.distance(self.center, middle) >= self.speed:
             return None
-        self.center = middle  # changing center TODO fix when BUG fixed
 
         back = self.direction.opposite if self.direction else None
         options = [d for d in Direction if getattr(cell, d.value[1])]

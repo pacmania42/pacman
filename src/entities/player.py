@@ -16,7 +16,7 @@ class Player(Actor):
         value = 0
         lives = cfg.lives
         spawn_position = position
-        spawn_delay = 2  # TODO: get from config
+        spawn_delay = 1.2
         size = Settings.player_size
 
         super().__init__(
