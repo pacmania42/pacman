@@ -31,6 +31,13 @@ class Ghost(Actor):
 
         self.ignore_turn_probability = random.uniform(0.1, 0.4)
 
+    def next_level(self, maze: Maze) -> None:
+        self.maze = maze
+        region: tuple[int, int] = getattr(maze, self.region.value)
+        self.center = Location.cell_center(region)
+        self.respawn_loc = Location.cell_center(region)
+        self.speed += 1
+
     def get_eaten(self) -> None:
         self.lives -= 1
         if self.lives:

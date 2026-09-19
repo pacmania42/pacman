@@ -42,8 +42,8 @@ class GameState:
 
         self.player = Player(cfg=self.config)
         self.ghosts = self._create_ghosts()
-        self.pacgums = set()
-        self.superpacgums = set()
+        self.pacgums: set[Pacgum] = set()
+        self.superpacgums: set[SuperPacgum] = set()
 
         self._start_level()
 
@@ -93,8 +93,8 @@ class GameState:
             ghost.move(dt, ghost.chase(self.player.center, self.maze))
 
         collided_entities = self._check_collision()
-        if collided_entities:
-            self._handle_collision(collided_entities)
+        self._handle_collision(collided_entities)
+        self._update_status()
 
     def _check_collision(self) -> set[Edible]:
         ghosts = [g for g in self.ghosts if g.state is ActorState.ALIVE]
@@ -119,11 +119,10 @@ class GameState:
 
         if collided_ghosts and Ghost.can_eat:
             self.player.get_eaten()
+            return
 
         for edible in collided:
             self.player.eat(edible)
-
-        self._update_status()
 
     def _update_status(self) -> None:
         all_pacgums = [
