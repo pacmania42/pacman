@@ -64,7 +64,6 @@ class GameState:
             ghost.next_level(self.maze)
         self.superpacgums = self._create_superpacgums()
         self.pacgums = self._create_pacgums()
-        self.elapsed = 0.0
         self.time_left = float(self.level_max_time)
         self.frightened_left = 0.0
         self.status = GameStatus.ACTIVE
@@ -78,7 +77,6 @@ class GameState:
             self.status = GameStatus.ACTIVE
 
     def update(self, dt: float, wanted: Direction | None) -> None:
-        self.elapsed += dt
         self.time_left -= dt
         self.frightened_left = max(0.0, self.frightened_left - dt)
         Ghost.can_eat = self.frightened_left <= 0
@@ -134,7 +132,7 @@ class GameState:
         if len(all_pacgums) == 0:
             self._start_level(next_level=True)
 
-        if self.player.lives == 0:
+        if not self.player.lives or self.time_left <= 0:
             self.status = GameStatus.OVER
 
     def _create_ghosts(self) -> set[Ghost]:
