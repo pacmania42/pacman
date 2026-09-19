@@ -5,31 +5,31 @@ from src.core.config import Config
 from src.core.settings import Settings
 
 from .maze import Maze
-from .models import Actor, Direction, Location
+from .models import Actor, Direction, Location, Region
 
 
 class Ghost(Actor):
     can_eat: bool = True
 
-    def __init__(
-        self, cfg: Config, position: tuple[int, int], maze: Maze
-    ) -> None:
+    def __init__(self, cfg: Config, region: Region) -> None:
         value = cfg.points_per_ghost
         lives = math.inf
         spawn_delay = 1.2
         size = Settings.ghost_size
+        speed = Settings.ghost_speed
 
-        self.ignore_turn_probability = random.uniform(0.1, 0.4)
-
+        maze = Maze(14, 14, 0)
         super().__init__(
             maze=maze,
             value=value,
             lives=lives,
-            position=position,
+            region=region,
             size=size,
             spawn_delay=spawn_delay,
+            speed=speed,
         )
-        self.speed = Settings.ghost_speed
+
+        self.ignore_turn_probability = random.uniform(0.1, 0.4)
 
     def get_eaten(self) -> None:
         self.lives -= 1

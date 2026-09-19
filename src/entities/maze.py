@@ -24,19 +24,21 @@ class Maze:
     width: int
     pattern_ranges: tuple[int, int, int, int]
     center: tuple[int, int]
+    top_left: tuple[int, int]
+    top_right: tuple[int, int]
+    bottom_left: tuple[int, int]
+    bottom_right: tuple[int, int]
 
-    def __init__(self, width: int, height: int) -> None:
+    def __init__(self, width: int, height: int, seed: int | None) -> None:
         self.width = width
         self.height = height
 
-    def generate(self, seed: int) -> None:
         self._gen = MazeGenerator(size=(self.width, self.height))
-        self._gen.generate(seed)
+        self._gen.generate(seed if seed else 0)
         self.grid = self._create_grid(self._gen.maze)
-        self.height = len(self.grid)
-        self.width = len(self.grid[0])
+
         self.pattern_ranges = self._get_pattern_ranges()
-        self.center = self._get_center()
+        self._set_corners()
 
     def _create_grid(self, maze: list[list[int]]) -> list[list[Cell]]:
         grid: list[list[Cell]] = []
@@ -72,7 +74,11 @@ class Maze:
 
         return (min_x, min_y, max_x, max_y)
 
-    def _get_center(self) -> tuple[int, int]:
+    def _set_corners(self) -> None:
         min_x, min_y, *_ = self.pattern_ranges
 
-        return min_x + 7 // 2, min_y + 5 // 2
+        self.center = (min_x + 7 // 2, min_y + 5 // 2)
+        self.top_left = (1, 0)
+        self.top_right = (self.width - 2, 0)
+        self.bottom_left = (1, self.height - 1)
+        self.bottom_right = (self.width - 2, self.height - 1)
