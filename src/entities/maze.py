@@ -38,7 +38,7 @@ class Maze:
         self.grid = self._create_grid(self._gen.maze)
 
         self.pattern_ranges = self._get_pattern_ranges()
-        self._set_corners()
+        self._set_regions()
 
     def _create_grid(self, maze: list[list[int]]) -> list[list[Cell]]:
         grid: list[list[Cell]] = []
@@ -74,7 +74,7 @@ class Maze:
 
         return (min_x, min_y, max_x, max_y)
 
-    def _set_corners(self) -> None:
+    def _set_regions(self) -> None:
         min_x, min_y, *_ = self.pattern_ranges
 
         self.center = (min_x + 7 // 2, min_y + 5 // 2)
