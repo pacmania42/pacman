@@ -27,6 +27,14 @@ class ActorState(Enum):
     REBORN = auto()
 
 
+class Region(Enum):
+    CENTER = "center"
+    TOP_LEFT = "top_left"
+    TOP_RIGHT = "top_right"
+    BOTTOM_LEFT = "bottom_left"
+    BOTTOM_RIGHT = "bottom_right"
+
+
 @dataclass
 class Location:
     x: float
@@ -91,10 +99,13 @@ class Actor(Edible):
         lives: float,
         value: int,
         maze: Maze,
-        position: tuple[int, int],
+        region: Region,
         size: tuple[int, int],
         spawn_delay: float,
+        speed: int,
     ):
+        position = getattr(maze, region.value)
+
         super().__init__(
             lives=lives, value=value, position=position, size=size, maze=maze
         )
@@ -106,7 +117,14 @@ class Actor(Edible):
         self.respawn_loc = Location(self.center.x, self.center.y)
         self.state = ActorState.ALIVE
         self.state_left = 0.0  # seconds before the current state ends
-        self.speed = Settings.speed
+        self.speed = speed
+        self.region = region
+
+    def next_level(self, maze: Maze) -> None:
+        self.maze = maze
+        region: tuple[int, int] = getattr(maze, self.region.value)
+        self.center = Location.cell_center(region)
+        self.respawn_loc = Location.cell_center(region)
 
     def die(self) -> None:
         """start dying (timed)"""

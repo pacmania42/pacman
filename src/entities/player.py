@@ -2,7 +2,7 @@ from src.core.config import Config
 from src.core.settings import Settings
 
 from .maze import Maze
-from .models import Actor
+from .models import Actor, Region
 
 
 class PlayerError(Exception):
@@ -10,24 +10,24 @@ class PlayerError(Exception):
 
 
 class Player(Actor):
-    def __init__(
-        self, position: tuple[int, int], cfg: Config, maze: Maze
-    ) -> None:
+    def __init__(self, cfg: Config) -> None:
         value = 0
         lives = cfg.lives
-        spawn_position = position
         spawn_delay = 1.2
         size = Settings.player_size
+        region = Region.CENTER
+        speed = Settings.player_speed
 
+        maze = Maze(14, 14, 0)
         super().__init__(
             maze=maze,
             value=value,
             lives=lives,
-            position=spawn_position,
+            region=region,
             size=size,
             spawn_delay=spawn_delay,
+            speed=speed,
         )
-        self.speed = Settings.player_speed
 
     def get_eaten(self) -> None:
         self.lives -= 1

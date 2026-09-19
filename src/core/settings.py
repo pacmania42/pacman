@@ -57,7 +57,7 @@ class Settings:
     # used by the state
     speed = 7
     player_speed = 7
-    ghost_speed = 4
+    ghost_speed = 1
     cell_dim = 60
     player_size = (40, 40)
     ghost_size = (40, 40)

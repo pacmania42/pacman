@@ -18,7 +18,7 @@ class GameplayScene(Scene):
         super().__init__()
         self.stg = Settings()
         self.config = ctx.config
-        self.game = GameState(config=self.config, settings=self.stg)
+        self.game = GameState(ctx.config)
         self.view = GameView(self.stg)
         self.leaving = False
 

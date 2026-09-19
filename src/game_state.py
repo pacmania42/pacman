@@ -12,6 +12,7 @@ from src.entities import (
     Maze,
     Pacgum,
     Player,
+    Region,
     SuperPacgum,
 )
 
@@ -26,28 +27,47 @@ class GameStatus(IntEnum):
 class GameResult:
     """How a game ended, gameplay pass this to the game over screen"""
 
-    won: bool
-    score: int
+    def __init__(self, won: bool, score: int) -> None:
+        self.won: bool = won
+        self.score: int = score
 
 
 class GameState:
-    def __init__(self, config: Config, settings: Settings) -> None:
+    def __init__(self, config: Config) -> None:
         self.config = config
-        self.levels = config.levels
-        self.settings = settings
-        self.start_game()
 
-    def start_game(self) -> None:
-        self.curr_level = self.levels[0]
-        self.status = GameStatus.ACTIVE
+        self.levels = self.config.levels
+        self.level_max_time = self.config.level_max_time
+        self.curr_level_no = -1
+
+        self.player = Player(cfg=self.config)
+        self.ghosts = self._create_ghosts()
+        self.pacgums = set()
+        self.superpacgums = set()
+
+        self._start_level()
+
+    def _start_level(self, next_level: bool = True) -> None:
+        if self.curr_level_no == len(self.levels) - 1:
+            self.status = GameStatus.OVER
+            return
+
+        if next_level:
+            self.curr_level_no += 1
+
+        self.curr_level = self.levels[self.curr_level_no]
+        self.maze = Maze(
+            self.curr_level.width, self.curr_level.height, self.curr_level.seed
+        )
+        self.player.next_level(self.maze)
+        for ghost in self.ghosts:
+            ghost.next_level(self.maze)
+        self.superpacgums = self._create_superpacgums()
+        self.pacgums = self._create_pacgums()
         self.elapsed = 0.0
-        self.time_left = float(self.config.level_max_time)
+        self.time_left = float(self.level_max_time)
         self.frightened_left = 0.0
-        self._init_entities()
-
-    def restart_level(self) -> None:
         self.status = GameStatus.ACTIVE
-        # TODO: wip
 
     def pause_game(self) -> None:
         if self.status == GameStatus.ACTIVE:
@@ -73,36 +93,8 @@ class GameState:
             ghost.move(dt, ghost.chase(self.player.center, self.maze))
 
         collided_entities = self._check_collision()
-        self._handle_collision(collided_entities)
-
-        all_pacgums = [
-            edible
-            for edible in [*self.pacgums, *self.superpacgums]
-            if edible.lives
-        ]
-
-        if len(all_pacgums) == 0:
-            print("NEXT level")  # TODO: implement level progression
-
-        # check for game over
-        if self.player.lives == 0:
-            self.status = GameStatus.OVER
-            return
-
-    def _init_entities(self) -> None:
-        height = self.curr_level.height
-        width = self.curr_level.width
-
-        self.maze = Maze(width=width, height=height)
-        self.maze.generate(42)
-        self.player = Player(
-            position=self.maze.center,
-            cfg=self.config,
-            maze=self.maze,
-        )
-        self.ghosts = self._create_ghosts()
-        self.superpacgums = self._create_superpacgums()
-        self.pacgums = self._create_pacgums()
+        if collided_entities:
+            self._handle_collision(collided_entities)
 
     def _check_collision(self) -> set[Edible]:
         ghosts = [g for g in self.ghosts if g.state is ActorState.ALIVE]
@@ -127,32 +119,30 @@ class GameState:
 
         if collided_ghosts and Ghost.can_eat:
             self.player.get_eaten()
-            return
 
         for edible in collided:
             self.player.eat(edible)
 
+        self._update_status()
+
+    def _update_status(self) -> None:
+        all_pacgums = [
+            edible
+            for edible in [*self.pacgums, *self.superpacgums]
+            if edible.lives
+        ]
+
+        if len(all_pacgums) == 0:
+            self._start_level(next_level=True)
+
+        if self.player.lives == 0:
+            self.status = GameStatus.OVER
+
     def _create_ghosts(self) -> set[Ghost]:
-        cyan = Ghost(
-            position=(1, 0),
-            cfg=self.config,
-            maze=self.maze,
-        )
-        yellow = Ghost(
-            position=(self.maze.width - 2, 0),
-            cfg=self.config,
-            maze=self.maze,
-        )
-        green = Ghost(
-            position=(1, self.maze.height - 1),
-            cfg=self.config,
-            maze=self.maze,
-        )
-        red = Ghost(
-            position=(self.maze.width - 2, self.maze.height - 1),
-            cfg=self.config,
-            maze=self.maze,
-        )
+        cyan = Ghost(region=Region.TOP_LEFT, cfg=self.config)
+        yellow = Ghost(region=Region.TOP_RIGHT, cfg=self.config)
+        green = Ghost(region=Region.BOTTOM_LEFT, cfg=self.config)
+        red = Ghost(region=Region.BOTTOM_RIGHT, cfg=self.config)
 
         return set([cyan, yellow, green, red])
 
