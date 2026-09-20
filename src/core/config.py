@@ -45,6 +45,9 @@ class Config(BaseModel):
     levels: list[Level] = Field(
         min_length=1, default_factory=lambda: [Level()]
     )
+    invincibility_cheat: bool = Field(default=False)
+    frozon_ghost_cheat: bool = Field(default=False)
+    speedy_player_cheat: bool = Field(default=False)
 
 
 class ConfigError(Exception):

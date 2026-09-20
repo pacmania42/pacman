@@ -13,10 +13,15 @@ class Player(Actor):
     def __init__(self, cfg: Config) -> None:
         value = 0
         lives = cfg.lives
-        spawn_delay = 1.2
-        size = Settings.player_size
         region = Region.CENTER
-        speed = Settings.player_speed
+        spawn_delay = Settings.player_spawn_delay
+        size = Settings.player_size
+
+        speed, acc = (
+            (Settings.player_speed_init, Settings.player_acc)
+            if not cfg.speedy_player_cheat
+            else (Settings.ch_player_speed_init, Settings.ch_player_acc)
+        )
 
         maze = Maze(14, 14, 0)
         super().__init__(
@@ -27,6 +32,7 @@ class Player(Actor):
             size=size,
             spawn_delay=spawn_delay,
             speed=speed,
+            acc=acc,
         )
 
     def get_eaten(self) -> None:

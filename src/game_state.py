@@ -115,7 +115,11 @@ class GameState:
             self.frightened_left = Settings.eating_duration
             Ghost.can_eat = False
 
-        if collided_ghosts and Ghost.can_eat:
+        if (
+            collided_ghosts
+            and Ghost.can_eat
+            and not self.config.invincibility_cheat
+        ):
             self.player.get_eaten()
             return
 
