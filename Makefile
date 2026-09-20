@@ -1,5 +1,8 @@
 SYNC := .synced
 RUFF_PREFIX := $(shell [ -e /etc/NIXOS ] && echo "" || echo "uv run ")
+MYPY_FLAGS := --warn-return-any --warn-unused-ignores \
+              --ignore-missing-imports --disallow-untyped-defs \
+              --check-untyped-defs
 
 run: install
 	uv run python3 pac-man.py config.json
@@ -24,6 +27,10 @@ clean-all: clean
 	rm -rf .venv
 
 lint: $(SYNC)
+	uv run flake8 .
+	uv run mypy . $(MYPY_FLAGS)
+
+lint-strict: $(SYNC)
 	$(RUFF_PREFIX) ruff check .
 	uv run flake8 .
 	uv run mypy --strict .
@@ -43,4 +50,5 @@ build:
 re: clean-all run
 
 	
-.PHONY: run cheat install clean clean-all lint debug test format build re
+.PHONY: run cheat install clean clean-all lint lint-strict debug test \
+        format build re
