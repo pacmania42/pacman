@@ -15,7 +15,6 @@ from pydantic import (
 class Level(BaseModel):
     width: int = Field(ge=6, le=16, default=10)
     height: int = Field(ge=6, le=16, default=10)
-    seed: int | None = Field(default=None)
 
     @field_validator("width", "height", mode="before")
     @classmethod
@@ -36,7 +35,6 @@ class Level(BaseModel):
 class Config(BaseModel):
     highscore_filename: str = Field(default="highscore.json")
     lives: int = Field(ge=1, default=3)
-    pacgum: int = Field(ge=0, default=42)
     points_per_superpacgum: int = Field(ge=0, default=50)
     points_per_pacgum: int = Field(ge=0, default=50)
     points_per_ghost: int = Field(ge=0, default=200)

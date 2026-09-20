@@ -15,7 +15,6 @@
     { "width": 12, "height": 12 }
   ],
   "lives": 3,
-  "pacgum": 42,
   "points_per_pacgum": 50,
   "points_per_superpacgum": 100,
   "points_per_ghost": 200,
