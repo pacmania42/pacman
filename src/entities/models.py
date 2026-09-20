@@ -125,6 +125,9 @@ class Actor(Edible):
         region: tuple[int, int] = getattr(maze, self.region.value)
         self.center = Location.cell_center(region)
         self.respawn_loc = Location.cell_center(region)
+        self.is_moving = False
+        self.direction = None
+        self.next_direction = None
 
     def die(self) -> None:
         """start dying (timed)"""
