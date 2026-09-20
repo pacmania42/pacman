@@ -97,7 +97,9 @@ class GameView:
         width = window.width
         text_y = pad + (band - window.ink_height(theme.SCALE_BODY)) // 2
 
-        self._draw_info(window, top + text_y, game.player.value, 1)
+        self._draw_info(
+            window, top + text_y, game.player.value, game.curr_level_no + 1
+        )
         self._draw_lives(window, top + pad, band, width, game.player.lives)
         self._draw_time(window, top + text_y, width, game.time_left)
         return top + pad + band + pad
