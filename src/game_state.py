@@ -57,7 +57,9 @@ class GameState:
 
         self.curr_level = self.levels[self.curr_level_no]
         self.maze = Maze(
-            self.curr_level.width, self.curr_level.height, self.curr_level.seed
+            self.curr_level.width,
+            self.curr_level.height,
+            seed=self.config.seed if self.curr_level_no == 0 else None,
         )
         self.player.next_level(self.maze)
         for ghost in self.ghosts:
