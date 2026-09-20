@@ -100,7 +100,8 @@ class ConfigLoader:
                 levels.remove(level)
 
         for rank in range(len(levels), 10):
-            levels.append({"width": 11 + rank, "height": 11 + rank})
+            size = min(11 + rank, 16)
+            levels.append({"width": size, "height": size})
 
         data["levels"] = levels
 
