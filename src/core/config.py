@@ -58,7 +58,9 @@ class ConfigLoader:
             prog="uv run python pac-man.py",
             description="Pacman clone.",
         )
-        parser.add_argument("config", metavar="<CONFIG>")
+        parser.add_argument(
+            "config", metavar="<CONFIG>", default="config.json", nargs="?"
+        )
         args = parser.parse_args()
         return self.parse(Path(args.config))
 
