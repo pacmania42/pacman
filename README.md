@@ -80,6 +80,36 @@ Level 1 is generated with `seed` from the config, so it is the same maze every r
 
 ## Implementation
 
+One frame, from the MLX hook to the presented image. The simulation runs inside
+the active scene's `update()`, so every screen shares the same loop.
+
+```mermaid
+flowchart TD
+    Hook(["MLX loop hook calls Game.game_loop"]) --> Gate{"1/60 s<br/>since last tick?"}
+    Gate -->|no| Hook
+    Gate -->|yes| In["input.begin_frame()<br/>drain events into an InputState"]
+    In --> Up["SceneStack.update()<br/>top scene only"]
+
+    subgraph Sim["inside GameplayScene.update, when it is on top"]
+        S1["GameState.update(dt, wanted)"] --> S2["tick the clocks<br/>level time, frightened time"]
+        S2 --> S3{"player alive?"}
+        S3 -->|no| S4["wait out the death animation"]
+        S3 -->|yes| S5["move the player,<br/>then each ghost chases and moves"]
+        S5 --> S6["check and handle collisions<br/>dots, pellets, ghosts"]
+        S6 --> S7["level cleared? lives out? time out?"]
+    end
+
+    Up --> S1
+    S4 --> Tr["apply_transition()<br/>Push / Pop / Replace / Quit<br/>the only place the stack changes"]
+    S7 --> Tr
+    Tr --> Quit{"should_quit?"}
+    Quit -->|yes| Exit(["window.exit()"])
+    Quit -->|no| Fill["window.fill(background)"]
+    Fill --> Draw["SceneStack.draw()<br/>top scene, plus any it overlays"]
+    Draw --> Present["window.draw_image()"]
+    Present --> Hook
+```
+
 - Fixed 60 Hz tick driven by the MLX loop hook (`src/main.py`).
 - Scenes on a stack (`src/core/scene_stack.py`): menu, gameplay, pause (overlay), game over, highscores, instructions. A scene returns a `Push`, `Pop`, `Replace` or `Quit` transition from `update()`.
 - Game logic lives in `GameState` (`src/game_state.py`) and knows nothing about drawing. `GameView` (`src/ui/game_view.py`) renders it.
@@ -114,6 +144,9 @@ src/entities/
 src/ui/                     GameView, theme, shared widgets
 tests/                      pytest
 ```
+
+A generated class diagram of the same code is in
+[docs/code-map.md](docs/code-map.md).
 
 `Game` owns the `SceneStack`, which builds scenes from a `Context`. `GameplayScene` owns one `GameState` and one `GameView`. `GameState` owns the `Maze`, the `Player`, the ghosts and the dots and advances them each tick. Entities never import scenes or UI.
 
