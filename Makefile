@@ -46,6 +46,7 @@ format:
 	$(RUFF_PREFIX) ruff check --fix .
 
 build:
+	uv run pyinstaller pacman.spec
 
 re: clean-all run
 

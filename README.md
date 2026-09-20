@@ -181,6 +181,9 @@ Full documents in [docs/](docs/):
 - [analysis-and-risks.md](docs/analysis-and-risks.md), technical choices, risks, blocking points
 - [acceptance-tests.md](docs/acceptance-tests.md), test plan, bugs found and fixed
 
+## Distributions
+[pacman distribution on itch.io](https://pacmania42.itch.io/pacman)
+
 ## Resources
 
 - [Game Programming Patterns - Game Loop](https://gameprogrammingpatterns.com/game-loop.html)

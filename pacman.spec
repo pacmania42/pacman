@@ -1,12 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_all
 
+mlx_datas, mlx_binaries, mlx_hidden = collect_all("mlx")
 
 a = Analysis(
-    ['pac-man.py'],
+    ["pac-man.py"],
     pathex=[],
-    binaries=[],
-    datas=[('src/assets', 'assets')],
-    hiddenimports=[],
+    binaries=mlx_binaries,
+    datas=[("src/assets", "src/assets"), ("config.json", ".")] + mlx_datas,
+    hiddenimports=mlx_hidden,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -21,7 +23,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='pacman',
+    name="pacman",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -32,6 +34,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=["pacman-icon.ico"],
 )
 coll = COLLECT(
     exe,
@@ -40,5 +43,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='pacman',
+    name="pacman",
 )
