@@ -119,7 +119,7 @@ class GameOverScene(Scene):
         half = window.text_width(word, scale) // 2 + 2 * theme.GAP
 
         y += window.ink_height(scale) + theme.GAP
-        sprite_y = y - frame.height + 35
+        sprite_y = y - frame.height
         window.blit(
             frame, window.width // 2 - half - frame.width, sprite_y, flip=True
         )
