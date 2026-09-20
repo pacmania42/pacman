@@ -18,7 +18,7 @@ class Ghost(Actor):
         lives = Settings.ghost_lives
         speed, acc = (
             (Settings.ghost_speed_init, Settings.ghost_acc)
-            if not cfg.frozon_ghost_cheat
+            if not cfg.frozen_ghost_cheat
             else (Settings.ch_ghost_speed_init, Settings.ch_ghost_acc)
         )
 

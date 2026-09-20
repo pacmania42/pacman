@@ -46,7 +46,7 @@ class Config(BaseModel):
         min_length=1, default_factory=lambda: [Level()]
     )
     invincibility_cheat: bool = Field(default=False)
-    frozon_ghost_cheat: bool = Field(default=False)
+    frozen_ghost_cheat: bool = Field(default=False)
     speedy_player_cheat: bool = Field(default=False)
 
 
