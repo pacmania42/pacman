@@ -1,4 +1,3 @@
-import math
 import random
 
 from src.core.config import Config
@@ -13,10 +12,15 @@ class Ghost(Actor):
 
     def __init__(self, cfg: Config, region: Region) -> None:
         value = cfg.points_per_ghost
-        lives = math.inf
-        spawn_delay = 1.2
+        spawn_delay = Settings.ghost_spawn_delay
         size = Settings.ghost_size
-        speed = Settings.ghost_speed
+
+        lives = Settings.ghost_lives
+        speed, acc = (
+            (Settings.ghost_speed_init, Settings.ghost_acc)
+            if not cfg.frozon_ghost_cheat
+            else (Settings.ch_ghost_speed_init, Settings.ch_ghost_acc)
+        )
 
         maze = Maze(14, 14, 0)
         super().__init__(
@@ -27,16 +31,9 @@ class Ghost(Actor):
             size=size,
             spawn_delay=spawn_delay,
             speed=speed,
+            acc=acc,
         )
-
         self.ignore_turn_probability = random.uniform(0.1, 0.4)
-
-    def next_level(self, maze: Maze) -> None:
-        self.maze = maze
-        region: tuple[int, int] = getattr(maze, self.region.value)
-        self.center = Location.cell_center(region)
-        self.respawn_loc = Location.cell_center(region)
-        self.speed += 1
 
     def get_eaten(self) -> None:
         self.lives -= 1

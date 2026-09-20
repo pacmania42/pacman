@@ -102,7 +102,8 @@ class Actor(Edible):
         region: Region,
         size: tuple[int, int],
         spawn_delay: float,
-        speed: int,
+        speed: float,
+        acc: float,
     ):
         position = getattr(maze, region.value)
 
@@ -115,10 +116,11 @@ class Actor(Edible):
         self.is_moving: bool = False
         self.facing: Direction = Direction.EAST
         self.respawn_loc = Location(self.center.x, self.center.y)
-        self.state = ActorState.ALIVE
+        self.state: ActorState = ActorState.ALIVE
         self.state_left = 0.0  # seconds before the current state ends
-        self.speed = speed
-        self.region = region
+        self.speed: float = speed
+        self.acc: float = acc
+        self.region: Region = region
 
     def next_level(self, maze: Maze) -> None:
         self.maze = maze
@@ -128,6 +130,7 @@ class Actor(Edible):
         self.is_moving = False
         self.direction = None
         self.next_direction = None
+        self.speed += self.acc
 
     def die(self) -> None:
         """start dying (timed)"""

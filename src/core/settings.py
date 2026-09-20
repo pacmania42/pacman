@@ -1,3 +1,4 @@
+import math
 from typing import Dict
 
 from src.core.input import Action
@@ -55,9 +56,12 @@ class Settings:
     toggle_animation = 0x61
 
     # used by the state
-    speed = 7
-    player_speed = 7
-    ghost_speed = 1
+    player_speed_init = 5
+    player_acc = 0
+
+    ghost_speed_init = 1
+    ghost_acc = 0.5
+
     cell_dim = 60
     player_size = (40, 40)
     ghost_size = (40, 40)
@@ -66,4 +70,14 @@ class Settings:
     collision_threshold = 20
 
     # timings
+    player_spawn_delay = 1.2
+    ghost_spawn_delay = 1.2
+    ghost_lives = math.inf
     eating_duration = 6.0  # seconds the ghosts can be eaten
+
+    # cheat mode settings
+    ch_player_speed_init = 7
+    ch_player_acc = 1
+
+    ch_ghost_speed_init = 0
+    ch_ghost_acc = 0
