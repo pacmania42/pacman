@@ -30,6 +30,12 @@ class Window:
     def __init__(
         self, sink: EventSink, game_loop: Callable[[Any], None]
     ) -> None:
+        """Create the window and set up event and game loop hooks.
+
+        Args:
+            sink: Object that receives window events.
+            game_loop: Function called on each game loop iteration
+        """
         self.width = Settings.win_width
         self.height = Settings.win_height
         self.mlx = Mlx()
@@ -65,19 +71,50 @@ class Window:
         self.mlx.mlx_loop_hook(self.mlx_ptr, game_loop, None)
 
     def show(self) -> None:
+        """Start the window event loop"""
         self.mlx.mlx_loop(self.mlx_ptr)
 
     def exit(self, _: Any) -> None:
+        """Destroy the window resources and stop the event loop.
+
+        Args:
+            _: Event data passed by MLX.
+
+        Returns:
+            None.
+        """
         self.mlx.mlx_destroy_image(self.mlx_ptr, self.img_ptr)
         self.mlx.mlx_destroy_window(self.mlx_ptr, self.win_ptr)
         self.mlx.mlx_loop_exit(self.mlx_ptr)
 
     def write(self, x: int, y: int, color: int, string: str) -> None:
+        """Draw a string directly on the window.
+
+        Args:
+            x: Horizontal position.
+            y: Vertical position.
+            color: Text color.
+            string: Text to draw.
+
+        Returns:
+            None.
+        """
         self.mlx.mlx_string_put(
             self.mlx_ptr, self.win_ptr, x, y, color, string
         )
 
     def png_file_to_image(self, filename: str) -> Image:
+        """Load a PNG file and return it as an image.
+
+        Args:
+            filename: Path to the PNG file.
+
+        Returns:
+            The loaded image.
+
+        Raises:
+            ImageError: If the image cannot be loaded.
+        """
         img, width, height = self.mlx.mlx_png_file_to_image(
             self.mlx_ptr, filename
         )
@@ -87,14 +124,25 @@ class Window:
         return Image(pixels, bpp // 8, line_size, width, height)
 
     def fill(self, color: int) -> None:
-        """Repaint the whole back buffer, wiping the previous frame."""
+        """Repaint the whole back buffer, wiping the previous frame
+
+        Args:
+            color: 0xRRGGBB fill color
+        """
         size = self.height * self.width
         self.pixels[slice(0, size * self.bytes_pp)] = (
             self._to_pixel(color) * size
         )
 
     def _to_pixel(self, color: int) -> bytes:
-        """Pack an 0xRRGGBB color into one buffer pixel."""
+        """Pack a 0xRRGGBB color into one buffer pixel.
+
+        Args:
+            color: 0xRRGGBB color.
+
+        Returns:
+            The packed pixel bytes.
+        """
         return bytes(
             ((color & 0xFF), (color >> 8 & 0xFF), (color >> 16 & 0xFF), 0xFF)
         )
@@ -102,7 +150,15 @@ class Window:
     def put_box(
         self, x: int, y: int, width: int, height: int, color: int
     ) -> None:
-        """Fill a rectangle of the back buffer, clipped to the window."""
+        """Fill a rectangle of the back buffer, clipped to the window
+
+        Args:
+            x: Left position
+            y: Top position
+            width: Rectangle width
+            height: Rectangle height
+            color: 0xRRGGBB fill color
+        """
         if x < 0:
             width += x
             x = 0
@@ -123,21 +179,50 @@ class Window:
             self.pixels[slice(offset + start, offset + end)] = row_bytes
 
     def _scale(self, scale: Optional[int]) -> int:
+        """Return the effective text scale.
+
+        Args:
+            scale: Requested scale, or None for the default.
+
+        Returns:
+            The scale, with a minimum value of 1.
+        """
         return max(1, self.text_scale if scale is None else scale)
 
     def text_width(self, text: str, scale: Optional[int] = None) -> int:
-        """Return the width `text` occupies once drawn, in pixels."""
+        """Return the width `text` occupies once drawn, in pixels
+
+        Args:
+            text: Text to measure.
+            scale: Text scale, or None for the default.
+
+        Returns:
+            The text width in pixels.
+        """
         return self.font.measure(text, self._scale(scale))
 
     def text_height(self, scale: Optional[int] = None) -> int:
-        """Return the line-to-line advance, in pixels."""
+        """Return the line height in pixels.
+
+        Args:
+            scale: Text scale, or None for the default.
+
+        Returns:
+            The line-to-line height in pixels.
+        """
         return self.font.line_height * self._scale(scale)
 
     def ink_height(self, scale: Optional[int] = None) -> int:
-        """Return the height of the glyphs themselves, without leading.
+        """Return the height of the glyphs without leading.
 
         Use this to sit a rule or a box tight against a line of text;
         use `text_height()` to stack lines.
+
+        Args:
+            scale: Text scale, or None for the default.
+
+        Returns:
+            The glyph height in pixels.
         """
         return self.font.ink_height * self._scale(scale)
 
@@ -181,6 +266,7 @@ class Window:
                     )
 
     def draw_image(self) -> None:
+        """Draw the back buffer to the window"""
         self.mlx.mlx_put_image_to_window(
             self.mlx_ptr, self.win_ptr, self.img_ptr, 0, 0
         )
@@ -194,10 +280,15 @@ class Window:
         alpha_min: int = 128,
         tint: int | None = None,
     ) -> None:
-        """Copy a frame into the back buffer
-        Block image transfer
+        """Copy a frame into the back buffer (Block image transfer)
 
-        `tint` paints every opaque pixel
+        Args:
+            frame: frame to copy
+            x: Destination x position
+            y: Destination y position
+            flip: Flip the frame horizontally
+            alpha_min: Minimum alpha value to draw a pixel
+            tint: Optional color applied to all opaque pixels
         """
         pixel = self._to_pixel(tint) if tint is not None else None
         src, sbpp, sll = (

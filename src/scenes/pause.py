@@ -14,18 +14,35 @@ HINT: Final[str] = "ARROWS  move      SPACE  select      P  resume"
 
 
 class PauseChoice(Enum):
+    """Options available in the pause menu."""
+
     RESUME = "Resume"
     MAIN_MENU = "Main menu"
 
 
 class PauseScene(Scene):
+    """Display the game pause menu as an overlay."""
+
     is_overlay = True
 
     def __init__(self, ctx: Context) -> None:
+        """Create the pause scene.
+
+        Args:
+            ctx: Shared game context.
+        """
         super().__init__()
         self.menu = Menu([choice.value for choice in PauseChoice])
 
     def update(self, inputs: InputState) -> Transition:
+        """Handle pause menu input and return a transition.
+
+        Args:
+            inputs: Current input state.
+
+        Returns:
+            The requested scene transition, or None.
+        """
         if inputs.any_pressed(Action.PAUSE, Action.BACK):
             return Pop(PauseChoice.RESUME)
         if inputs.was_pressed(Action.DOWN):
@@ -37,6 +54,11 @@ class PauseScene(Scene):
         return None
 
     def draw(self, window: Window) -> None:
+        """Draw the pause menu overlay.
+
+        Args:
+            window: Window used for drawing.
+        """
         items = self.menu.get_items()
         title_height = window.ink_height(theme.SCALE_TITLE)
         menu_height = ui.menu_height(window, len(items))

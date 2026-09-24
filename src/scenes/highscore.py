@@ -18,6 +18,11 @@ RIGHT_ALIGNED = (True, False, True)
 
 class HighScoreScene(Scene):
     def __init__(self, ctx: Context) -> None:
+        """Create the highscore scene.
+
+        Args:
+            ctx: Shared game context.
+        """
         super().__init__()
         self.ctx = ctx
         self.fresh: Optional[HighscoreItem] = None
@@ -27,12 +32,25 @@ class HighScoreScene(Scene):
         self.fresh = payload if isinstance(payload, HighscoreItem) else None
 
     def update(self, inputs: InputState) -> Transition:
+        """Handle input and return the requested scene transition.
+
+        Args:
+            inputs: Current input state.
+
+        Returns:
+            The requested scene transition, or None.
+        """
         if inputs.was_pressed(Action.BACK):
             return Pop()
 
         return None
 
     def draw(self, window: Window) -> None:
+        """Draw the highscore table.
+
+        Args:
+            window: Window used for drawing.
+        """
         top = ui.screen_title(
             window,
             theme.MARGIN // 2,
@@ -88,7 +106,14 @@ class HighScoreScene(Scene):
         ranked: list[HighscoreItem],
         scale: int,
     ) -> None:
-        """Draw the table centered"""
+        """Draw the table centered.
+
+        Args:
+            window: Window used for drawing.
+            top: Top position of the table.
+            ranked: Highscore entries sorted by score.
+            scale: Text scale.
+        """
         cells = self._cells(ranked)
         widths = self._widths(window, cells, scale)
         table_width = sum(widths) + GUTTER * (len(widths) - 1)

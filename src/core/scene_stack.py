@@ -21,6 +21,11 @@ class SceneStack:
     """A Last-In-First-Out stack of scenes."""
 
     def __init__(self, ctx: Context) -> None:
+        """Create a scene stack and register the available scenes.
+
+        Args:
+            ctx: Shared game context.
+        """
         self.ctx = ctx
         self.factories: Dict[SceneId, Callable[[Context], Scene]] = {}
         self.stack: List[Scene] = []
@@ -38,17 +43,37 @@ class SceneStack:
     def register(
         self, name: SceneId, factory: Callable[[Context], Scene]
     ) -> None:
-        """Bind an id to the factory that builds that scene."""
+        """Bind an id to the factory that builds that scene.
+
+        Args:
+            name: Id of the scene.
+            factory: Function that creates the scene
+        """
         self.factories[name] = factory
 
     def _build(self, name: SceneId) -> Scene:
-        """Build a fresh instance, so state never leaks between visits."""
+        """Build a fresh instance, so state never leaks between visits.
+
+        Args:
+            name: Id of the scene to build.
+
+        Returns:
+            A new scene instance.
+
+        Raises:
+            ValueError: If the scene is not registered.
+        """
         if name not in self.factories:
             raise ValueError(f"Scene '{name.value}' is not registered.")
         return self.factories[name](self.ctx)
 
     def push(self, name: SceneId, payload: Optional[Any] = None) -> None:
-        """Pushes a new scene to the top of the stack"""
+        """Pushes a new scene to the top of the stack.
+
+        Args:
+            name: Id of the scene to push.
+            payload: Optional data passed to the new scene.
+        """
         # Build first: an unknown scene must not disturb the stack.
         new_scene = self._build(name)
 
@@ -60,7 +85,11 @@ class SceneStack:
         new_scene.on_enter(payload)
 
     def pop(self, result: Optional[Any] = None) -> None:
-        """Removes the top scene, returning to the previous one"""
+        """Removes the top scene, returning to the previous one.
+
+        Args:
+            result: Optional result passed to the previous scene.
+        """
         if not self.stack:
             return
 
@@ -76,6 +105,10 @@ class SceneStack:
         """Swaps the top scene for another, keeping the stack depth.
 
         The scene below is never resumed, so it gets no callback.
+
+        Args:
+            name: Id of the replacement scene.
+            payload: Optional data passed to the new scene.
         """
         new_scene = self._build(name)
 
@@ -86,13 +119,17 @@ class SceneStack:
         new_scene.on_enter(payload)
 
     def quit(self) -> None:
-        """Unwinds the whole stack and flags the game to stop."""
+        """Unwinds the whole stack and flags the game to stop"""
         while self.stack:
             self.stack.pop().on_exit()
         self.should_quit = True
 
     def apply_transition(self, intent: Transition) -> None:
-        """Carries out what a scene asked for, once its update returned."""
+        """Carries out what a scene asked for, once its update returned.
+
+        Args:
+            intent: Transition requested by the current scene.
+        """
         if intent is None:
             return
         if isinstance(intent, Push):
@@ -105,7 +142,11 @@ class SceneStack:
             self.quit()
 
     def update(self, inputs: InputState) -> None:
-        """Only update the top-most scene on the stack"""
+        """Only update the top-most scene on the stack.
+
+        Args:
+            inputs: Current input state.
+        """
         if not self.stack:
             return
 
@@ -116,7 +157,11 @@ class SceneStack:
         self.apply_transition(intent)
 
     def draw(self, window: Window) -> None:
-        """Render the top scene, plus any scenes it overlays."""
+        """Render the top scene, plus any scenes it overlays.
+
+        Args:
+            window: Window used to draw the scenes.
+        """
         if not self.stack:
             return
 

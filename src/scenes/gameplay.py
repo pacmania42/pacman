@@ -15,6 +15,11 @@ from src.ui.game_view import GameView
 
 class GameplayScene(Scene):
     def __init__(self, ctx: Context) -> None:
+        """Create the gameplay scene.
+
+        Args:
+            ctx: Shared game context.
+        """
         super().__init__()
         self.stg = Settings()
         self.config = ctx.config
@@ -23,6 +28,14 @@ class GameplayScene(Scene):
         self.leaving = False
 
     def update(self, inputs: InputState) -> Transition:
+        """Update the game and handle player input.
+
+        Args:
+            inputs: Current input state.
+
+        Returns:
+            The requested scene transition, or None.
+        """
         if self.game.status == GameStatus.OVER:
             return Replace(
                 SceneId.GAMEOVER,
@@ -52,9 +65,19 @@ class GameplayScene(Scene):
         return None
 
     def draw(self, window: Window) -> None:
+        """Draw the current game state.
+
+        Args:
+            window: Window used for drawing.
+        """
         self.view.draw(window, self.game)
 
     def on_resume(self, result: Optional[Any] = None) -> None:
+        """Resume the game after the pause scene closes.
+
+        Args:
+            result: Result returned by the pause scene.
+        """
         if result is PauseChoice.MAIN_MENU:
             self.leaving = True
         else:
