@@ -6,11 +6,31 @@ from .models import Actor, Region
 
 
 class PlayerError(Exception):
+    """Raised when an error occurs while handling the player."""
+
     pass
 
 
 class Player(Actor):
+    """Represents the player-controlled actor in the maze.
+
+    The player starts in the center region of the maze and uses the
+    configured number of lives, movement speed, and acceleration.
+
+    Args:
+        cfg: Game configuration containing player settings and cheat options.
+    """
+
     def __init__(self, cfg: Config) -> None:
+        """Initialize the player.
+
+        The player's initial speed and acceleration depend on whether the
+        speedy-player cheat is enabled.
+
+        Args:
+            cfg: Game configuration used to determine the player's lives,
+                movement settings, and cheat state.
+        """
         value = 0
         lives = cfg.lives
         region = Region.CENTER
@@ -36,6 +56,12 @@ class Player(Actor):
         )
 
     def get_eaten(self) -> None:
+        """Handle the player being eaten.
+
+        One life is removed from the player. If the player still has
+        remaining lives, the player enters the dying state and will
+        subsequently respawn.
+        """
         self.lives -= 1
         if self.lives:
             self.die()
