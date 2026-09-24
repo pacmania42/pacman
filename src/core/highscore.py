@@ -16,10 +16,20 @@ class HighscoreItem(BaseModel):
 
 class HighScore:
     def __init__(self, filename: str):
+        """Create a highscore table and load its data.
+
+        Args:
+            filename: Path to the highscore file.
+        """
         self.file = Path(filename)
         self.data = self.loadfile()
 
     def loadfile(self) -> list[HighscoreItem]:
+        """Load highscore entries from the file.
+
+        Returns:
+            The loaded highscore entries.
+        """
         try:
             content = self.file.read_text(encoding="utf-8")
         except FileNotFoundError as e:
@@ -42,6 +52,11 @@ class HighScore:
         return items
 
     def backup(self) -> list[HighscoreItem]:
+        """Move the invalid highscore file to a backup file.
+
+        Returns:
+            An empty highscore list.
+        """
         backup = self.file.with_name(self.file.name + ".bak")
         print(f"Invalid highscore file, moved to {backup.name}")
         try:
@@ -51,6 +66,15 @@ class HighScore:
         return []
 
     def add(self, name: str, score: int) -> HighscoreItem:
+        """Add a score and keep the table within its maximum size.
+
+        Args:
+            name: Name of the player.
+            score: Player score.
+
+        Returns:
+            The added highscore item.
+        """
         item = HighscoreItem(name=name, score=score)
         self.data.append(item)
         self.data.sort(key=lambda x: x.score, reverse=True)
@@ -67,6 +91,7 @@ class HighScore:
         return score > min(item.score for item in self.data)
 
     def save_to_file(self) -> None:
+        """Save the current highscore table to the file"""
         json_data = TypeAdapter(list[HighscoreItem]).dump_json(
             self.data, indent=2
         )

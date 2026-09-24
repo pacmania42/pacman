@@ -31,6 +31,13 @@ class ActorAnim:
     def __init__(
         self, idle: Animation, walk: Animation, death: Animation | None = None
     ) -> None:
+        """Create actor animations.
+
+        Args:
+            idle: Idle animation.
+            walk: Walking animation.
+            death: Optional death animation.
+        """
         self.idle = idle
         self.walk = walk
         self.death = death
@@ -42,6 +49,16 @@ class ActorAnim:
     def frame(
         self, window: Window, clock: float, actor: Player | Ghost
     ) -> Frame:
+        """Get the current animation frame for an actor.
+
+        Args:
+            window: Window containing the actor sprites.
+            clock: Current animation time.
+            actor: Actor to animate.
+
+        Returns:
+            The current animation frame.
+        """
         anim = self.walk if actor.is_moving else self.idle
         if actor.state is ActorState.DYING and self.death:
             anim = self.death
@@ -61,6 +78,11 @@ class GameView:
     """Renders the gameplay"""
 
     def __init__(self, stg: Settings) -> None:
+        """Create the game view.
+
+        Args:
+            stg: Game display settings.
+        """
         self.stg = stg
         self.clock = 0.0
         self.player_anim = ActorAnim(PLAYER_IDLE, PLAYER_WALK, PLAYER_DEATH)
@@ -74,10 +96,20 @@ class GameView:
         )
 
     def tick(self, dt: float) -> None:
-        """Advance the animation clock"""
+        """Advance the animation clock.
+
+        Args:
+            dt: Time elapsed since the previous frame.
+        """
         self.clock += dt
 
     def draw(self, window: Window, game: GameState) -> None:
+        """Draw the current game state.
+
+        Args:
+            window: Window used for drawing.
+            game: Current game state.
+        """
         self._draw_maze(window, game.maze)
         self._draw_pacgums(window, game.pacgums)
         self._draw_superpacgums(window, game.superpacgums)
@@ -90,6 +122,13 @@ class GameView:
         """draw score, lives and time
 
         returns the y of the next line
+
+        Args:
+            window: Window used for drawing.
+            game: Current game state.
+
+        Returns:
+            The y position of the next line.
         """
         top = window.height - 35
         pad = theme.GAP // 2
@@ -107,6 +146,14 @@ class GameView:
     def _draw_info(
         self, window: Window, y: int, score: int, level: int
     ) -> None:
+        """Draw the score and level.
+
+        Args:
+            window: Window used for drawing.
+            y: Vertical text position.
+            score: Current player score.
+            level: Current level number.
+        """
         window.put_text(0, y, "SCORE", theme.MUTED, theme.SCALE_BODY)
         window.put_text(
             window.text_width("SCORE ", theme.SCALE_BODY),
@@ -131,6 +178,15 @@ class GameView:
     def _draw_lives(
         self, window: Window, y: int, band: int, width: int, lives: float
     ) -> None:
+        """Draw the player's remaining lives.
+
+        Args:
+            window: Window used for drawing.
+            y: Top position of the HUD band.
+            band: Height of the HUD band.
+            width: Width available for centering.
+            lives: Number of remaining lives.
+        """
         heart = window.sprites.still(SpriteId.HEART)
         count = max(0, int(lives))
         slot = heart.width + theme.GAP // 2
@@ -142,6 +198,14 @@ class GameView:
     def _draw_time(
         self, window: Window, y: int, width: int, left: float
     ) -> None:
+        """Draw the remaining game time.
+
+        Args:
+            window: Window used for drawing.
+            y: Vertical text position.
+            width: Width available for right alignment.
+            left: Remaining time in seconds.
+        """
         left = max(0.0, left)
         color = theme.TEXT
         if left <= 10:  # last 10 seconds
@@ -160,6 +224,12 @@ class GameView:
         )
 
     def _draw_maze(self, window: Window, maze: Maze) -> None:
+        """Draw the maze and its walls.
+
+        Args:
+            window: Window used for drawing.
+            maze: Maze to draw.
+        """
         maze_width = maze.width * self.stg.cell_dim
         maze_height = maze.height * self.stg.cell_dim
 
@@ -209,7 +279,14 @@ class GameView:
         anim: ActorAnim,
         tint: int | None = None,
     ) -> None:
-        """draw blit of the actor's current frame"""
+        """draw blit of the actor's current frame
+
+        Args:
+            window: Window used for drawing.
+            actor: Actor to draw.
+            anim: Animation state for the actor.
+            tint: Optional color tint for the actor.
+        """
         if not actor.lives:
             return
         frame = anim.frame(window, self.clock, actor)
@@ -225,9 +302,23 @@ class GameView:
         )
 
     def _draw_player(self, window: Window, player: Player) -> None:
+        """Draw the player.
+
+        Args:
+            window: Window used for drawing.
+            player: Player to draw.
+        """
         self._draw_actor(window, player, self.player_anim)
 
     def _ghost_tint(self, frightened_left: float) -> int | None:
+        """Get the tint for frightened ghosts.
+
+        Args:
+            frightened_left: Remaining frightened time in seconds.
+
+        Returns:
+            The ghost tint, or None if ghosts are not frightened.
+        """
         if frightened_left <= 0:
             return None
         blink = int(self.clock * 2 * 4) % 2
@@ -238,6 +329,13 @@ class GameView:
     def _draw_ghosts(
         self, window: Window, ghosts: set[Ghost], tint: int | None
     ) -> None:
+        """Draw all ghosts.
+
+        Args:
+            window: Window used for drawing.
+            ghosts: Ghosts to draw.
+            tint: Optional tint for frightened ghosts.
+        """
         for ghost, anim in zip(ghosts, self.ghost_anims, strict=True):
             self._draw_actor(window, ghost, anim, tint)
 
@@ -246,6 +344,12 @@ class GameView:
         window: Window,
         superpacgums: set[SuperPacgum],
     ) -> None:
+        """Draw all remaining super pac-gums.
+
+        Args:
+            window: Window used for drawing.
+            superpacgums: Super pac-gums to draw.
+        """
         frame = window.sprites.frame(SUPERGUM, self.clock)
         x_pad = frame.width // 2
         y_pad = frame.height // 2
@@ -256,6 +360,12 @@ class GameView:
             window.blit(frame, floor(x), floor(y))
 
     def _draw_pacgums(self, window: Window, pacgums: set[Pacgum]) -> None:
+        """Draw all remaining pac-gums.
+
+        Args:
+            window: Window used for drawing.
+            pacgums: Pac-gums to draw.
+        """
         gum = window.sprites.still(SpriteId.GUM)
         x_pad = gum.width // 2
         y_pad = gum.height // 2

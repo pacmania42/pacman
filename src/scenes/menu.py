@@ -9,32 +9,67 @@ from src.ui import theme, ui
 
 class Menu:
     def __init__(self, items: list[str]) -> None:
+        """Create a menu with the given items.
+
+        Args:
+            items: Menu item labels.
+        """
         self.items: list[str] = items
         self.current: int = 0
 
     def _move(self, n: int) -> None:
+        """Move the current selection by a number of items.
+
+        Args:
+            n: Number of positions to move.
+        """
         self.current = (n + self.current) % len(self.items)
 
     def move_down(self) -> None:
+        """Move the selection down by one item."""
         self._move(1)
 
     def move_up(self) -> None:
+        """Move the selection up by one item."""
         self._move(-1)
 
     def get_items(self) -> list[str]:
+        """Return all menu items.
+
+        Returns:
+            The menu item labels.
+        """
         return self.items
 
     def get_item(self) -> str:
+        """Return the currently selected item.
+
+        Returns:
+            The selected menu item label.
+        """
         return self.items[self.current]
 
 
 class MenuScene(Scene):
     def __init__(self, ctx: Context) -> None:
+        """Create the main menu scene.
+
+        Args:
+            ctx: Shared game context.
+        """
         super().__init__()
 
         self.menu = Menu(["Start", "Instructions", "Highscore", "Exit"])
 
     def update(self, inputs: InputState) -> Transition:
+        """Handle menu input and return the requested transition.
+
+        Args:
+            inputs: Current input state.
+
+        Returns:
+            The requested scene transition, or None.
+        """
         if inputs.was_pressed(Action.DOWN):
             self.menu.move_down()
         elif inputs.was_pressed(Action.UP):
@@ -54,12 +89,24 @@ class MenuScene(Scene):
         return None
 
     def draw(self, window: Window) -> None:
+        """Draw the main menu.
+
+        Args:
+            window: Window used for drawing.
+        """
         top = self._draw_wordmark(window)
         self._draw_items(window, top)
         ui.footer(window, "ARROWS  move      SPACE  select      ESC  quit")
 
     def _draw_wordmark(self, window: Window) -> int:
-        """The oversized title, underlined by the four colors"""
+        """The oversized title, underlined by the four colors
+
+        Args:
+            window: Window used for drawing.
+
+        Returns:
+            The bottom position of the wordmark.
+        """
         title = "PAC-MAN"
         top = 90
         width = window.text_width(title, theme.SCALE_HERO)
@@ -71,6 +118,12 @@ class MenuScene(Scene):
         )
 
     def _draw_items(self, window: Window, top: int) -> None:
+        """Draw the menu items.
+
+        Args:
+            window: Window used for drawing.
+            top: Top position of the menu.
+        """
         items = self.menu.get_items()
         top = ui.block_top(window, top, ui.menu_height(window, len(items)))
         ui.menu(window, top, items, self.menu.current)

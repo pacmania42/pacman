@@ -20,6 +20,15 @@ class Level(BaseModel):
     @field_validator("width", "height", mode="before")
     @classmethod
     def clamp_fields(cls, v: int, info: ValidationInfo) -> int:
+        """Validate a level size and use the default if invalid.
+
+        Args:
+            v: Value to validate.
+            info: Validation field information.
+
+        Returns:
+            The valid value or the default value.
+        """
         if not info.field_name:
             return 10
         default: int = cls.model_fields[info.field_name].default
@@ -55,6 +64,11 @@ class ConfigError(Exception):
 
 class ConfigLoader:
     def load(self) -> Config:
+        """Load the config file from the command line.
+
+        Returns:
+            The loaded configuration.
+        """
         parser = ArgumentParser(
             prog="uv run python pac-man.py",
             description="Pacman clone.",
@@ -72,6 +86,17 @@ class ConfigLoader:
         return self.parse(Path(args.config))
 
     def read_config_file(self, filename: Path) -> list[str]:
+        """Read the config file and return its lines.
+
+        Args:
+            filename: Path to the config file.
+
+        Returns:
+            The lines from the config file.
+
+        Raises:
+            ConfigError: If the file cannot be read.
+        """
         try:
             with open(filename, encoding="utf-8") as file:
                 return file.readlines()
@@ -79,6 +104,14 @@ class ConfigLoader:
             raise ConfigError(e) from e
 
     def strip_comments(self, lines: list[str]) -> str:
+        """Remove full-line comments from config lines.
+
+        Args:
+            lines: Config file lines.
+
+        Returns:
+            The config content without comments.
+        """
         res = []
         for line in lines:
             if line.lstrip().startswith("#"):
@@ -87,6 +120,17 @@ class ConfigLoader:
         return "".join(res)
 
     def parse(self, filename: Path) -> Config:
+        """Parse and validate a config file.
+
+        Args:
+            filename: Path to the config file.
+
+        Returns:
+            The validated configuration.
+
+        Raises:
+            ConfigError: If the config cannot be parsed or is invalid.
+        """
         lines = self.read_config_file(filename)
         content = self.strip_comments(lines)
 
@@ -125,6 +169,17 @@ class ConfigLoader:
                     data.pop(key)
 
     def coerce_to_dict(self, data: Any) -> dict[str, Any]:
+        """Convert config data to a dictionary.
+
+        Args:
+            data: Parsed config data.
+
+        Returns:
+            The config data as a dictionary.
+
+        Raises:
+            ConfigError: If the data is not a list or dictionary.
+        """
         if isinstance(data, list):
             data = {"levels": data}
         if isinstance(data, dict):

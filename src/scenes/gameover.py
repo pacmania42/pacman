@@ -26,6 +26,11 @@ class GameOverScene(Scene):
     """Game over screen, won or lost"""
 
     def __init__(self, ctx: Context) -> None:
+        """Create the game over scene.
+
+        Args:
+            ctx: Shared game context.
+        """
         super().__init__()
         self.highscore = ctx.highscore
         self.won = False
@@ -35,15 +40,22 @@ class GameOverScene(Scene):
         self.repeat_at = REPEAT_DELAY
 
     def on_enter(self, payload: Optional[Any] = None) -> None:
+        """Set the game result when the scene is entered.
+
+        Args:
+            payload: Game result passed to the scene.
+        """
         if isinstance(payload, GameResult):
             self.won, self.score = payload.won, payload.score
 
     @property
     def name(self) -> str:
+        """Return the name currently entered."""
         return "".join(WHEEL[index] for index in self.slots).strip()
 
     @property
     def done(self) -> bool:
+        """Return whether name entry is complete."""
         return (
             self.slots[self.cursor] == BLANK
             or self.cursor == NAME_MAX_LENGTH - 1
@@ -51,9 +63,18 @@ class GameOverScene(Scene):
 
     @property
     def qualifies(self) -> bool:
+        """Return whether the score qualifies for the highscore table."""
         return self.highscore.qualifies(self.score)
 
     def update(self, inputs: InputState) -> Transition:
+        """Handle input and return the requested scene transition.
+
+        Args:
+            inputs: Current input state.
+
+        Returns:
+            The requested scene transition, or None.
+        """
         if inputs.was_pressed(Action.BACK):
             return Pop()
         if not self.qualifies:
@@ -72,13 +93,21 @@ class GameOverScene(Scene):
         return None
 
     def _save(self) -> Transition:
-        """record the entry and show it in the highscore"""
+        """record the entry and show it in the highscore
+
+        Returns:
+            The transition to the highscore scene.
+        """
         item = self.highscore.add(self.name, self.score)
         self.highscore.save_to_file()
         return Replace(SceneId.HIGHSCORE, item)
 
     def _turn(self, inputs: InputState) -> None:
-        """turn the wheel under the cursor"""
+        """turn the wheel under the cursor
+
+        Args:
+            inputs: Current input state.
+        """
         for action, step in ((Action.DOWN, 1), (Action.UP, -1)):
             if inputs.was_pressed(action):
                 self._step(step)
@@ -90,9 +119,19 @@ class GameOverScene(Scene):
                 return
 
     def _step(self, step: int) -> None:
+        """Move the current wheel character by one step.
+
+        Args:
+            step: Amount to move the character.
+        """
         self.slots[self.cursor] = (self.slots[self.cursor] + step) % len(WHEEL)
 
     def draw(self, window: Window) -> None:
+        """Draw the game over screen.
+
+        Args:
+            window: Window used for drawing.
+        """
         top = self._draw_banner(window)
         if self.qualifies:
             self._draw_entry(window, top)
@@ -102,11 +141,27 @@ class GameOverScene(Scene):
             ui.footer(window, "ENTER   back to menu")
 
     def _draw_banner(self, window: Window) -> int:
+        """Draw the victory or defeat banner.
+
+        Args:
+            window: Window used for drawing.
+
+        Returns:
+            The bottom position of the banner.
+        """
         if self.won:
             return self._draw_victory(window)
         return self._draw_defeat(window)
 
     def _draw_victory(self, window: Window) -> int:
+        """Draw the victory banner and player sprites.
+
+        Args:
+            window: Window used for drawing.
+
+        Returns:
+            The bottom position of the banner.
+        """
         word, scale = "VICTORY", theme.SCALE_HERO
         x, width = theme.MARGIN, window.width - 2 * theme.MARGIN
         shift = ui.rule_shift(self.clock * 2)
@@ -135,6 +190,14 @@ class GameOverScene(Scene):
         return y + theme.GAP
 
     def _draw_defeat(self, window: Window) -> int:
+        """Draw the defeat banner and player sprite.
+
+        Args:
+            window: Window used for drawing.
+
+        Returns:
+            The bottom position of the banner.
+        """
         y = ui.screen_title(window, theme.MARGIN // 2, "GAME OVER")
         frame = window.sprites.frame(PLAYER_IDLE, self.clock)
         window.blit(frame, (window.width - frame.width) // 2, y)
@@ -148,6 +211,15 @@ class GameOverScene(Scene):
         return y + theme.GAP
 
     def _draw_score(self, window: Window, y: int) -> int:
+        """Draw the current score.
+
+        Args:
+            window: Window used for drawing.
+            y: Top position of the score.
+
+        Returns:
+            The bottom position of the score.
+        """
         y = ui.centered(
             window,
             y,
@@ -164,12 +236,25 @@ class GameOverScene(Scene):
         )
 
     def _score_height(self, window: Window) -> int:
+        """Return the height needed to display the score.
+
+        Args:
+            window: Window used for measuring text.
+
+        Returns:
+            The score height in pixels.
+        """
         return window.text_height(theme.SCALE_HEADING) + window.text_height(
             theme.SCALE_TITLE
         )
 
     def _draw_score_only(self, window: Window, top: int) -> None:
-        """no name to ask for, score did't make to top highscores"""
+        """no name to ask for, score did't make to top highscores
+
+        Args:
+            window: Window used for drawing.
+            top: Top position of the score block.
+        """
         note = f"not enough for the top {LIST_MAX_SIZE}"
         height = (
             self._score_height(window)
@@ -181,6 +266,12 @@ class GameOverScene(Scene):
         ui.centered(window, y, note, ui.reveal(theme.MUTED, 2, self.clock))
 
     def _draw_entry(self, window: Window, top: int) -> None:
+        """Draw the score and name entry form.
+
+        Args:
+            window: Window used for drawing.
+            top: Top position of the entry block.
+        """
         prompt_height = window.text_height(theme.SCALE_HEADING)
         height = (
             self._score_height(window)
@@ -203,6 +294,12 @@ class GameOverScene(Scene):
     def _reel_rows(self, window: Window) -> tuple[int, int, int, int]:
         """heights of the four rows of the reel:
         letter above, letter itself, underline, letter below
+
+        Args:
+            window: Window used for measuring text.
+
+        Returns:
+            The vertical positions of the four reel rows.
         """
         above = 0
         letter = above + window.text_height(theme.SCALE_TITLE)
@@ -211,12 +308,25 @@ class GameOverScene(Scene):
         return above, letter, rule, below
 
     def _reel_height(self, window: Window) -> int:
+        """Return the total height of the name reel.
+
+        Args:
+            window: Window used for measuring text.
+
+        Returns:
+            The reel height in pixels.
+        """
         return self._reel_rows(window)[-1] + window.text_height(
             theme.SCALE_TITLE
         )
 
     def _draw_reel(self, window: Window, top: int) -> None:
-        """letter above, letter itself, underline, letter below"""
+        """letter above, letter itself, underline, letter below
+
+        Args:
+            window: Window used for drawing.
+            top: Top position of the reel.
+        """
         big, small = theme.SCALE_HERO, theme.SCALE_TITLE
         above, letter, rule, below = self._reel_rows(window)
         width = max(window.text_width(char, big) for char in WHEEL)
@@ -250,11 +360,26 @@ class GameOverScene(Scene):
         color: int,
         scale: int,
     ) -> None:
-        """draw one character, centered"""
+        """draw one character, centered
+
+        Args:
+            window: Window used for drawing.
+            x: Left position of the character area.
+            y: Top position of the character.
+            width: Width of the character area.
+            char: Character to draw.
+            color: Character color.
+            scale: Character scale.
+        """
         pad = (width - window.text_width(char, scale)) // 2
         window.put_text(x + pad, y, char, color, scale)
 
     def _hint(self) -> str:
+        """Return the controls shown at the bottom of the screen.
+
+        Returns:
+            The control hint text.
+        """
         confirm = "save" if self.done else "next"
         return (
             "UP DOWN  letter      LEFT RIGHT  slot      "

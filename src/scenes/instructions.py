@@ -10,6 +10,11 @@ from src.ui import theme, ui
 
 class InstructionsScene(Scene):
     def __init__(self, ctx: Context) -> None:
+        """Create the instructions scene.
+
+        Args:
+            ctx: Shared game context.
+        """
         super().__init__()
         self.instructions: list[str] = [
             "HOW TO PLAY",
@@ -31,11 +36,24 @@ class InstructionsScene(Scene):
         ]
 
     def update(self, inputs: InputState) -> Transition:
+        """Handle input and return the requested scene transition.
+
+        Args:
+            inputs: Current input state.
+
+        Returns:
+            The requested scene transition, or None.
+        """
         if inputs.was_pressed(Action.BACK):
             return Pop()
         return None
 
     def draw(self, window: Window) -> None:
+        """Draw the instructions screen.
+
+        Args:
+            window: Window used for drawing.
+        """
         top = ui.screen_title(
             window,
             theme.MARGIN // 2,
