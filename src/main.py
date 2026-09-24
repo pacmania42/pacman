@@ -11,7 +11,31 @@ from src.core.window import Window
 
 
 class Game:
+    """Main application controller.
+
+    The game initializes the application context, input handling, scene
+    stack, and rendering window. It then enters the MLX event loop and
+    updates and renders the active scene at the configured tick rate.
+
+    Args:
+        ctx: Application context containing shared game resources and
+            configuration.
+
+    Attributes:
+        ctx: Application-wide context.
+        scenes: Stack containing the currently active game scenes.
+        input: Tracks and processes user input.
+        window: MLX window used for rendering.
+        last_tick: Monotonic timestamp of the previous game update.
+    """
+
     def __init__(self, ctx: Context) -> None:
+        """Initialize the game and start the main window loop.
+
+        Args:
+            ctx: Application context containing configuration and shared
+                resources.
+        """
         self.ctx = ctx
         self.scenes = SceneStack(self.ctx)
         events = EventBuffer()
@@ -21,6 +45,18 @@ class Game:
         self.window.show()
 
     def game_loop(self, _: Any) -> None:
+        """Process one iteration of the application event loop.
+
+        The game loop limits updates according to the configured tick
+        interval. When an update is due, input is processed, the active
+        scenes are updated and drawn, and the resulting back buffer is
+        displayed.
+
+        If the scene stack requests termination, the MLX window is closed.
+
+        Args:
+            _: Event parameter supplied by MLX. It is intentionally unused.
+        """
         now = time.monotonic()
         if now >= self.last_tick + Settings.tick:
             self.last_tick = now
@@ -34,6 +70,12 @@ class Game:
 
 
 def main() -> None:
+    """Load configuration and start the game.
+
+    Configuration errors are printed and prevent the game from starting.
+    When configuration loading succeeds, the application context is created
+    with the configured highscore storage and passed to :class:`Game`.
+    """
     try:
         config = ConfigLoader().load()
     except ConfigError as e:
