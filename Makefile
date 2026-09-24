@@ -20,7 +20,7 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
 	rm -rf .mypy_cache .pytest_cache .ruff_cache
-	rm -rf dist/
+	rm -rf dist/ build
 	rm -rf $(SYNC)
 
 clean-all: clean
@@ -45,8 +45,9 @@ format:
 	$(RUFF_PREFIX) ruff format .
 	$(RUFF_PREFIX) ruff check --fix .
 
-build:
+build: install
 	uv run pyinstaller pacman.spec
+	# uv run pyinstaller --name pacman --windowed --noconfirm --add-data src/assets:src/assets pac-man.py --icon pacman-icon.ico --onefile --collect-all mlx
 
 re: clean-all run
 
