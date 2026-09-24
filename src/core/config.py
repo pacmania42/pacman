@@ -1,4 +1,5 @@
 import json
+import sys
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any
@@ -59,7 +60,13 @@ class ConfigLoader:
             description="Pacman clone.",
         )
         parser.add_argument(
-            "config", metavar="<CONFIG>", default="config.json", nargs="?"
+            "config",
+            metavar="<CONFIG>",
+            default=Path(
+                getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[2])
+            )
+            / "config.json",
+            nargs="?",
         )
         args = parser.parse_args()
         return self.parse(Path(args.config))

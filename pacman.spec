@@ -1,14 +1,19 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
 
-mlx_datas, mlx_binaries, mlx_hidden = collect_all("mlx")
+datas = [('src/assets', 'src/assets'), ("config.json", ".")]
+binaries = []
+hiddenimports = []
+tmp_ret = collect_all('mlx')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+
 
 a = Analysis(
-    ["pac-man.py"],
+    ['pac-man.py'],
     pathex=[],
-    binaries=mlx_binaries,
-    datas=[("src/assets", "src/assets"), ("config.json", ".")] + mlx_datas,
-    hiddenimports=mlx_hidden,
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -21,27 +26,21 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.datas,
     [],
-    exclude_binaries=True,
-    name="pacman",
+    name='pacman',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
     console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=["pacman-icon.ico"],
-)
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name="pacman",
+    icon=['pacman-icon.ico'],
 )
