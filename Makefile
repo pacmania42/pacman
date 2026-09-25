@@ -7,9 +7,6 @@ MYPY_FLAGS := --warn-return-any --warn-unused-ignores \
 run: install
 	uv run python3 pac-man.py config.json
 
-cheat: install
-	uv run python3 pac-man.py config-cheat.json
-
 install: $(SYNC)
 
 $(SYNC): pyproject.toml
@@ -52,5 +49,5 @@ build: install
 re: clean-all run
 
 	
-.PHONY: run cheat install clean clean-all lint lint-strict debug test \
+.PHONY: run install clean clean-all lint lint-strict debug test \
         format build re
