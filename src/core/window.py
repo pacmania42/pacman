@@ -1,3 +1,5 @@
+import os
+import sys
 from typing import Any, Callable, Optional, Protocol
 
 from mlx.mlx import Mlx
@@ -6,6 +8,10 @@ from src.core.font import PixelFont
 from src.core.image import Image, ImageError
 from src.core.settings import Settings
 from src.core.sprite import Frame, Sprites
+
+
+class WindowError(Exception):
+    """Raised when the mlx context or the window cannot be created."""
 
 
 class EventSink(Protocol):
@@ -38,14 +44,23 @@ class Window:
         """
         self.width = Settings.win_width
         self.height = Settings.win_height
+        # mlx segfaults when no X server is reachable
+        # we don't cover a wrong DISPLAY (this would segfaults anyway)
+        on_linux = sys.platform.startswith("linux")
+        if on_linux and not os.environ.get("DISPLAY"):
+            raise WindowError("no display available (DISPLAY is not set)")
         self.mlx = Mlx()
         self.mlx_ptr = self.mlx.mlx_init()
+        if not self.mlx_ptr:
+            raise WindowError("cannot initialize mlx")
         self.win_ptr = self.mlx.mlx_new_window(
             self.mlx_ptr,
             Settings.win_width,
             Settings.win_height,
             Settings.window_title,
         )
+        if not self.win_ptr:
+            raise WindowError("cannot create the game window")
 
         self.img_ptr = self.mlx.mlx_new_image(
             self.mlx_ptr, Settings.win_width, Settings.win_height
