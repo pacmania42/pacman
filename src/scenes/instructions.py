@@ -16,17 +16,19 @@ class InstructionsScene(Scene):
             ctx: Shared game context.
         """
         super().__init__()
+        cfg = ctx.config
         self.instructions: list[str] = [
             "HOW TO PLAY",
             "Eat every dot in the maze to clear the level.",
             "Ghosts chase you. Touching one costs a life.",
             "Power pellets scare the ghosts for a few seconds:",
             "eat them while they are scared for bonus points.",
-            "You start with 3 lives. No lives, game over.",
+            f"You start with {cfg.lives} lives. No lives, game over.",
             "",
             "POINTS",
-            "dot ................ 10      ghost ........  200",
-            "power pellet ... 50",
+            f"dot ................ {cfg.points_per_pacgum}",
+            f"power pellet ... {cfg.points_per_superpacgum}",
+            f"ghost .............. {cfg.points_per_ghost}",
             "",
             "CONTROLS",
             "move ..... Arrows  or  W A S D",
