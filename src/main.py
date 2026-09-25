@@ -7,7 +7,7 @@ from src.core.highscore import HighScore
 from src.core.input import EventBuffer, InputTracker
 from src.core.scene_stack import SceneStack
 from src.core.settings import Settings
-from src.core.window import Window
+from src.core.window import Window, WindowError
 from src.entities.maze import MazeError
 
 
@@ -87,9 +87,12 @@ def main() -> None:
         print(e)
         return
 
-    Game(
-        Context(
-            config=config,
-            highscore=HighScore(config.highscore_filename),
+    try:
+        Game(
+            Context(
+                config=config,
+                highscore=HighScore(config.highscore_filename),
+            )
         )
-    )
+    except WindowError as e:
+        print(f"Error: {e}")
