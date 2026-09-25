@@ -43,7 +43,7 @@ class Level(BaseModel):
 
 
 class Config(BaseModel):
-    highscore_filename: str = Field(default="highscore.json")
+    highscore_filename: str = Field(min_length=1, default="highscore.json")
     lives: int = Field(ge=1, default=3)
     points_per_superpacgum: int = Field(ge=0, default=50)
     points_per_pacgum: int = Field(ge=0, default=50)
@@ -102,6 +102,8 @@ class ConfigLoader:
                 return file.readlines()
         except OSError as e:
             raise ConfigError(e) from e
+        except UnicodeDecodeError as e:
+            raise ConfigError(f"Config file is not valid UTF-8: {e}") from e
 
     def strip_comments(self, lines: list[str]) -> str:
         """Remove full-line comments from config lines.
