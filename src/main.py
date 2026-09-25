@@ -8,6 +8,7 @@ from src.core.input import EventBuffer, InputTracker
 from src.core.scene_stack import SceneStack
 from src.core.settings import Settings
 from src.core.window import Window
+from src.entities.maze import MazeError
 
 
 class Game:
@@ -60,7 +61,11 @@ class Game:
         now = time.monotonic()
         if now >= self.last_tick + Settings.tick:
             self.last_tick = now
-            self.scenes.update(self.input.begin_frame())
+            try:
+                self.scenes.update(self.input.begin_frame())
+            except MazeError as e:
+                print(f"Error: {e}")
+                self.scenes.quit()
             if self.scenes.should_quit:
                 self.window.exit(None)
                 return

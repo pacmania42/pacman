@@ -112,8 +112,11 @@ class Maze:
         self.width = width
         self.height = height
 
-        self._gen = MazeGenerator(size=(self.width, self.height))
-        self._gen.generate(seed if seed else 0)
+        try:
+            self._gen = MazeGenerator(size=(self.width, self.height))
+            self._gen.generate(seed if seed else 0)
+        except Exception as e:
+            raise MazeError(f"maze generator failed: {e}") from e
         self.grid = self._create_grid(self._gen.maze)
 
         self.pattern_ranges = self._get_pattern_ranges()
