@@ -33,13 +33,17 @@ class HighScore:
         try:
             content = self.file.read_text(encoding="utf-8")
         except FileNotFoundError as e:
-            path = Path(self.file)
-            path.write_text("[]", encoding="utf-8")
             print(f"File not found ({e}), creating new one")
+            try:
+                self.file.write_text("[]", encoding="utf-8")
+            except OSError as err:
+                print(f"Cannot create highscore file ({err})")
             return []
         except OSError as e:
             print(f"Cannot read highscores ({e}), starting empty")
             return []
+        except UnicodeDecodeError:
+            return self.backup()
 
         try:
             items: list[HighscoreItem] = TypeAdapter(
@@ -96,9 +100,9 @@ class HighScore:
             self.data, indent=2
         )
 
-        tmp = self.file.with_name(self.file.name + ".tmp")
         try:
+            tmp = self.file.with_name(self.file.name + ".tmp")
             tmp.write_bytes(json_data)
             os.replace(tmp, self.file)
-        except OSError as e:
+        except (OSError, ValueError) as e:
             print(f"Cannot save highscores: {e}")
